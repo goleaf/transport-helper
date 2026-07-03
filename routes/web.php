@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\Supply\ConvertProposalToSupplierOrderController;
+use App\Http\Controllers\Supply\AiEmailExtractionController;
+use App\Http\Controllers\Supply\EmailMessageController;
 use App\Http\Controllers\Supply\ImportBatchController;
 use App\Http\Controllers\Supply\OrderProposalController;
 use App\Http\Controllers\Supply\OrderProposalItemDecisionController;
@@ -38,4 +40,11 @@ Route::middleware(['web'])
         Route::post('supplier-orders/{order}/prepare-email', [SupplierOrderEmailController::class, 'prepare'])->name('supplier-orders.prepare-email');
         Route::post('supplier-orders/{order}/approve-email', [SupplierOrderEmailController::class, 'approve'])->name('supplier-orders.approve-email');
         Route::post('supplier-orders/{order}/send-email', [SupplierOrderEmailController::class, 'send'])->name('supplier-orders.send-email');
+
+        Route::get('emails', [EmailMessageController::class, 'index'])->name('emails.index');
+        Route::get('emails/{email}', [EmailMessageController::class, 'show'])->name('emails.show');
+        Route::get('ai-extractions/{extraction}', [AiEmailExtractionController::class, 'show'])->name('ai-extractions.show');
+        Route::post('ai-extractions/{extraction}/accept', [AiEmailExtractionController::class, 'accept'])->name('ai-extractions.accept');
+        Route::post('ai-extractions/{extraction}/reject', [AiEmailExtractionController::class, 'reject'])->name('ai-extractions.reject');
+        Route::post('ai-extractions/{extraction}/request-human-review', [AiEmailExtractionController::class, 'requestHumanReview'])->name('ai-extractions.request-human-review');
     });
