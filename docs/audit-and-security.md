@@ -110,3 +110,21 @@ Task 7 writes audit logs for:
 
 Audit metadata records order ids, export ids, filenames, recipient counts, attachment counts, sender provider, message ids and status changes.
 Full email bodies, file contents, credentials and provider secrets are not stored in audit metadata.
+
+## Inbound Email And AI Extraction Audit Events
+
+Task 8 writes audit logs for:
+
+* `email_ingestion_started`;
+* `email_received`;
+* `email_duplicate_skipped`;
+* `email_ingestion_completed`;
+* `email_ingestion_failed`;
+* `ai_extraction_created`;
+* `ai_extraction_validation_failed`;
+* `ai_extraction_accepted`;
+* `ai_extraction_rejected`;
+* `ai_extraction_marked_needs_review`.
+
+Audit metadata records message ids, sender, subject, supplier/order links, matching methods, attachment count, provider, prompt version, confidence and review decision.
+Full email bodies, attachment contents, credentials and external provider secrets are not stored in audit metadata.

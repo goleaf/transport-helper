@@ -14,6 +14,8 @@
             <h1>AI Email Extraction {{ $extraction->id }}</h1>
         </header>
 
+        <p>AI extraction is not applied directly. User acceptance only approves extracted data for later application.</p>
+
         @if (session('status'))
             <p>{{ session('status') }}</p>
         @endif
@@ -46,6 +48,9 @@
                 <dt>Requires human review</dt>
                 <dd>{{ $extraction->requires_human_review ? 'Yes' : 'No' }}</dd>
 
+                <dt>Review status</dt>
+                <dd>@include('supply.ai-extractions.partials.status-badge', ['extraction' => $extraction])</dd>
+
                 <dt>Review reason</dt>
                 <dd>{{ $extraction->review_reason }}</dd>
             </dl>
@@ -63,32 +68,23 @@
         </section>
 
         <section>
+            <h2>Extraction summary</h2>
+            @include('supply.ai-extractions.partials.output-summary', ['output' => $extraction->output_json ?? []])
+        </section>
+
+        <section>
             <h2>AI output</h2>
             <pre>{{ json_encode($extraction->output_json ?? [], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) }}</pre>
         </section>
 
         <section>
             <h2>Review actions</h2>
-            @if ($canAccept)
-                <form method="post" action="{{ route('supply.ai-extractions.accept', $extraction) }}">
-                    @csrf
-                    <button type="submit">Accept</button>
-                </form>
-            @endif
-
-            @if ($canReject)
-                <form method="post" action="{{ route('supply.ai-extractions.reject', $extraction) }}">
-                    @csrf
-                    <button type="submit">Reject</button>
-                </form>
-            @endif
-
-            @if ($canRequestHumanReview)
-                <form method="post" action="{{ route('supply.ai-extractions.request-human-review', $extraction) }}">
-                    @csrf
-                    <button type="submit">Request human review</button>
-                </form>
-            @endif
+            @include('supply.ai-extractions.partials.review-actions', [
+                'extraction' => $extraction,
+                'canAccept' => $canAccept,
+                'canReject' => $canReject,
+                'canRequestHumanReview' => $canRequestHumanReview,
+            ])
         </section>
     </main>
 </body>

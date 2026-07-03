@@ -11,13 +11,16 @@ class EmailMessagePolicy
 {
     public function viewAny(User $user): bool
     {
-        return $this->hasAnyRole($user, [
-            UserRole::Admin,
-            UserRole::SupplyManager,
-            UserRole::LogisticsManager,
-            UserRole::Accountant,
-            UserRole::Viewer,
-        ]);
+        return $this->hasPermission($user, 'review_ai_extractions')
+            || $this->hasPermission($user, 'approve_supplier_emails')
+            || $this->hasPermission($user, 'send_supplier_emails')
+            || $this->hasAnyRole($user, [
+                UserRole::Admin,
+                UserRole::SupplyManager,
+                UserRole::LogisticsManager,
+                UserRole::Accountant,
+                UserRole::Viewer,
+            ]);
     }
 
     public function view(User $user, EmailMessage $emailMessage): bool
@@ -32,6 +35,18 @@ class EmailMessagePolicy
     public function create(User $user): bool
     {
         return $this->manage($user);
+    }
+
+    public function createManual(User $user): bool
+    {
+        return $this->manage($user)
+            || $this->hasPermission($user, 'review_ai_extractions')
+            || $this->hasPermission($user, 'approve_supplier_emails');
+    }
+
+    public function analyze(User $user, EmailMessage $emailMessage): bool
+    {
+        return $this->hasPermission($user, 'review_ai_extractions') || $this->manage($user);
     }
 
     public function update(User $user, EmailMessage $emailMessage): bool

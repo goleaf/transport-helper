@@ -11,11 +11,40 @@
 
         <header>
             <h1>Supply Emails</h1>
+            <p><a href="{{ route('supply.emails.create-manual') }}">Manual inbound email</a></p>
         </header>
 
         @if (session('status'))
             <p>{{ session('status') }}</p>
         @endif
+
+        <form method="get" action="{{ route('supply.emails.index') }}">
+            <label>
+                Direction
+                <select name="direction">
+                    <option value="">Any</option>
+                    <option value="inbound" @selected(request('direction') === 'inbound')>Inbound</option>
+                    <option value="outbound" @selected(request('direction') === 'outbound')>Outbound</option>
+                </select>
+            </label>
+
+            <label>
+                Status
+                <input name="status" value="{{ request('status') }}">
+            </label>
+
+            <label>
+                From email
+                <input name="from_email" value="{{ request('from_email') }}">
+            </label>
+
+            <label>
+                Needs review
+                <input type="checkbox" name="needs_review" value="1" @checked(request()->boolean('needs_review'))>
+            </label>
+
+            <button type="submit">Filter</button>
+        </form>
 
         <table>
             <thead>

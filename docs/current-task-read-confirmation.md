@@ -16,8 +16,8 @@
 - docs/workflow-map.md
 - docs/status-machines.md
 - docs/decision-log.md
-- docs/order-proposal-workflow.md
-- docs/import-export-adapters.md
+- docs/email-ai-boundary.md
+- docs/supplier-order-email-workflow.md
 - docs/audit-and-security.md
 
 ## Headings Found In Current Task
@@ -38,18 +38,18 @@
 
 ## Understanding
 
-- Task Title: Build the supplier order export and outbound email workflow.
-- Task Goal: Add deterministic export, email draft, approval and safe sender-based send flow with audit and tests.
-- Required Reading: Project rules, workflow docs, order proposal docs, adapter docs and audit docs were reviewed before implementation.
-- Non-Negotiable Rules: No DTO, no app/Data, no AI, no real email providers, no unapproved sending and no secrets.
-- Scope: Export/email contracts, services, senders, requests, policies, controllers, routes, views, config, tests and docs are in scope.
-- Out Of Scope: Inbound email, AI extraction, form autofill, confirmations, carrier selection and real external providers are not part of this task.
-- Required Implementation: Supplier orders can be exported, drafted, approved and sent safely through the log sender while persisting email/export records.
-- Required Tests: Exporters, services, controllers, dependency boundary and no-DTO coverage are required.
-- Required Documentation: Supplier order email workflow docs and related workflow/audit/adapter/status roadmap docs must be updated.
-- Acceptance Criteria: Every required file, behavior, test/check, docs update, commit and push step must be tracked.
-- Required Commands: Guard scripts, migrate fresh seed, php artisan test and optional formatter/build must be run.
-- Commit Message: Use "Add supplier order export and email sending workflow".
+- Task Title: Implement the inbound email infrastructure and AI email extraction human review boundary.
+- Task Goal: Store inbound email and attachments, link suppliers/orders, analyze into separate AI extraction records, and require human review without mutating business records.
+- Required Reading: The task depends on strict project rules, AI boundary docs, workflow/status docs and the supplier order email workflow from the previous stage.
+- Non-Negotiable Rules: No DTO/app/Data, no real external calls, no real AI/email providers, no supplier confirmation/order/logistics mutation from AI output, and no unverified success claims.
+- Scope: Add or update email provider contracts, local/manual providers, placeholders, ingestion/matching/attachment services, AI analyzers, validation/review services, jobs, requests, policies, controllers, views, routes, config, tests and docs.
+- Out Of Scope: Do not implement form autofill, supplier confirmation application, carrier quote application, transport scoring, logistics application, real providers or automatic business mutation.
+- Required Implementation: Users can create/list/show emails, analyze inbound emails, see extraction output, and accept/reject/keep needs-review while the system stores evidence and audit logs.
+- Required Tests: Cover providers, matchers, ingestion, validation, analysis, review, controllers, jobs and no-DTO/no-business-mutation boundary.
+- Required Documentation: Create inbound email workflow docs and implementation notes, then update AI boundary, workflow, statuses, roadmap and audit/security docs.
+- Acceptance Criteria: The checklist below is binding for implementation and verification.
+- Required Commands: Run no-DTO, no-secrets, project-docs, migrate:fresh --seed, full tests, plus formatter/build when available.
+- Commit Message: Use `Add inbound email analysis and human review workflow`.
 
 ## Acceptance Criteria Copied
 
@@ -58,42 +58,57 @@
 - [ ] docs/current-task.md read from start to end.
 - [ ] docs/current-task-read-confirmation.md created.
 - [ ] docs/current-task-progress.md created.
-- [ ] SupplierOrderExporterInterface created.
-- [ ] EmailSenderInterface created.
-- [ ] CSV supplier order exporter created.
-- [ ] JSON supplier order exporter created.
-- [ ] Excel-compatible CSV exporter created.
-- [ ] PDF placeholder exporter created.
-- [ ] Supplier custom template placeholder exporter created.
-- [ ] SupplierOrderExportService created.
-- [ ] SupplierOrderEmailDraftService created.
-- [ ] SupplierOrderEmailApprovalService created.
-- [ ] SupplierOrderSendService created.
-- [ ] LogEmailSender created.
-- [ ] SMTP/Gmail/Microsoft sender placeholders created.
-- [ ] Supplier order export creates ExportFile.
-- [ ] Export files stored in private storage.
-- [ ] Export download route created.
-- [ ] Email draft creates outbound EmailMessage.
-- [ ] Email draft attaches export via EmailAttachment.
-- [ ] Email approval validates recipients, subject, body and attachment/no-attachment confirmation.
-- [ ] Email send blocked before approval.
-- [ ] Email send updates EmailMessage status sent.
-- [ ] Email send updates SupplierOrder status sent.
-- [ ] Email send updates LogisticsRecord status order_sent if available.
-- [ ] Email send is idempotency-protected by default.
-- [ ] Real external email providers not used in tests.
-- [ ] Audit events written.
-- [ ] Supplier order UI created/updated.
-- [ ] FormRequests created.
-- [ ] Policies created/updated.
-- [ ] Controllers created.
+- [ ] EmailProviderInterface created.
+- [ ] AiEmailAnalyzerInterface created.
+- [ ] ManualEmailProvider created.
+- [ ] Gmail provider placeholder created.
+- [ ] Microsoft Graph provider placeholder created.
+- [ ] IMAP provider placeholder created.
+- [ ] EmailIngestionService created.
+- [ ] SupplierEmailMatcher created.
+- [ ] SupplierOrderEmailMatcher created.
+- [ ] EmailAttachmentStorageService created.
+- [ ] FakeAiEmailAnalyzer created.
+- [ ] RuleBasedAiEmailAnalyzer created.
+- [ ] ExternalAiEmailAnalyzerPlaceholder created.
+- [ ] AiEmailAnalysisService created.
+- [ ] AiEmailExtractionValidationService created.
+- [ ] AiEmailExtractionReviewService created.
+- [ ] FetchEmailMessagesJob created.
+- [ ] AnalyzeInboundEmailJob created.
+- [ ] Manual inbound email request created.
+- [ ] Analyze inbound email request created.
+- [ ] Review AI extraction request created.
+- [ ] EmailMessagePolicy created/updated.
+- [ ] AiEmailExtractionPolicy created/updated.
+- [ ] Email controllers created.
+- [ ] AI extraction controllers created.
 - [ ] Routes created.
+- [ ] Views created.
+- [ ] Inbound email deduplication implemented.
+- [ ] Supplier matching by exact contact email implemented.
+- [ ] Supplier matching by unique domain implemented.
+- [ ] Supplier order matching by order number implemented.
+- [ ] Supplier order matching by thread_id implemented.
+- [ ] Attachments stored privately.
+- [ ] AI extraction stored separately.
+- [ ] AI extraction validation detects low confidence.
+- [ ] AI extraction validation detects unknown SKU.
+- [ ] AI extraction validation detects quantity mismatch.
+- [ ] Human review accept implemented.
+- [ ] Human review reject implemented.
+- [ ] Human review needs_review implemented.
+- [ ] Accepting extraction does not create SupplierConfirmation.
+- [ ] Accepting extraction does not update SupplierOrderItem.
+- [ ] Accepting extraction does not update LogisticsRecord.
+- [ ] Audit events written.
+- [ ] Config updated.
+- [ ] .env.example updated without secrets.
 - [ ] Tests created.
-- [ ] No AI dependency test created.
 - [ ] No DTO test updated.
-- [ ] docs/supplier-order-email-workflow.md created.
-- [ ] docs/supplier-order-email-workflow-implementation-notes.md created.
+- [ ] docs/inbound-email-ai-workflow.md created.
+- [ ] docs/inbound-email-ai-workflow-implementation-notes.md created.
+- [ ] docs/email-ai-boundary.md updated.
 - [ ] docs/workflow-map.md updated.
 - [ ] docs/status-machines.md updated.
 - [ ] docs/implementation-roadmap.md updated.
@@ -109,5 +124,3 @@
 - [ ] git status reviewed.
 - [ ] Commit created.
 - [ ] Push attempted.
-
-Do not start implementation until this file exists.

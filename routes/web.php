@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\Supply\AiEmailExtractionController;
+use App\Http\Controllers\Supply\AiEmailExtractionReviewController;
+use App\Http\Controllers\Supply\AnalyzeInboundEmailController;
 use App\Http\Controllers\Supply\CarrierQuoteDecisionController;
 use App\Http\Controllers\Supply\CarrierQuoteRequestController;
 use App\Http\Controllers\Supply\ConvertProposalToSupplierOrderController;
@@ -19,6 +21,7 @@ use App\Http\Controllers\Supply\LogisticsController;
 use App\Http\Controllers\Supply\LogisticsExportController;
 use App\Http\Controllers\Supply\LogisticsGoogleSheetsSyncController;
 use App\Http\Controllers\Supply\ManualCarrierQuoteController;
+use App\Http\Controllers\Supply\ManualInboundEmailController;
 use App\Http\Controllers\Supply\OrderProposalApprovalController;
 use App\Http\Controllers\Supply\OrderProposalController;
 use App\Http\Controllers\Supply\OrderProposalItemDecisionController;
@@ -49,7 +52,6 @@ Route::middleware(['web'])
         Route::get('inbound-orders', [SupplySectionController::class, 'show'])->defaults('section', 'inbound-orders')->name('inbound-orders.index');
         Route::get('reservations', [SupplySectionController::class, 'show'])->defaults('section', 'reservations')->name('reservations.index');
         Route::get('calculations', [SupplySectionController::class, 'show'])->defaults('section', 'calculations')->name('calculations.index');
-        Route::get('ai-extractions', [SupplySectionController::class, 'show'])->defaults('section', 'ai-extractions')->name('ai-extractions.index');
         Route::get('form-autofill-runs', [SupplySectionController::class, 'show'])->defaults('section', 'form-autofill-runs')->name('form-autofill-runs.index');
         Route::get('supplier-confirmations', [SupplySectionController::class, 'show'])->defaults('section', 'supplier-confirmations')->name('supplier-confirmations.index');
         Route::get('exports', [SupplySectionController::class, 'show'])->defaults('section', 'exports')->name('exports.index');
@@ -81,13 +83,18 @@ Route::middleware(['web'])
         Route::get('exports/{exportFile}/download', ExportDownloadController::class)->name('exports.download');
 
         Route::get('emails', [EmailMessageController::class, 'index'])->name('emails.index');
+        Route::get('emails/create-manual', [ManualInboundEmailController::class, 'create'])->name('emails.create-manual');
+        Route::post('emails/manual', [ManualInboundEmailController::class, 'store'])->name('emails.manual.store');
         Route::get('emails/{email}', [EmailMessageController::class, 'show'])->name('emails.show');
+        Route::post('emails/{email}/analyze', [AnalyzeInboundEmailController::class, 'store'])->name('emails.analyze');
         Route::get('emails/{email}/autofill', [EmailFormAutofillController::class, 'create'])->name('emails.autofill.create');
         Route::post('emails/{email}/autofill/preview', [EmailFormAutofillController::class, 'preview'])->name('emails.autofill.preview');
+        Route::get('ai-extractions', [AiEmailExtractionController::class, 'index'])->name('ai-extractions.index');
         Route::get('ai-extractions/{extraction}', [AiEmailExtractionController::class, 'show'])->name('ai-extractions.show');
-        Route::post('ai-extractions/{extraction}/accept', [AiEmailExtractionController::class, 'accept'])->name('ai-extractions.accept');
-        Route::post('ai-extractions/{extraction}/reject', [AiEmailExtractionController::class, 'reject'])->name('ai-extractions.reject');
-        Route::post('ai-extractions/{extraction}/request-human-review', [AiEmailExtractionController::class, 'requestHumanReview'])->name('ai-extractions.request-human-review');
+        Route::post('ai-extractions/{extraction}/review', [AiEmailExtractionReviewController::class, 'store'])->name('ai-extractions.review');
+        Route::post('ai-extractions/{extraction}/accept', [AiEmailExtractionReviewController::class, 'store'])->defaults('decision', 'accept')->name('ai-extractions.accept');
+        Route::post('ai-extractions/{extraction}/reject', [AiEmailExtractionReviewController::class, 'store'])->defaults('decision', 'reject')->name('ai-extractions.reject');
+        Route::post('ai-extractions/{extraction}/request-human-review', [AiEmailExtractionReviewController::class, 'store'])->defaults('decision', 'needs_review')->name('ai-extractions.request-human-review');
 
         Route::get('forms/templates', [FormTemplateController::class, 'index'])->name('forms.templates.index');
         Route::get('forms/templates/create', [FormTemplateController::class, 'create'])->name('forms.templates.create');

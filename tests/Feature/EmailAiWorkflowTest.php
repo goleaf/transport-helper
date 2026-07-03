@@ -1,6 +1,5 @@
 <?php
 
-use App\Contracts\AI\AiEmailAnalyzerInterface;
 use App\Enums\EmailDirection;
 use App\Enums\SupplierOrderStatus;
 use App\Enums\UserRole;
@@ -21,7 +20,6 @@ use App\Services\AI\AiEmailExtractionReviewService;
 use App\Services\AI\AiEmailExtractionValidationService;
 use App\Services\Email\EmailIngestionService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Mockery\MockInterface;
 
 uses(RefreshDatabase::class);
 
@@ -200,20 +198,17 @@ it('requires review when AI extraction contains an unknown SKU', function () {
         ->and($validation['reasons'])->toContain('unknown_sku');
 });
 
-it('creates a supplier confirmation when accepted', function () {
+it('accepts extraction without applying supplier confirmation', function () {
     $fixture = makeEmailAiFixture();
     $extraction = makeAiExtraction($fixture);
 
     $result = app(AiEmailExtractionReviewService::class)->accept($extraction, $fixture['user']);
-    $confirmation = SupplierConfirmation::query()->with('items')->firstOrFail();
 
-    expect($result['applied']->is($confirmation))->toBeTrue()
-        ->and($confirmation->supplier_order_id)->toBe($fixture['supplierOrder']->getKey())
-        ->and($confirmation->supplier_reference)->toBe('CONF-001')
-        ->and($confirmation->items)->toHaveCount(1)
-        ->and((float) $confirmation->items->first()->confirmed_quantity)->toBe(156.0)
+    expect($result['status'])->toBe('accepted')
+        ->and(SupplierConfirmation::query()->count())->toBe(0)
+        ->and($fixture['supplierOrderItem']->fresh()->confirmed_quantity)->toBeNull()
         ->and($extraction->fresh()->accepted_at)->not->toBeNull()
-        ->and(AuditLog::query()->where('event_type', 'ai_email_extraction.accepted')->exists())->toBeTrue();
+        ->and(AuditLog::query()->where('event_type', 'ai_extraction_accepted')->exists())->toBeTrue();
 });
 
 it('does not change business records when rejected', function () {
@@ -225,24 +220,20 @@ it('does not change business records when rejected', function () {
     expect(SupplierConfirmation::query()->count())->toBe(0)
         ->and($fixture['supplierOrder']->fresh()->status)->toBe(SupplierOrderStatus::Sent)
         ->and($extraction->fresh()->rejected_at)->not->toBeNull()
-        ->and(AuditLog::query()->where('event_type', 'ai_email_extraction.rejected')->exists())->toBeTrue();
+        ->and(AuditLog::query()->where('event_type', 'ai_extraction_rejected')->exists())->toBeTrue();
 });
 
-it('uses a mocked AI analyzer for inbound email analysis', function () {
+it('uses fake analyzer output for inbound email analysis', function () {
     $fixture = makeEmailAiFixture();
     $email = makeAiEmailMessage($fixture);
 
-    $this->mock(AiEmailAnalyzerInterface::class, function (MockInterface $mock): void {
-        $mock->shouldReceive('analyze')
-            ->once()
-            ->andReturn(aiEmailOutput([
-                'confidence' => 0.81,
-                'requires_human_review' => false,
-            ]));
-    });
-
-    app(AnalyzeInboundEmailJob::class, ['emailMessageId' => $email->id])
-        ->handle(app(AiEmailAnalyzerInterface::class), app(AiEmailExtractionValidationService::class));
+    dispatch_sync(new AnalyzeInboundEmailJob($email->id, [
+        'analyzer' => 'fake',
+        'fake_output' => aiEmailOutput([
+            'confidence' => 0.81,
+            'requires_human_review' => false,
+        ]),
+    ]));
 
     $extraction = AiEmailExtraction::query()->firstOrFail();
 

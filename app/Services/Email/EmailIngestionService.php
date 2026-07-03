@@ -4,174 +4,248 @@ namespace App\Services\Email;
 
 use App\Contracts\Email\EmailProviderInterface;
 use App\Enums\EmailDirection;
-use App\Enums\EmailProvider;
+use App\Exceptions\NotConfiguredYetException;
 use App\Jobs\AnalyzeInboundEmailJob;
+use App\Models\Company;
 use App\Models\EmailAccount;
 use App\Models\EmailMessage;
-use App\Models\SupplierContact;
-use App\Models\SupplierOrder;
-use App\Services\Email\Providers\GmailEmailProvider;
-use App\Services\Email\Providers\ImapEmailProvider;
+use App\Models\User;
+use App\Services\AI\Email\AiEmailAnalysisService;
+use App\Services\Audit\AuditLogService;
+use App\Services\Email\Providers\GmailEmailProviderPlaceholder;
+use App\Services\Email\Providers\ImapEmailProviderPlaceholder;
 use App\Services\Email\Providers\ManualEmailProvider;
-use App\Services\Email\Providers\MicrosoftGraphEmailProvider;
-use Illuminate\Support\Facades\Storage;
+use App\Services\Email\Providers\MicrosoftGraphEmailProviderPlaceholder;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
+use Throwable;
 
 class EmailIngestionService
 {
+    public function __construct(
+        private readonly AuditLogService $auditLogService,
+        private readonly SupplierEmailMatcher $supplierMatcher,
+        private readonly SupplierOrderEmailMatcher $orderMatcher,
+        private readonly EmailAttachmentStorageService $attachmentStorageService,
+        private readonly AiEmailAnalysisService $analysisService,
+    ) {}
+
     /**
+     * @param  EmailAccount|array<string, mixed>|null  $accountOrOptions
      * @param  array<string, mixed>  $options
-     * @return array{stored_count:int,duplicate_count:int,stored:list<EmailMessage>,duplicates:list<string>}
+     * @return array<string, mixed>
      */
-    public function ingest(EmailAccount $account, array $options = []): array
-    {
-        $provider = $options['provider'] ?? $this->providerFor($account);
-        $messages = $provider->fetchNewMessages($account, $options);
-        $stored = [];
-        $duplicates = [];
+    public function ingest(
+        Company|EmailAccount $companyOrAccount,
+        EmailAccount|array|null $accountOrOptions = null,
+        ?string $providerName = null,
+        array $options = [],
+        ?User $user = null,
+    ): array {
+        [$company, $account, $providerName, $options] = $this->normalizeArguments($companyOrAccount, $accountOrOptions, $providerName, $options);
 
-        foreach ($messages as $message) {
-            $messageId = isset($message['message_id']) ? (string) $message['message_id'] : null;
+        $this->auditLogService->write('email_ingestion_started', $company, $user, null, null, [
+            'provider' => $providerName,
+            'email_account_id' => $account?->getKey(),
+        ], $company->getKey());
 
-            if ($messageId !== null && $this->isDuplicate($account, $messageId)) {
-                $duplicates[] = $messageId;
+        try {
+            $messages = $this->resolveProvider($providerName)->fetchMessages($account, $options);
+            $stored = [];
+            $duplicates = [];
+            $warnings = [];
 
-                continue;
+            foreach ($messages as $message) {
+                $message = $this->normalizeMessage($message);
+                $duplicate = $this->findDuplicate($company, $account, $message);
+
+                if ($duplicate instanceof EmailMessage) {
+                    $duplicates[] = (string) ($message['message_id'] ?? $message['_dedupe_hash']);
+                    $this->auditLogService->write('email_duplicate_skipped', $duplicate, $user, null, null, [
+                        'message_id' => $message['message_id'] ?? null,
+                        'dedupe_hash' => $message['_dedupe_hash'] ?? null,
+                    ], $company->getKey());
+
+                    continue;
+                }
+
+                $supplierMatch = $this->supplierMatcher->match($company, $message['from_email'] ?? null);
+                $orderMatch = $this->orderMatcher->match($company, $message, $supplierMatch['supplier_id']);
+                $rowWarnings = array_values(array_unique(array_merge($supplierMatch['warnings'], $orderMatch['warnings'])));
+                $status = $this->statusForMatch($supplierMatch, $orderMatch, $rowWarnings);
+
+                $email = EmailMessage::query()->create([
+                    'company_id' => $company->getKey(),
+                    'email_account_id' => $account?->getKey(),
+                    'direction' => EmailDirection::Inbound,
+                    'message_id' => $message['message_id'] ?? null,
+                    'thread_id' => $message['thread_id'] ?? null,
+                    'from_email' => $message['from_email'] ?? null,
+                    'to_json' => $this->normalizeList($message['to'] ?? []),
+                    'cc_json' => $this->normalizeList($message['cc'] ?? []),
+                    'subject' => $message['subject'] ?? null,
+                    'body_text' => $message['body_text'] ?? null,
+                    'body_html' => $message['body_html'] ?? null,
+                    'received_at' => $message['received_at'],
+                    'sent_at' => null,
+                    'related_supplier_id' => $supplierMatch['supplier_id'],
+                    'related_supplier_order_id' => $orderMatch['supplier_order_id'],
+                    'status' => $status,
+                    'raw_headers_json' => is_array($message['raw_headers'] ?? null) ? $message['raw_headers'] : [],
+                ]);
+
+                $attachments = $this->attachmentStorageService->storeAttachments($email, is_array($message['attachments'] ?? null) ? $message['attachments'] : []);
+                $email->setRelation('attachments', collect($attachments));
+                $stored[] = $email;
+                $warnings = array_merge($warnings, $rowWarnings);
+
+                $this->auditLogService->write('email_received', $email, $user, null, null, [
+                    'email_message_id' => $email->getKey(),
+                    'message_id' => $email->message_id,
+                    'from_email' => $email->from_email,
+                    'subject' => $email->subject,
+                    'related_supplier_id' => $email->related_supplier_id,
+                    'related_supplier_order_id' => $email->related_supplier_order_id,
+                    'supplier_match_method' => $supplierMatch['method'],
+                    'order_match_method' => $orderMatch['method'],
+                    'attachment_count' => count($attachments),
+                    'warnings' => $rowWarnings,
+                ], $company->getKey());
+
+                if ((bool) ($options['analyze'] ?? false)) {
+                    if ((bool) ($options['sync_analysis'] ?? false)) {
+                        $this->analysisService->analyze($email, [
+                            'analyzer' => $options['analyzer'] ?? null,
+                            'fake_output' => $options['fake_output'] ?? null,
+                        ], $user);
+                    } else {
+                        AnalyzeInboundEmailJob::dispatch($email->getKey(), [
+                            'analyzer' => $options['analyzer'] ?? null,
+                        ]);
+                        $email->forceFill(['status' => 'analysis_pending'])->save();
+                    }
+                }
             }
 
-            $emailMessage = $this->storeMessage($account, $message);
-            $stored[] = $emailMessage;
+            $summary = [
+                'fetched_count' => count($messages),
+                'stored_count' => count($stored),
+                'duplicate_count' => count($duplicates),
+                'failed_count' => 0,
+                'linked_supplier_count' => collect($stored)->filter(fn (EmailMessage $email): bool => $email->related_supplier_id !== null)->count(),
+                'linked_order_count' => collect($stored)->filter(fn (EmailMessage $email): bool => $email->related_supplier_order_id !== null)->count(),
+                'stored' => $stored,
+                'messages' => $stored,
+                'duplicates' => $duplicates,
+                'warnings' => array_values(array_unique($warnings)),
+            ];
+            $summary['summary'] = collect($summary)
+                ->except(['stored', 'messages'])
+                ->all();
 
-            if ((bool) ($options['dispatch_analysis'] ?? false)) {
-                AnalyzeInboundEmailJob::dispatch($emailMessage->id);
-            }
+            $this->auditLogService->write('email_ingestion_completed', $company, $user, null, null, [
+                'provider' => $providerName,
+                'total_messages' => count($messages),
+                'stored_count' => $summary['stored_count'],
+                'duplicate_count' => $summary['duplicate_count'],
+                'warnings' => $summary['warnings'],
+            ], $company->getKey());
+
+            return $summary;
+        } catch (Throwable $exception) {
+            $this->auditLogService->write('email_ingestion_failed', $company, $user, null, null, [
+                'provider' => $providerName,
+                'error' => $exception->getMessage(),
+            ], $company->getKey());
+
+            throw $exception;
         }
-
-        return [
-            'stored_count' => count($stored),
-            'duplicate_count' => count($duplicates),
-            'stored' => $stored,
-            'duplicates' => $duplicates,
-        ];
     }
 
-    private function providerFor(EmailAccount $account): EmailProviderInterface
+    private function resolveProvider(string $providerName): EmailProviderInterface
     {
-        return match ($account->provider) {
-            EmailProvider::Gmail => app(GmailEmailProvider::class),
-            EmailProvider::MicrosoftGraph => app(MicrosoftGraphEmailProvider::class),
-            EmailProvider::ImapSmtp => app(ImapEmailProvider::class),
-            EmailProvider::Manual => app(ManualEmailProvider::class),
+        return match ($providerName) {
+            'manual' => app(ManualEmailProvider::class),
+            'gmail' => app(GmailEmailProviderPlaceholder::class),
+            'microsoft_graph' => app(MicrosoftGraphEmailProviderPlaceholder::class),
+            'imap', 'imap_smtp' => app(ImapEmailProviderPlaceholder::class),
+            default => throw NotConfiguredYetException::forAdapter('email_provider_'.$providerName),
         };
     }
 
-    private function isDuplicate(EmailAccount $account, string $messageId): bool
+    /**
+     * @param  EmailAccount|array<string, mixed>|null  $accountOrOptions
+     * @param  array<string, mixed>  $options
+     * @return array{0:Company,1:?EmailAccount,2:string,3:array<string,mixed>}
+     */
+    private function normalizeArguments(Company|EmailAccount $companyOrAccount, EmailAccount|array|null $accountOrOptions, ?string $providerName, array $options): array
     {
-        return EmailMessage::query()
-            ->where('company_id', $account->company_id)
-            ->where('message_id', $messageId)
-            ->exists();
+        if ($companyOrAccount instanceof EmailAccount) {
+            $account = $companyOrAccount;
+            $company = $account->company()->select(['id', 'name'])->firstOrFail();
+            $options = is_array($accountOrOptions) ? $accountOrOptions : $options;
+            $providerName = $providerName ?? (string) ($options['provider_name'] ?? $options['provider'] ?? $account->provider->value);
+
+            return [$company, $account, $providerName, $options];
+        }
+
+        $company = $companyOrAccount;
+        $account = $accountOrOptions instanceof EmailAccount ? $accountOrOptions : null;
+        $providerName = $providerName ?? (string) ($options['provider_name'] ?? $options['provider'] ?? config('supply.email_ingestion.default_provider', 'manual'));
+
+        return [$company, $account, $providerName, $options];
+    }
+
+    /**
+     * @param  array<string, mixed>  $message
+     * @return array<string, mixed>
+     */
+    private function normalizeMessage(array $message): array
+    {
+        $receivedAt = $message['received_at'] ?? now()->toDateTimeString();
+        $message['received_at'] = Carbon::parse((string) $receivedAt)->toDateTimeString();
+        $message['from_email'] = isset($message['from_email']) ? Str::lower(trim((string) $message['from_email'])) : null;
+        $message['subject'] = isset($message['subject']) ? (string) $message['subject'] : null;
+        $message['body_text'] = isset($message['body_text']) ? (string) $message['body_text'] : null;
+        $message['_dedupe_hash'] = hash('sha256', implode('|', [
+            (string) ($message['from_email'] ?? ''),
+            (string) ($message['subject'] ?? ''),
+            (string) ($message['body_text'] ?? ''),
+            (string) $message['received_at'],
+        ]));
+
+        return $message;
     }
 
     /**
      * @param  array<string, mixed>  $message
      */
-    private function storeMessage(EmailAccount $account, array $message): EmailMessage
+    private function findDuplicate(Company $company, ?EmailAccount $account, array $message): ?EmailMessage
     {
-        $fromEmail = isset($message['from_email']) ? (string) $message['from_email'] : null;
-        $subject = isset($message['subject']) ? (string) $message['subject'] : null;
-        $threadContext = $this->threadContext($account, $message['thread_id'] ?? null);
-        $relatedSupplierId = $this->guessSupplierId($account, $fromEmail) ?? $threadContext['related_supplier_id'];
-        $relatedSupplierOrderId = $this->guessSupplierOrderId($account, $subject) ?? $threadContext['related_supplier_order_id'];
+        $messageId = $message['message_id'] ?? null;
 
-        $emailMessage = EmailMessage::query()->create([
-            'company_id' => $account->company_id,
-            'email_account_id' => $account->id,
-            'direction' => EmailDirection::Inbound,
-            'message_id' => $message['message_id'] ?? null,
-            'thread_id' => $message['thread_id'] ?? null,
-            'from_email' => $fromEmail,
-            'to_json' => $this->normalizeList($message['to'] ?? []),
-            'cc_json' => $this->normalizeList($message['cc'] ?? []),
-            'subject' => $subject,
-            'body_text' => $message['body_text'] ?? null,
-            'body_html' => $message['body_html'] ?? null,
-            'received_at' => $message['received_at'] ?? now(),
-            'sent_at' => null,
-            'related_supplier_id' => $relatedSupplierId,
-            'related_supplier_order_id' => $relatedSupplierOrderId,
-            'status' => 'received',
-            'raw_headers_json' => is_array($message['raw_headers'] ?? null) ? $message['raw_headers'] : [],
-        ]);
+        if (is_string($messageId) && $messageId !== '') {
+            $query = EmailMessage::query()
+                ->select(['id', 'company_id', 'email_account_id', 'message_id'])
+                ->where('message_id', $messageId);
 
-        foreach ($this->normalizeAttachments($message['attachments'] ?? []) as $attachment) {
-            $emailMessage->attachments()->create($attachment);
+            if ($account instanceof EmailAccount) {
+                $query->where('email_account_id', $account->getKey());
+            } else {
+                $query->where('company_id', $company->getKey());
+            }
+
+            return $query->first();
         }
 
-        return $emailMessage->load('attachments');
-    }
-
-    private function guessSupplierId(EmailAccount $account, ?string $fromEmail): ?int
-    {
-        if ($fromEmail === null) {
-            return null;
-        }
-
-        $contact = SupplierContact::query()
-            ->select(['id', 'supplier_id', 'email'])
-            ->where('email', $fromEmail)
-            ->whereHas('supplier', fn ($query) => $query->where('company_id', $account->company_id))
+        return EmailMessage::query()
+            ->select(['id', 'company_id', 'from_email', 'subject', 'body_text', 'received_at'])
+            ->where('company_id', $company->getKey())
+            ->where('from_email', $message['from_email'])
+            ->where('subject', $message['subject'])
+            ->where('body_text', $message['body_text'])
+            ->where('received_at', $message['received_at'])
             ->first();
-
-        return $contact?->supplier_id;
-    }
-
-    /**
-     * @return array{related_supplier_id:?int,related_supplier_order_id:?int}
-     */
-    private function threadContext(EmailAccount $account, mixed $threadId): array
-    {
-        if (! is_string($threadId) || $threadId === '') {
-            return [
-                'related_supplier_id' => null,
-                'related_supplier_order_id' => null,
-            ];
-        }
-
-        $emailMessage = EmailMessage::query()
-            ->select(['id', 'company_id', 'thread_id', 'related_supplier_id', 'related_supplier_order_id'])
-            ->where('company_id', $account->company_id)
-            ->where('thread_id', $threadId)
-            ->where(function ($query): void {
-                $query
-                    ->whereNotNull('related_supplier_id')
-                    ->orWhereNotNull('related_supplier_order_id');
-            })
-            ->latest('id')
-            ->first();
-
-        return [
-            'related_supplier_id' => $emailMessage?->related_supplier_id,
-            'related_supplier_order_id' => $emailMessage?->related_supplier_order_id,
-        ];
-    }
-
-    private function guessSupplierOrderId(EmailAccount $account, ?string $subject): ?int
-    {
-        if ($subject === null || $subject === '') {
-            return null;
-        }
-
-        $subject = Str::lower($subject);
-
-        return SupplierOrder::query()
-            ->select(['id', 'company_id', 'order_number'])
-            ->where('company_id', $account->company_id)
-            ->latest('id')
-            ->limit(200)
-            ->get()
-            ->first(fn (SupplierOrder $order): bool => Str::contains($subject, Str::lower($order->order_number)))
-            ?->id;
     }
 
     /**
@@ -191,37 +265,20 @@ class EmailIngestionService
     }
 
     /**
-     * @return list<array<string, mixed>>
+     * @param  array<string, mixed>  $supplierMatch
+     * @param  array<string, mixed>  $orderMatch
+     * @param  list<string>  $warnings
      */
-    private function normalizeAttachments(mixed $attachments): array
+    private function statusForMatch(array $supplierMatch, array $orderMatch, array $warnings): string
     {
-        if (! is_array($attachments)) {
-            return [];
+        if (in_array('supplier_domain_ambiguous', $warnings, true) || in_array('multiple_order_matches', $warnings, true)) {
+            return 'needs_review';
         }
 
-        return collect($attachments)
-            ->filter(fn (mixed $attachment): bool => is_array($attachment))
-            ->map(function (array $attachment): array {
-                $filename = (string) ($attachment['original_filename'] ?? $attachment['filename'] ?? 'attachment.bin');
-                $storedPath = (string) ($attachment['stored_path'] ?? '');
-                $content = $attachment['content'] ?? null;
+        if ($supplierMatch['supplier_id'] !== null || $orderMatch['supplier_order_id'] !== null) {
+            return 'linked';
+        }
 
-                if ($storedPath === '' && is_string($content)) {
-                    $storedPath = sprintf('email-attachments/%s/%s', now()->format('Ymd'), Str::uuid()->toString().'-'.$filename);
-                    Storage::put($storedPath, $content);
-                }
-
-                return [
-                    'original_filename' => $filename,
-                    'stored_path' => $storedPath,
-                    'mime_type' => $attachment['mime_type'] ?? null,
-                    'size_bytes' => isset($attachment['size_bytes'])
-                        ? (int) $attachment['size_bytes']
-                        : (is_string($content) ? strlen($content) : null),
-                    'checksum' => $attachment['checksum'] ?? (is_string($content) ? hash('sha256', $content) : null),
-                ];
-            })
-            ->values()
-            ->all();
+        return $warnings === [] ? 'stored' : 'needs_review';
     }
 }

@@ -10,5 +10,5 @@ interface EmailProviderInterface
      * @param  array<string, mixed>  $options
      * @return list<array<string, mixed>>
      */
-    public function fetchNewMessages(EmailAccount $account, array $options = []): array;
+    public function fetchMessages(?EmailAccount $account, array $options = []): array;
 }

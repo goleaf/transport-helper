@@ -39,6 +39,29 @@ AI output is stored separately:
 * form_autofill_runs;
 * form_autofill_field_values.
 
+## Implemented Interfaces
+
+Inbound email providers implement `EmailProviderInterface`.
+Email analyzers implement `AiEmailAnalyzerInterface`.
+
+Stage 6 includes:
+
+* `ManualEmailProvider`;
+* Gmail, Microsoft Graph and IMAP placeholders;
+* `FakeAiEmailAnalyzer`;
+* `RuleBasedAiEmailAnalyzer`;
+* external AI placeholder.
+
+## Extraction Storage
+
+Inbound analysis creates `AiEmailExtraction` records.
+The extraction stores prompt version, provider, model name, input hash, output JSON, confidence and review flags.
+
+## No Direct Mutation Rule
+
+Accepting an AI extraction does not create supplier confirmations, update supplier order items, update logistics records, select carriers or send replies.
+Application of accepted data belongs to later workflow services.
+
 ## Human Review
 
 Required when:
@@ -51,3 +74,5 @@ Required when:
 * date ambiguous;
 * quantity mismatch;
 * required field missing.
+
+Human review actions are accept, reject and mark needs-review.

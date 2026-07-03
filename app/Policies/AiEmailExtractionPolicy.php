@@ -10,12 +10,12 @@ class AiEmailExtractionPolicy
 {
     public function viewAny(User $user): bool
     {
-        return true;
+        return $this->review($user);
     }
 
     public function view(User $user, AiEmailExtraction $aiEmailExtraction): bool
     {
-        return true;
+        return $this->review($user);
     }
 
     public function create(User $user): bool
@@ -39,6 +39,11 @@ class AiEmailExtractionPolicy
     }
 
     public function requestHumanReview(User $user, AiEmailExtraction $aiEmailExtraction): bool
+    {
+        return $this->review($user);
+    }
+
+    public function markNeedsReview(User $user, AiEmailExtraction $aiEmailExtraction): bool
     {
         return $this->review($user);
     }

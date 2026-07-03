@@ -8,31 +8,27 @@
 
 ## Implementation Checklist
 
-- [x] Export contract
-- [x] Email sender contract
-- [x] CSV exporter
-- [x] JSON exporter
-- [x] Excel CSV exporter
-- [x] Placeholder exporters
-- [x] SupplierOrderExportService
-- [x] Email draft service
-- [x] Email approval service
-- [x] Email send service
-- [x] LogEmailSender
-- [x] Sender placeholders
-- [x] ExportFile persistence
-- [x] Private export storage and download
-- [x] EmailMessage outbound draft
-- [x] EmailAttachment handling
-- [x] Approval gate
-- [x] Send gate and idempotency
-- [x] Logistics status update
-- [x] Audit events
+- [x] Email provider contract
+- [x] AI analyzer contract
+- [x] Manual email provider
+- [x] Provider placeholders
+- [x] Email ingestion service
+- [x] Supplier matcher
+- [x] Supplier order matcher
+- [x] Attachment storage
+- [x] Fake analyzer
+- [x] Rule-based analyzer
+- [x] External analyzer placeholder
+- [x] AI analysis service
+- [x] Validation service
+- [x] Review service
+- [x] Jobs
 - [x] FormRequests
 - [x] Policies
 - [x] Controllers
 - [x] Routes
 - [x] Views
+- [x] Config
 - [x] Tests
 - [x] Docs
 
@@ -52,19 +48,17 @@ None yet.
 
 ## Check Results
 
-- composer install --no-interaction --prefer-dist: passed; nothing to install, update or remove.
-- php artisan migrate:fresh --seed --env=testing --no-interaction: passed.
-- php artisan test --compact --filter=SupplierOrder: passed, 54 tests / 199 assertions.
-- php artisan test --compact --filter=SupplierOrderEmailWorkflowNoAiDependencyTest: passed, 1 test / 63 assertions.
-- php artisan test --compact --filter=NoDtoRuleTest: passed, 1 test / 3 assertions.
+- composer install: passed; nothing to install, update or remove.
+- php artisan migrate:fresh --seed --env=testing: passed.
+- focused Task 8 tests: passed, 59 tests / 123 assertions.
+- php artisan test --compact --filter=EmailAiWorkflowTest: passed, 8 tests / 29 assertions.
+- ./vendor/bin/pint --dirty --format agent: passed; formatted dirty PHP files.
+- php artisan test --compact: passed, 314 tests / 1445 assertions.
 - ./scripts/check-no-dto.sh: passed; no forbidden DTO usage found.
 - ./scripts/check-no-secrets.sh: passed; no obvious secrets found.
 - ./scripts/check-project-docs.sh: passed; all required project documentation files exist.
-- php artisan test --compact: passed, 255 tests / 1312 assertions.
-- ./vendor/bin/pint --dirty --format agent: passed.
-- ./vendor/bin/pint --format agent on modified/untracked PHP files: passed.
 - npm run build: passed.
-- ./scripts/agent-guard.sh: passed.
+- find app -iname "*DTO*" -o -path "app/Data": passed; no output.
 
 ## Blockers
 

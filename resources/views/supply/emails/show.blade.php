@@ -12,7 +12,7 @@
         <header>
             <p><a href="{{ route('supply.emails.index') }}">Back to emails</a></p>
             <h1>{{ $email->subject }}</h1>
-            <p><a href="{{ route('supply.emails.autofill.create', $email) }}">Autofill form from this email</a></p>
+            <p>Autofill form from this email — next stage.</p>
         </header>
 
         <section>
@@ -55,11 +55,28 @@
 
         <section>
             <h2>AI Extractions</h2>
+            @if ($canAnalyze)
+                <form method="post" action="{{ route('supply.emails.analyze', $email) }}">
+                    @csrf
+                    <input type="hidden" name="sync" value="1">
+                    <label>
+                        Analyzer
+                        <select name="analyzer">
+                            <option value="rule_based">Rule based</option>
+                            <option value="fake">Fake</option>
+                            <option value="external">External placeholder</option>
+                        </select>
+                    </label>
+                    <button type="submit">Analyze email</button>
+                </form>
+            @endif
+
             <table>
                 <thead>
                     <tr>
-                        <th>Prompt</th>
-                        <th>Confidence</th>
+                            <th>Prompt</th>
+                            <th>Email type</th>
+                            <th>Confidence</th>
                         <th>Human review</th>
                         <th>Review reason</th>
                         <th>Status</th>
@@ -70,6 +87,7 @@
                     @forelse ($email->aiEmailExtractions as $extraction)
                         <tr>
                             <td>{{ $extraction->prompt_version instanceof \BackedEnum ? $extraction->prompt_version->value : $extraction->prompt_version }}</td>
+                            <td>{{ $extraction->output_json['email_type'] ?? 'unclear' }}</td>
                             <td>{{ $extraction->confidence }}</td>
                             <td>{{ $extraction->requires_human_review ? 'Yes' : 'No' }}</td>
                             <td>{{ $extraction->review_reason }}</td>
@@ -78,7 +96,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="6">No AI extractions.</td>
+                            <td colspan="7">No AI extractions.</td>
                         </tr>
                     @endforelse
                 </tbody>

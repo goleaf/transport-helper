@@ -98,6 +98,13 @@ State is represented by:
 * rejected_at;
 * reviewed_at.
 
+Human review transitions:
+
+* pending -> accepted when a reviewer accepts extracted data;
+* pending -> rejected when a reviewer rejects extracted data;
+* pending/accepted/rejected -> needs_review when a reviewer asks for more review;
+* acceptance does not apply supplier confirmations or logistics updates.
+
 ## FormAutofillRun
 
 * draft

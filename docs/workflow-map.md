@@ -120,9 +120,14 @@ System:
 System:
 
 * stores inbound email;
-* links supplier/order;
-* AI may extract structured data;
-* human reviews extraction.
+* deduplicates by message id or deterministic message hash;
+* links supplier by exact contact email or unique domain;
+* links supplier order by order number or thread id;
+* stores private attachments;
+* AI may extract structured data into `ai_email_extractions`;
+* validates confidence, SKUs, quantities and dates;
+* human reviews extraction;
+* accepted extraction is not applied to business records in this stage.
 
 ## 7. Email Form Autofill
 

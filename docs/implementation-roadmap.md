@@ -140,11 +140,24 @@ Implementation:
 
 ## Step 8. Inbound Email And AI Extraction
 
+Status: implemented in Stage 6.
+
 Result:
 
 * inbound emails;
 * AI extraction;
 * human review.
+
+Implementation:
+
+* manual inbound email provider implemented;
+* Gmail, Microsoft Graph, IMAP and external AI placeholders added;
+* inbound email dedupe, supplier matching and order matching implemented;
+* private attachment storage implemented;
+* fake and rule-based analyzers implemented;
+* AI extraction validation and human review implemented;
+* accepted extraction does not mutate supplier confirmations, supplier order items or logistics records;
+* email/extraction routes, controllers and Blade screens added.
 
 ## Step 9. Email Form Autofill
 
