@@ -1,186 +1,87 @@
 # Workflow Map
 
-## 1. Data Import
+## End To End Flow
 
-Input:
-- sales history;
-- stock snapshots;
-- inbound orders;
-- reservations;
-- supplier product rules.
+1. Source data arrives from file upload, adapter, email, or manual entry.
+2. Adapter normalizes source data into arrays.
+3. Laravel validates normalized data.
+4. Validated inventory and demand data update business records.
+5. Laravel runs deterministic calculation.
+6. Laravel creates order proposals.
+7. Users review proposals and approve or reject them.
+8. Approved proposals become supplier orders.
+9. Laravel prepares supplier email drafts or form payloads.
+10. Users approve supplier communication.
+11. Approved supplier email is sent by an adapter or recorded for manual send.
+12. Supplier responses are ingested as email source data.
+13. AI may extract confirmation or form values into suggestions.
+14. Users review suggestions.
+15. Laravel validates and applies approved suggestions.
+16. Carrier quote options are collected.
+17. Users select carriers.
+18. Laravel creates or updates logistics records.
+19. Notifications and audit events are written throughout the workflow.
 
-Output:
-- normalized records;
-- import batch;
-- import rows;
-- validation errors;
-- audit log.
+## Human Review Gates
 
-Failure:
-- invalid rows are stored;
-- import may complete with errors;
-- human review if required.
+Human approval is required for:
 
-## 2. Calculation Run
+- proposal approval;
+- supplier email send;
+- supplier form submission;
+- AI suggestion approval;
+- applying confirmations;
+- applying form autofill;
+- accepting conflicting quantities or dates;
+- carrier selection;
+- credential changes;
+- restore actions.
 
-Input:
-- products;
-- supplier rules;
-- sales history;
-- stock;
-- inbound;
-- reservations;
-- T0/T1/T2/T3 parameters.
+## AI Boundary In The Workflow
 
-Processing:
-- calculate trend;
-- calculate need until T1;
-- calculate stock at T1;
-- calculate planned need T1-T2;
-- calculate safety stock T2-T3;
-- calculate raw need;
-- apply rounding.
+AI may help at steps 13 and 14 by creating extraction suggestions or draft replies.
 
-Output:
-- calculation_run;
-- order_proposal;
-- order_proposal_items;
-- explanation;
-- warnings;
-- audit log.
+AI must not:
 
-## 3. Order Proposal Review
+- run step 5 calculation;
+- approve step 7 proposals;
+- send step 11 email;
+- apply step 15 suggestions;
+- select step 17 carriers;
+- write step 18 logistics records.
 
-User actions:
-- approve item;
-- adjust item with reason;
-- reject item with reason;
-- approve whole proposal.
+## Audit Events By Stage
 
-Output:
-- approved proposal;
-- audit logs.
+- import_started;
+- import_completed;
+- import_failed;
+- order_proposal_calculated;
+- order_proposal_approved;
+- order_proposal_rejected;
+- supplier_order_created;
+- supplier_email_drafted;
+- supplier_email_approved;
+- supplier_email_sent;
+- inbound_email_ingested;
+- ai_suggestion_created;
+- ai_suggestion_approved;
+- ai_suggestion_rejected;
+- ai_suggestion_applied;
+- carrier_quote_recorded;
+- carrier_selected;
+- logistics_record_created;
+- credentials_changed;
+- backup_completed;
+- restore_performed.
 
-Blocked when:
-- unresolved needs_review items exist;
-- adjustment reason missing;
-- user lacks permission.
+## Failure Handling
 
-## 4. Supplier Order
+Failures should create review or audit context instead of silent mutation.
 
-Input:
-- approved proposal.
+Examples:
 
-Processing:
-- create supplier order;
-- copy approved quantities;
-- exclude rejected lines;
-- create logistics record;
-- export file;
-- prepare email.
-
-Output:
-- supplier_order;
-- supplier_order_items;
-- export_files;
-- draft email;
-- audit log.
-
-## 5. Supplier Email
-
-User approves email.
-System sends email.
-Outbound email record is stored.
-Supplier order status changes to sent.
-
-Blocked when:
-- email not approved;
-- attachment missing and no explicit no-attachment confirmation;
-- user lacks permission.
-
-## 6. Inbound Supplier Email
-
-System stores inbound email.
-System links supplier and possible order.
-AI may analyze email.
-AI extraction is stored separately.
-User reviews extraction.
-
-Output:
-- email_message;
-- ai_email_extraction;
-- human review task if needed.
-
-## 7. Email Form Autofill
-
-User opens email.
-User selects template.
-AI suggests fields.
-Laravel validates.
-User accepts/edits/rejects fields.
-User validates run.
-User applies run.
-
-Output depends on context:
-- supplier confirmation;
-- ready date update;
-- quantity mismatch;
-- carrier quote;
-- logistics update;
-- custom form output.
-
-## 8. Supplier Confirmation
-
-Input:
-- manual data;
-- accepted AI extraction;
-- validated form autofill run.
-
-Processing:
-- match SKUs;
-- compare quantities;
-- extract dates;
-- detect discrepancies;
-- update order status;
-- update logistics.
-
-Output:
-- supplier_confirmation;
-- supplier_confirmation_items;
-- logistics updates;
-- notifications;
-- audit log.
-
-## 9. Transport
-
-Input:
-- supplier order;
-- carrier quotes.
-
-Processing:
-- score quotes by price/date/reliability;
-- show warnings;
-- user selects carrier.
-
-Output:
-- selected carrier quote;
-- logistics carrier and price updated;
-- audit log.
-
-## 10. Logistics
-
-Input:
-- supplier order;
-- confirmation;
-- carrier quote;
-- manual updates.
-
-Processing:
-- update statuses;
-- detect delays;
-- notify users.
-
-Output:
-- logistics record;
-- notifications;
-- audit log.
+- invalid import row creates an import error report;
+- missing supplier email blocks send approval;
+- low confidence AI extraction stays pending_review;
+- carrier API failure creates adapter failure metadata;
+- conflicting supplier confirmation creates human review.

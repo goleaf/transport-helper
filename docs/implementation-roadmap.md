@@ -1,116 +1,56 @@
 # Implementation Roadmap
 
-## Step 0. Skills And Architecture
+## Purpose
 
-Result:
-- project skills;
-- AGENTS.md;
-- documentation;
-- rules;
-- decision log;
-- workflow map.
+This roadmap orders future implementation tasks for the Supply / Procurement Agent. It is intentionally documentation-first and must be executed through docs/current-task.md.
 
-## Step 1. Core Database
+## Current Stage
 
-Result:
-- migrations;
-- models;
-- relationships;
-- factories;
-- seeders;
-- roles;
-- permissions.
+Architecture bootstrap.
 
-## Step 2. Audit Service
+This stage creates repository memory and guardrails. It does not create business runtime code.
 
-Result:
-- centralized AuditLogService;
-- audit events;
-- tests.
+## Future Task Sequence
 
-## Step 3. Calculation Engine
+1. Core schema plan and migrations for suppliers, products, inventory snapshots, order proposals, supplier orders, email messages, AI suggestions, human reviews, carrier quotes, logistics records, and audit events.
+2. Enums, model casts, factories, and fake seed data.
+3. Deterministic calculation service with unit tests and explanation output.
+4. Import normalization and validation with CSV fake fixtures.
+5. Order proposal creation and approval workflow.
+6. Supplier order creation workflow.
+7. Supplier email draft, approval, and fake sender boundary.
+8. Inbound email ingestion with fake adapters.
+9. AI extraction interface with fake provider tests.
+10. Human review workflow for suggestions.
+11. Confirmation application after approval.
+12. Email form autofill review and application after approval.
+13. Carrier quote capture and comparison.
+14. Human carrier selection and logistics record creation.
+15. Notifications, health checks, audit reports, and backup verification.
+16. UI/admin surfaces only after backend policies, workflows, and tests exist.
 
-Result:
-- TrendCalculator;
-- OrderNeedCalculator;
-- OrderRoundingService;
-- calculation tests;
-- required 150 -> 156 example.
+## Required Gates For Every Future Task
 
-## Step 4. Import System
+- Read AGENTS.md.
+- Read docs/current-task.md from start to end.
+- Create docs/current-task-read-confirmation.md.
+- Create docs/current-task-progress.md.
+- Do not create DTO or app/Data.
+- Fake all external services in tests.
+- Run ./scripts/agent-guard.sh.
+- Commit only after checks pass.
 
-Result:
-- CSV import;
-- import batches;
-- import rows;
-- validators;
-- normalizers;
-- dry run;
-- import UI.
+## Architectural Priorities
 
-## Step 5. Order Proposals
+- Laravel owns business logic.
+- Calculations are deterministic.
+- AI suggestions are review-only.
+- Human approval is required at critical points.
+- Carrier selection is human-controlled.
+- Audit events are mandatory.
+- Data sources are adapter-based.
+- No secrets in code or docs.
 
-Result:
-- calculation run to proposal;
-- item explanation;
-- approve/adjust/reject;
-- audit.
+## Next Recommended Task
 
-## Step 6. Supplier Orders
-
-Result:
-- convert approved proposal;
-- export CSV/JSON;
-- email draft;
-- email approval;
-- send workflow.
-
-## Step 7. Email Infrastructure
-
-Result:
-- email accounts;
-- manual provider;
-- placeholders for Gmail/Microsoft/IMAP;
-- inbound email storage;
-- AI extraction boundary.
-
-## Step 8. Email Form Autofill
-
-Result:
-- form templates;
-- autofill runs;
-- field review;
-- validation;
-- apply workflow.
-
-## Step 9. Supplier Confirmations
-
-Result:
-- apply manual/AI/form confirmation;
-- detect mismatches;
-- update supplier order;
-- update logistics.
-
-## Step 10. Transport
-
-Result:
-- carrier quotes;
-- scoring;
-- user selection;
-- logistics update.
-
-## Step 11. Logistics
-
-Result:
-- logistics table;
-- statuses;
-- notifications;
-- export.
-
-## Step 12. Security And Health
-
-Result:
-- policies;
-- encrypted credentials;
-- health check;
-- backup plan.
+Create a docs/current-task.md for core schema planning and migrations only. That task should not implement services, controllers, UI, AI providers, or email providers.

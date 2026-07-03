@@ -1,64 +1,57 @@
 # Decision Log
 
-## D-001 Laravel Backend
+## Purpose
 
-Laravel is the main backend and the only center of business logic.
+This document summarizes architecture decisions that future tasks must preserve. Detailed ADR files can still live in docs/decisions.
 
-## D-002 AI Boundary
+## Accepted Decisions
 
-AI is used only for email reading, structured extraction, reply drafts and form autofill suggestions.
+### Laravel Owns Business Logic
 
-## D-003 Deterministic Calculation
+Laravel validates, calculates, approves, mutates, authorizes, and audits business records. External systems and AI providers are inputs only.
 
-All replenishment calculations are performed by deterministic PHP/Laravel services.
+### Deterministic Calculation
 
-## D-004 No DTO
+Order quantities are calculated by deterministic PHP/Laravel code. AI, email content, carrier APIs, and provider responses must not change formulas or quantities.
 
-DTO classes are forbidden.
-Use arrays, Eloquent models, FormRequests, Validator, JSON columns and PHPDoc array shapes.
+### No DTO Classes
 
-## D-005 Human Approval
+DTOs are forbidden. Use Eloquent models, arrays, FormRequest validated arrays, Laravel Validator, JSON columns, enums, services, jobs, policies, and PHPDoc array shapes.
 
-Human approval is required at critical points:
-- order quantity approval;
-- quantity adjustment;
-- supplier email send;
-- AI extraction acceptance;
-- email form autofill application;
-- supplier confirmation application;
-- carrier selection.
+### AI Is Suggestion Only
 
-## D-006 Audit
+AI may extract, classify, summarize, draft, and suggest form values. It must not calculate, approve, send, select, apply, or directly mutate records.
 
-All critical actions must write audit logs.
+### Human Review Is Required At Risk Points
 
-## D-007 Maximum Adapter Architecture
+Human review gates protect proposal approval, supplier email sending, AI suggestion application, carrier selection, conflicts, credentials, and restore actions.
 
-Data sources are adapter-based:
-- CSV;
-- Excel;
-- Google Sheets;
-- API;
-- ERP;
-- ecommerce;
-- accounting;
-- warehouse;
-- manual upload;
-- email attachments.
+### Adapter-Based Data Sources
 
-## D-008 Email Form Autofill
+CSV, Excel, Google Sheets, ERP, ecommerce, warehouse, email, carrier, and email-provider integrations belong behind adapters. Tests must use fake or manual adapters.
 
-The system must provide a tool to autofill forms from email content.
-AI suggests field values.
-Laravel validates.
-User reviews.
-Laravel applies.
+### Audit Is Mandatory
 
-## D-009 Local/Private First
+Critical workflow actions must write audit events. Audit metadata must include IDs and context but never secrets.
 
-The system should be suitable for company infrastructure/local deployment.
-External services require explicit configuration and approval.
+## Deferred Decisions
 
-## D-010 No Period Duplication
+- Exact production database engine.
+- Filament or custom admin surface.
+- Queue driver for production.
+- Concrete external provider SDKs.
+- Supplier form submission strategy.
+- Carrier quote provider list.
 
-T0-T1, T1-T2 and T2-T3 periods must not be double-counted.
+## Revisit Rules
+
+Write or update an ADR when changing:
+
+- calculation formulas;
+- AI boundary;
+- no DTO rule;
+- schema ownership;
+- approval workflow;
+- carrier selection rules;
+- credential storage;
+- external provider architecture.

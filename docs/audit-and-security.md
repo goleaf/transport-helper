@@ -1,106 +1,105 @@
-# Audit and Security
+# Audit And Security
 
-Supply and procurement workflows affect purchasing, supplier communication, inventory, and logistics. Critical changes must be auditable and protected by roles.
+## Purpose
 
-## Audit Events
+Supply and procurement workflows affect purchasing, supplier communication, inventory, supplier commitments, carrier costs, and logistics. Critical actions must be authorized and auditable.
 
-All critical actions should write `SupplyAuditEvent` records.
+## Required Audit Events
 
-Current or expected audit events include:
-- inventory imported;
-- supply order prepared;
-- supplier email queued;
-- supplier email processed;
+Audit is required for:
+
+- import started;
+- import completed;
+- import failed;
+- order proposal calculated;
+- order proposal approved;
+- order proposal rejected;
+- supplier order created;
+- supplier email drafted;
+- supplier email approved;
+- supplier email sent;
+- inbound email ingested;
 - AI suggestion created;
 - AI suggestion approved;
+- AI suggestion rejected;
+- AI suggestion applied;
 - supplier confirmation applied;
 - form autofill applied;
-- logistics option selected;
+- carrier quote recorded;
+- carrier selected;
+- logistics record created or updated;
 - export generated;
-- credentials changed;
-- backup completed or failed.
+- credential changed;
+- backup completed or failed;
+- restore performed.
 
-## Audit Event Fields
+## Audit Fields
 
 Each audit event should include:
+
 - actor;
-- auditable model;
+- auditable type;
+- auditable ID;
 - event name;
-- metadata;
+- old value when relevant;
+- new value when relevant;
+- compact metadata;
 - occurred timestamp.
 
-Metadata should include IDs and compact context, not secrets.
+Metadata must not include secrets, API keys, refresh tokens, SMTP passwords, private keys, or raw provider credentials.
 
 ## Security Roles
 
-Roles:
-- `admin`
-- `supply_manager`
-- `logistics_manager`
-- `viewer`
+Expected roles:
 
-Expected permissions:
-- Admin can manage supply and logistics workflows.
-- Supply manager can prepare supplier orders and approve/apply AI suggestions.
-- Logistics manager can update logistics.
-- Viewer should not mutate workflow state.
+- admin;
+- supply_manager;
+- logistics_manager;
+- viewer.
+
+Expected boundaries:
+
+- admin can manage supply, logistics, credentials, and settings;
+- supply_manager can create and approve supply workflows;
+- logistics_manager can manage carrier quotes and logistics records;
+- viewer is read-only where UI allows.
 
 ## Policy Rules
 
 Policies should guard:
-- supply order creation;
-- supplier communication actions;
+
+- proposal approval;
+- supplier order creation;
+- supplier email approval and send;
 - AI suggestion approval;
 - confirmation application;
 - form autofill application;
 - carrier selection;
+- logistics updates;
 - exports;
-- credential management.
+- credential management;
+- backup and restore actions.
 
 ## Credential Rules
 
 External provider credentials must:
-- not be stored in code;
-- be loaded through config;
-- be encrypted if persisted in the database;
-- be rotated regularly;
-- be audited when changed.
 
-Provider examples:
-- Gmail;
-- Microsoft Graph;
-- IMAP;
-- SMTP;
+- never be committed;
+- be loaded from config or encrypted storage;
+- be audited when changed;
+- be rotated if exposure is suspected.
+
+Providers include:
+
+- AI providers;
+- email providers;
 - Google Sheets;
-- ERP APIs;
-- carrier APIs.
+- ERP;
+- ecommerce;
+- warehouse;
+- carrier APIs;
+- SMTP.
 
-## Data Protection
+## Test Rules
 
-Protect:
-- supplier emails;
-- pricing;
-- purchase order references;
-- carrier quotes;
-- customer references;
-- credentials and tokens.
-
-## Health Checks
-
-Recommended health checks:
-- queue worker running;
-- failed jobs count;
-- email adapter connectivity;
-- backup freshness;
-- database writable;
-- storage writable;
-- pending high-priority reviews count.
-
-## Security Testing
-
-Tests should prove:
-- viewers cannot approve or apply suggestions;
-- unapproved AI suggestions cannot mutate records;
-- carrier selection is user-controlled;
-- secrets do not appear in audit metadata;
-- external adapter failures do not partially mutate business state.
+Tests must use fake providers. No test may call real AI, email, Google, ERP, ecommerce, warehouse, carrier, Gmail, Microsoft, IMAP, or SMTP APIs.

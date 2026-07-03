@@ -68,11 +68,20 @@ Core rules:
 
 Start here before implementing supply modules:
 
-* [Supply Agent Architecture Bootstrap](docs/supply-agent-architecture-bootstrap.md)
 * [Architecture](docs/architecture.md)
 * [Domain Model](docs/domain-model.md)
+* [Workflow Map](docs/workflow-map.md)
+* [Decision Log](docs/decision-log.md)
 * [Calculation Engine](docs/calculation-engine.md)
 * [Email AI Boundary](docs/email-ai-boundary.md)
+* [Email Form Autofill](docs/email-form-autofill.md)
+* [Import Export Adapters](docs/import-export-adapters.md)
+* [Status Machines](docs/status-machines.md)
+* [Audit And Security](docs/audit-and-security.md)
+* [Backup Plan](docs/backup-plan.md)
+* [Implementation Roadmap](docs/implementation-roadmap.md)
+* [Next Codex Prompts](docs/next-codex-prompts.md)
+* [Architecture Bootstrap Notes](docs/repository-architecture-bootstrap-notes.md)
 * [Architecture Decision Records](docs/decisions/)
 
 ## About Laravel

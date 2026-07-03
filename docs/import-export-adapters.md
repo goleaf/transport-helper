@@ -1,84 +1,85 @@
-# Import and Export Adapters
+# Import And Export Adapters
 
-Imports and exports are adapter-driven. Adapters normalize external formats into arrays or read Eloquent models for output. They do not own business logic.
+## Purpose
+
+Imports and exports are adapter-driven. Adapters isolate file formats and external providers from Laravel business logic.
 
 ## Import Sources
 
-Supported or planned import sources:
+Supported or planned source types:
+
 - CSV;
 - Excel;
 - Google Sheets;
-- API;
 - ERP;
 - ecommerce;
 - accounting;
 - warehouse;
 - manual upload;
-- email attachments.
+- inbound email attachments;
+- carrier quote providers;
+- email providers.
 
-## Import Rules
+## Import Adapter Rules
 
-Adapters should:
+Adapters may:
+
 - read source data;
-- normalize rows into associative arrays;
-- provide source metadata;
+- normalize rows into arrays;
+- attach source metadata;
 - report parse errors;
-- avoid business decisions.
+- expose fake/manual implementations for tests.
 
-Laravel actions should:
-- validate rows;
-- update Eloquent models;
+Adapters must not:
+
+- calculate order quantities;
+- approve proposals;
+- apply confirmations;
+- send supplier email;
+- select carriers;
+- mutate logistics records;
+- bypass Laravel validation.
+
+## Laravel Import Rules
+
+Laravel application flows must:
+
+- validate normalized arrays;
+- reject incomplete rows or send them to review;
+- update Eloquent models only after validation;
 - write audit events;
-- create human review records when data is incomplete or conflicting.
-
-The current inventory import action accepts rows containing:
-- `manufacturer_name`
-- `manufacturer_email`
-- `order_form_url`
-- `sku`
-- `product_name`
-- `unit`
-- `available_quantity`
-- `incoming_quantity`
-- `reserved_quantity`
+- avoid DTO classes.
 
 ## Export Targets
 
 Supported or planned export targets:
+
 - CSV;
 - JSON;
 - Excel-compatible CSV;
+- supplier form output;
 - PDF placeholder;
-- supplier custom form placeholder;
 - Google Sheets placeholder.
 
 ## Export Rules
 
 Exports should:
-- read through Eloquent models and relationships;
-- be explicit about selected columns;
-- use queued jobs for long exports;
+
+- read Eloquent models and eager-loaded relationships;
+- use explicit fields;
+- avoid queries in Blade;
 - write audit events for sensitive exports;
-- avoid querying from Blade.
-
-## Email Attachment Imports
-
-Email attachments are external input. The email layer may store or expose attachments, but Laravel import actions must validate and process them.
-
-## Provider Boundary
-
-Provider SDK code belongs in adapters. Adapters should not:
-- calculate order quantities;
-- approve AI suggestions;
-- apply confirmations;
-- choose carriers;
-- mutate logistics decisions.
+- use queues for long-running work.
 
 ## Testing
 
-Every adapter should have:
-- a fake or array-backed implementation;
-- malformed input tests;
-- duplicate row tests;
-- missing required field tests;
-- audit assertions for successful imports.
+Every adapter must be testable without real external services.
+
+Tests should use:
+
+- fake adapters;
+- array-backed providers;
+- fixture files with fake data;
+- malformed input cases;
+- duplicate row cases;
+- missing required field cases.

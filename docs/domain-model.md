@@ -1,183 +1,148 @@
 # Domain Model
 
-The domain model is Eloquent-first. Services and actions pass Eloquent models, associative arrays, and PHPDoc array shapes. Dedicated DTO classes are not part of this architecture.
+## Modeling Rule
 
-## Core Entities
+The domain model is Eloquent-first.
+
+Allowed structured data carriers:
+
+- Eloquent models;
+- associative arrays;
+- FormRequest validated arrays;
+- Laravel Validator output;
+- JSON columns;
+- enums;
+- PHPDoc array shapes.
+
+Forbidden:
+
+- DTO classes;
+- app/Data;
+- Spatie Data classes;
+- classes ending with DTO or Dto.
+
+## Core Domain Concepts
 
 ### User
-Represents an authenticated operator.
 
-Important fields:
-- `role`: enum-backed workflow role.
+An authenticated operator. Users approve proposals, review AI suggestions, select carriers, and perform admin operations according to policy.
 
-Primary responsibilities:
-- Approve AI suggestions.
-- Prepare supply orders.
-- Apply confirmed suggestions.
-- Update logistics according to policy.
+Expected roles:
 
-### Manufacturer
-Represents a supplier or producer.
+- admin;
+- supply_manager;
+- logistics_manager;
+- viewer.
 
-Important fields:
-- `name`
-- `email`
-- `order_form_url`
+### Supplier
 
-Relationships:
-- has many `Product`
-- has many `SupplyOrder`
+A manufacturer, vendor, or supplier that can receive orders and send confirmations.
+
+Expected responsibilities:
+
+- own order contact data;
+- define order form metadata;
+- provide confirmation and logistics communication.
 
 ### Product
-Represents a purchasable SKU.
 
-Important fields:
-- `manufacturer_id`
-- `sku`
-- `name`
-- `unit`
+A purchasable SKU connected to a supplier.
 
-Relationships:
-- belongs to `Manufacturer`
-- has one `StockItem`
-- has many `SupplyOrder`
+Expected responsibilities:
 
-### StockItem
-Represents current and incoming inventory for one product.
+- identify SKU and unit;
+- carry supplier relationship;
+- participate in stock and order calculations.
 
-Important fields:
-- `available_quantity`
-- `incoming_quantity`
-- `reserved_quantity`
+### Inventory Snapshot
 
-Stock values are inputs to deterministic order calculation.
+Validated stock and demand input for deterministic calculation.
 
-### SupplyOrder
-Represents a proposed or active supplier order.
+Expected values:
 
-Important fields:
-- `order_number`
-- `status`
-- `customer_reference`
-- `requested_quantity`
-- `available_quantity`
-- `required_quantity`
-- `manufacturer_quantity`
-- `reserve_percent`
-- `manufacturer_confirmation_number`
-- `manufacturer_ready_on`
-- `submitted_at`
+- free stock;
+- inbound quantity by date range;
+- reserved quantity;
+- historical sales;
+- demand horizon;
+- pack, MOQ, pallet, and transport rounding configuration.
 
-Relationships:
-- belongs to `Manufacturer`
-- belongs to `Product`
-- has many `ManufacturerEmail`
-- has many `AiSuggestion`
-- has many `LogisticsOption`
-- has one `LogisticsEntry`
-- has many audit events
+### Order Proposal
 
-### ManufacturerEmail
-Stores inbound manufacturer email. It is a source record, not trusted business state.
+A Laravel-created recommendation produced by deterministic calculation.
 
-Important fields:
-- `from_email`
-- `subject`
-- `body`
-- `received_at`
-- `processed_at`
-- `automation_source`
+Important behavior:
 
-AI extraction results are not directly applied to business fields. They become `AiSuggestion` records.
+- stores inputs and explanation;
+- may require human review;
+- may be approved, rejected, or adjusted by authorized users;
+- cannot be created or changed by AI directly.
 
-### AiSuggestion
-Stores AI-generated proposals.
+### Supplier Order
 
-Types:
-- `email_confirmation`
-- `form_autofill`
-- `email_reply_draft`
+An approved procurement order prepared from a proposal.
 
-Statuses:
-- `pending_review`
-- `approved`
-- `rejected`
-- `applied`
+Important behavior:
 
-Important fields:
-- `payload`
-- `confidence_score`
-- `requires_review`
-- `conflicts`
-- `source_adapter`
+- can have draft email or form output;
+- requires approval before supplier email is sent;
+- can receive confirmation suggestions;
+- tracks supplier confirmation state.
 
-### HumanReview
-Tracks required human review for an AI suggestion.
+### Email Message
 
-Statuses:
-- `pending`
-- `approved`
-- `rejected`
+Inbound or outbound supplier communication.
 
-Reasons:
-- low confidence
-- conflicts
-- required approval
+Inbound email is source data only. It may produce AI suggestions, but it must not mutate supplier orders, confirmations, logistics, or products directly.
 
-### ManufacturerFormSubmission
-Represents a prepared form payload for a supplier form.
+### AI Suggestion
 
-This record is created only after an approved form autofill suggestion is applied.
+A stored proposal generated from AI or extraction.
 
-### LogisticsOption
-Represents a candidate carrier quote.
+Expected types:
 
-Important fields:
-- `carrier_name`
-- `service_name`
-- `price_cents`
-- `currency`
-- `transit_days`
-- `pickup_on`
-- `delivery_on`
-- `selected`
+- supplier confirmation;
+- form autofill;
+- email reply draft;
+- logistics or quote extraction candidate.
 
-### LogisticsEntry
-Represents the chosen logistics plan for a supply order.
+Expected statuses:
 
-Important fields:
-- `carrier_name`
-- `price_cents`
-- `pickup_on`
-- `delivery_on`
-- `status`
-- `compared_at`
+- pending_review;
+- approved;
+- rejected;
+- applied.
 
-### SupplyAuditEvent
-Append-only audit event for critical workflow actions.
+### Human Review
 
-Important fields:
-- `actor_id`
-- `auditable_type`
-- `auditable_id`
-- `event`
-- `metadata`
-- `occurred_at`
+A required decision point for uncertain, risky, or AI-generated data.
 
-## Role Model
+Review reasons include:
 
-Roles are enum values:
-- `admin`
-- `supply_manager`
-- `logistics_manager`
-- `viewer`
+- low confidence;
+- conflict;
+- missing required field;
+- approval required;
+- policy restriction.
 
-Expected permissions:
-- Admin: manage supply and logistics workflows.
-- Supply manager: create supply orders, approve/apply AI suggestions, supplier communication.
-- Logistics manager: update logistics workflow.
-- Viewer: read-only where UI allows.
+### Carrier Quote
+
+A candidate transport option.
+
+Carrier quotes may be imported or entered manually. The system may compare quotes, but a user must select the carrier.
+
+### Logistics Record
+
+The selected transport plan for a supplier order.
+
+It should include carrier, service, price, currency, pickup date, delivery date, status, and audit history.
+
+### Audit Event
+
+Append-only record of important workflow actions.
+
+Audit metadata must not contain secrets.
 
 ## Boundary Rule
 
-AI models never replace domain models. AI output is attached to domain records as suggestions and must pass Laravel validation plus human approval before mutation.
+AI output never replaces domain models. It is attached to domain records as suggestions and must pass Laravel validation plus human approval before any business mutation.

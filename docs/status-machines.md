@@ -1,96 +1,122 @@
 # Status Machines
 
-## Order Proposal
+## Rule
 
-- draft
-- needs_review
-- approved
-- rejected
-- converted_to_supplier_order
+Workflow state changes must happen through Laravel actions or services. AI, Blade templates, adapters, and provider callbacks must not transition business statuses directly.
 
-Transitions:
-draft -> needs_review
-draft -> approved
-needs_review -> approved
-needs_review -> rejected
-approved -> converted_to_supplier_order
+## Order Proposal Statuses
 
-## Order Proposal Item
+### draft
 
-- draft
-- needs_review
-- approved
-- adjusted
-- rejected
+Created by deterministic calculation and waiting for review.
 
-Transitions:
-draft -> approved
-draft -> adjusted
-draft -> rejected
-needs_review -> approved
-needs_review -> adjusted
-needs_review -> rejected
+Allowed transitions:
 
-Adjustment requires reason.
+- approved;
+- rejected;
+- needs_review.
 
-## Supplier Order
+### needs_review
 
-- draft
-- awaiting_approval
-- approved
-- email_prepared
-- sent
-- confirmed
-- partially_confirmed
-- delayed
-- completed
-- cancelled
-- needs_review
+Proposal has missing inputs, conflicts, unusual quantity, or policy concerns.
 
-Email sending requires approval.
+Allowed transitions:
 
-## AI Extraction
+- approved;
+- rejected.
 
-- created
-- needs_review
-- accepted
-- rejected
+### approved
 
-Accepted extraction still must be applied by Laravel service.
+Authorized user approved the proposal.
 
-## Form Autofill Run
+Allowed transitions:
 
-- draft
-- ai_filled
-- needs_review
-- validated
-- applied
-- rejected
-- exported
-- failed
+- converted_to_supplier_order.
 
-Only validated runs can be applied.
+### rejected
 
-## Carrier Quote
+Proposal is closed and must not create supplier orders.
 
-- received
-- needs_review
-- selected
-- rejected
+### converted_to_supplier_order
 
-Selected requires user confirmation.
+Supplier order has been created from the approved proposal.
 
-## Logistics
+## Supplier Order Statuses
 
-- planned
-- order_sent
-- confirmed
-- waiting_for_ready_date
-- ready_for_pickup
-- pickup_scheduled
-- in_transit
-- delayed
-- arrived
-- completed
-- cancelled
-- needs_review
+### draft
+
+Supplier order exists but no supplier communication has been approved.
+
+Allowed transitions:
+
+- email_drafted;
+- form_ready;
+- cancelled.
+
+### email_drafted
+
+Email draft exists and waits for approval.
+
+Allowed transitions:
+
+- email_approved;
+- cancelled.
+
+### email_approved
+
+User approved supplier email.
+
+Allowed transitions:
+
+- email_sent.
+
+### email_sent
+
+Email sender or manual send recorded the outbound message.
+
+Allowed transitions:
+
+- confirmation_pending;
+- confirmed;
+
+### confirmation_pending
+
+Waiting for supplier confirmation or review.
+
+Allowed transitions:
+
+- confirmed;
+- disputed;
+
+### confirmed
+
+Supplier confirmation has been applied by Laravel after approval.
+
+Allowed transitions:
+
+- logistics_pending.
+
+## AI Suggestion Statuses
+
+- pending_review;
+- approved;
+- rejected;
+- applied.
+
+AI cannot move itself to approved or applied.
+
+## Logistics Statuses
+
+- quotes_needed;
+- quotes_received;
+- carrier_selected;
+- planned;
+- in_transit;
+- delivered;
+- exception.
+
+Carrier selection must be a human action.
+
+## Audit Requirement
+
+Every status transition must be auditable with actor, old status, new status, reason, and affected record.

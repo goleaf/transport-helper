@@ -1,20 +1,38 @@
 # Calculation Engine
 
-## Rule
+## Core Rule
 
 The calculation engine is deterministic.
-AI is not allowed inside calculation.
+
+Only Laravel/PHP calculation code may determine order quantities. AI, email extraction, supplier replies, carrier quotes, and external provider responses must not calculate or change quantities.
+
+## Inputs
+
+Expected inputs:
+
+- free stock;
+- incoming stock before arrival date;
+- incoming stock during planning horizon;
+- reserved quantity;
+- current year sales for trend;
+- last year sales for trend;
+- historical sales for coverage windows;
+- reserve percentage;
+- MOQ;
+- pack multiple;
+- pallet quantity;
+- transport rounding rules.
 
 ## Timeline
 
-T0 = today / order date.
-T1 = expected goods arrival date.
-T2 = end of planned coverage period.
-T3 = end of safety horizon.
+- T0: order date.
+- T1: expected goods arrival date.
+- T2: end of planned coverage period.
+- T3: end of safety horizon.
 
-T0-T1, T1-T2 and T2-T3 must not overlap.
+The periods T0-T1, T1-T2, and T2-T3 must not overlap.
 
-## Formula
+## Formula Boundary
 
 Trend = current_year_sales_for_trend / last_year_sales_for_trend
 
@@ -28,11 +46,41 @@ Safety_Stock = LY(T2-T3) * Trend
 
 Raw_Need = Need_T1_T2 + Safety_Stock - Stock_T1 - inbound_T1_T3 + reserved_quantity
 
-Final_Order = Raw_Need adjusted by MOQ, pack multiple, pallet quantity and transport rules.
+Final_Order = Raw_Need adjusted by MOQ, pack multiple, pallet quantity, and transport rules.
 
-## Required Test
+## Required Explanation
+
+Every calculated proposal must explain:
+
+- formula version;
+- input values;
+- timeline windows;
+- intermediate values;
+- rounding steps;
+- warnings;
+- final recommended quantity;
+- review reasons.
+
+## Human Review Conditions
+
+Needs review when:
+
+- last year sales are missing or zero without configured fallback;
+- stock or inbound data conflicts;
+- formula inputs are incomplete;
+- rounding creates unusually high order quantity;
+- calculated quantity is negative;
+- supplier MOQ or pack rules are missing;
+- override is requested by a user.
+
+## No DTO
+
+Calculation input and output must not use DTO classes. Use arrays with PHPDoc shapes, Eloquent models, and Laravel validation.
+
+## Example Test Fixture
 
 Input:
+
 - current_year_sales_for_trend = 120;
 - last_year_sales_for_trend = 100;
 - trend = 1.20;
@@ -52,46 +100,6 @@ Input:
 - Final_Order = 156.
 
 Expected:
+
 - raw_need = 150;
 - recommended_quantity = 156.
-
-## Edge Cases
-
-### Missing Last Year Sales
-
-If last_year_sales_for_trend = 0:
-- do not guess;
-- use fallback only if configured;
-- otherwise mark needs_review.
-
-### Negative Raw Need
-
-If raw_need < 0:
-- recommend 0;
-- unless strategic minimum order rule is enabled.
-
-### Reservations
-
-Reservations are added to need only if they were not already removed from free_stock.
-The system must use one consistent reservation strategy.
-
-### Inbound
-
-Inbound until T1 increases projected stock at T1.
-Inbound between T1 and T3 decreases new order need because it already covers the planning/safety horizon.
-
-### Safety Stock
-
-Safety stock must only cover T2-T3.
-Do not double-count safety period.
-
-## Explanation
-
-Every calculated item must store explanation:
-- timeline;
-- inputs;
-- formula steps;
-- intermediate values;
-- rounding steps;
-- warnings;
-- final result.
