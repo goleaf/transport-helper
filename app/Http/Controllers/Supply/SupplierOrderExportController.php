@@ -2,10 +2,11 @@
 
 namespace App\Http\Controllers\Supply;
 
+use App\Exceptions\NotConfiguredYetException;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Supply\ExportSupplierOrderRequest;
 use App\Models\SupplierOrder;
-use App\Services\Supply\SupplierOrderExportService;
+use App\Services\Supply\SupplierOrders\SupplierOrderExportService;
 use Illuminate\Http\RedirectResponse;
 
 class SupplierOrderExportController extends Controller
@@ -15,10 +16,21 @@ class SupplierOrderExportController extends Controller
         SupplierOrder $order,
         SupplierOrderExportService $exportService,
     ): RedirectResponse {
-        $exportFile = $exportService->export($order, $request->user(), $request->validated());
+        try {
+            $result = $exportService->export(
+                $order,
+                (string) $request->validated('format'),
+                $request->validated(),
+                $request->user(),
+            );
+        } catch (NotConfiguredYetException $exception) {
+            return redirect()
+                ->route('supply.supplier-orders.show', $order)
+                ->withErrors(['format' => $exception->getMessage()]);
+        }
 
         return redirect()
             ->route('supply.supplier-orders.show', $order)
-            ->with('status', "Export {$exportFile->filename} created.");
+            ->with('status', "Export {$result['filename']} created.");
     }
 }

@@ -104,10 +104,16 @@ Output:
 
 System:
 
-* exports CSV/JSON/manufacturer form;
-* prepares email draft;
+* exports CSV, JSON and Excel-compatible CSV;
+* keeps PDF and supplier custom template exports as configured placeholders;
+* stores generated files as ExportFile records;
+* prepares deterministic supplier email draft;
+* attaches latest or auto-generated export;
 * waits for human approval;
-* sends only after approval.
+* sends only after approval through configured sender;
+* uses LogEmailSender in local and tests;
+* updates supplier order and logistics statuses;
+* writes audit logs.
 
 ## 6. Inbound Supplier Reply
 

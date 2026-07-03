@@ -74,7 +74,10 @@ function makeSecuritySupplierOrderEmailFixture(): array
         'supplier_id' => $supplier->getKey(),
         'order_proposal_id' => null,
         'order_number' => 'PO-SEC-MAIL',
-        'status' => SupplierOrderStatus::EmailPrepared,
+        'status' => SupplierOrderStatus::Approved,
+        'email_approved_at' => now(),
+        'email_approved_by_user_id' => $user->getKey(),
+        'no_attachment_confirmed' => true,
     ]);
 
     SupplierOrderItem::factory()->create([
@@ -98,6 +101,10 @@ function makeSecuritySupplierOrderEmailFixture(): array
         'related_supplier_order_id' => $order->getKey(),
         'status' => 'approved',
     ]);
+
+    $order->forceFill([
+        'email_message_id' => (string) $approvedEmail->getKey(),
+    ])->save();
 
     return compact('company', 'supplier', 'product', 'user', 'order', 'approvedEmail');
 }

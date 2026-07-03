@@ -25,11 +25,8 @@ class ExportSupplierOrderRequest extends FormRequest
                     'csv',
                     'json',
                     'excel_csv',
-                    'excel-compatible-csv',
-                    'excel_compatible_csv',
                     'pdf',
                     'supplier_custom_template',
-                    'supplier-custom-template',
                 ]),
             ],
         ];

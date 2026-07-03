@@ -14,8 +14,8 @@ class MicrosoftGraphEmailProvider implements EmailProviderInterface, EmailSender
         throw new NotConfiguredYetException('Microsoft Graph email provider is not configured yet.');
     }
 
-    public function send(EmailAccount $account, array $message): array
+    public function send(?EmailAccount $account, array $message): array
     {
-        throw new NotConfiguredYetException('Microsoft Graph email sender is not configured yet.');
+        throw NotConfiguredYetException::forAdapter('microsoft_graph_email_sender');
     }
 }

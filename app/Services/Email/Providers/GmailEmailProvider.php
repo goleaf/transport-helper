@@ -14,8 +14,8 @@ class GmailEmailProvider implements EmailProviderInterface, EmailSenderInterface
         throw new NotConfiguredYetException('Gmail email provider is not configured yet.');
     }
 
-    public function send(EmailAccount $account, array $message): array
+    public function send(?EmailAccount $account, array $message): array
     {
-        throw new NotConfiguredYetException('Gmail email sender is not configured yet.');
+        throw NotConfiguredYetException::forAdapter('gmail_email_sender');
     }
 }

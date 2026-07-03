@@ -117,12 +117,26 @@ Implementation:
 
 ## Step 7. Supplier Order Export And Email
 
+Status: implemented in Stage 5.
+
 Result:
 
 * exports;
 * email draft;
 * approval;
 * safe sending.
+
+Implementation:
+
+* supplier order list/detail screens expanded;
+* CSV, JSON and Excel-compatible CSV exporters implemented;
+* PDF and supplier custom template exporters left as explicit placeholders;
+* export files stored privately and downloadable through authorized route;
+* deterministic supplier email draft service implemented;
+* email approval and log-only send workflow implemented;
+* outbound email and attachment records stored;
+* supplier order and logistics statuses updated;
+* audit events and focused tests added.
 
 ## Step 8. Inbound Email And AI Extraction
 

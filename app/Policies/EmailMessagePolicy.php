@@ -4,18 +4,29 @@ namespace App\Policies;
 
 use App\Enums\UserRole;
 use App\Models\EmailMessage;
+use App\Models\SupplierOrder;
 use App\Models\User;
 
 class EmailMessagePolicy
 {
     public function viewAny(User $user): bool
     {
-        return true;
+        return $this->hasAnyRole($user, [
+            UserRole::Admin,
+            UserRole::SupplyManager,
+            UserRole::LogisticsManager,
+            UserRole::Accountant,
+            UserRole::Viewer,
+        ]);
     }
 
     public function view(User $user, EmailMessage $emailMessage): bool
     {
-        return true;
+        $order = $this->relatedOrder($emailMessage);
+
+        return $order instanceof SupplierOrder
+            ? $user->can('view', $order)
+            : $this->viewAny($user);
     }
 
     public function create(User $user): bool
@@ -45,6 +56,42 @@ class EmailMessagePolicy
 
     private function manage(User $user): bool
     {
-        return $user->hasAnyRole([UserRole::Admin, UserRole::SupplyManager]);
+        return $this->hasAnyRole($user, [UserRole::Admin, UserRole::SupplyManager]);
+    }
+
+    public function approve(User $user, EmailMessage $emailMessage): bool
+    {
+        return $this->hasPermission($user, 'approve_supplier_emails') || $this->manage($user);
+    }
+
+    public function send(User $user, EmailMessage $emailMessage): bool
+    {
+        return $this->hasPermission($user, 'send_supplier_emails') || $this->manage($user);
+    }
+
+    /**
+     * @param  list<UserRole>  $roles
+     */
+    private function hasAnyRole(User $user, array $roles): bool
+    {
+        return $user->hasAnyRole($roles);
+    }
+
+    private function hasPermission(User $user, string $permission): bool
+    {
+        return method_exists($user, 'hasPermission')
+            ? $user->hasPermission($permission)
+            : (method_exists($user, 'hasPermissionTo') && $user->hasPermissionTo($permission));
+    }
+
+    private function relatedOrder(EmailMessage $emailMessage): ?SupplierOrder
+    {
+        if ($emailMessage->relationLoaded('relatedSupplierOrder')) {
+            return $emailMessage->relatedSupplierOrder;
+        }
+
+        return $emailMessage->relatedSupplierOrder()
+            ->select(['id', 'company_id', 'supplier_id', 'status'])
+            ->first();
     }
 }

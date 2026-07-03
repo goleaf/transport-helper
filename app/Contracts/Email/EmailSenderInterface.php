@@ -10,5 +10,5 @@ interface EmailSenderInterface
      * @param  array<string, mixed>  $message
      * @return array<string, mixed>
      */
-    public function send(EmailAccount $account, array $message): array;
+    public function send(?EmailAccount $account, array $message): array;
 }

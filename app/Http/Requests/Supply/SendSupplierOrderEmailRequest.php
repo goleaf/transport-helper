@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Supply;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class SendSupplierOrderEmailRequest extends FormRequest
 {
@@ -12,12 +13,14 @@ class SendSupplierOrderEmailRequest extends FormRequest
     }
 
     /**
-     * @return array<string, list<string>>
+     * @return array<string, list<mixed>>
      */
     public function rules(): array
     {
         return [
-            'no_attachment_confirmed' => ['sometimes', 'accepted'],
+            'email_account_id' => ['nullable', 'integer', 'exists:email_accounts,id'],
+            'sender' => ['nullable', 'string', Rule::in(['log', 'smtp', 'gmail', 'microsoft_graph'])],
+            'resend' => ['nullable', 'boolean'],
         ];
     }
 }

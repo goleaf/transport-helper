@@ -49,6 +49,17 @@ Transitions:
 * cancelled
 * needs_review
 
+Transitions for export/email workflow:
+
+* draft -> email_prepared after deterministic email draft is prepared;
+* approved -> email_prepared if email draft is regenerated before sending;
+* email_prepared -> approved after human email approval;
+* approved -> sent after approved outbound email is sent;
+* sent -> confirmed later;
+* sent -> partially_confirmed later;
+* sent -> delayed later;
+* any open status -> cancelled where allowed.
+
 ## EmailMessage
 
 * stored
@@ -63,6 +74,20 @@ Transitions:
 * approved
 * sent
 * send_failed
+
+Outbound supplier email transitions:
+
+* draft -> approved after human review;
+* approved -> sent after sender confirms delivery/logging;
+* approved -> send_failed when sender fails.
+
+## ExportFile
+
+* created
+* stored
+* failed
+* downloaded
+* sent
 
 ## AiEmailExtraction
 

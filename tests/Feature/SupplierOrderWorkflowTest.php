@@ -150,7 +150,7 @@ it('exports a supplier order to JSON', function () {
         ->export($fixture['order'], $fixture['user'], ['format' => 'json']);
     $payload = json_decode(Storage::get($exportFile->stored_path), true, flags: JSON_THROW_ON_ERROR);
 
-    expect($payload['order_number'])->toBe('PO-TEST-1')
+    expect($payload['supplier_order']['order_number'])->toBe('PO-TEST-1')
         ->and($payload['items'][0]['sku'])->toBe('AX-150')
         ->and((float) $payload['items'][0]['ordered_quantity'])->toBe(156.0);
 });
@@ -165,7 +165,7 @@ it('creates an email draft with supplier contact', function () {
         ->and($emailMessage->direction->value)->toBe('outbound')
         ->and($emailMessage->to_json)->toBe(['orders@example.test'])
         ->and($emailMessage->subject)->toContain('PO-TEST-1')
-        ->and($emailMessage->body_text)->toContain('AX-150')
+        ->and($emailMessage->body_text)->toContain('Please find attached our purchase order PO-TEST-1.')
         ->and($fixture['order']->fresh()->status)->toBe(SupplierOrderStatus::EmailPrepared);
 });
 
@@ -179,15 +179,12 @@ it('does not send an unapproved supplier order email', function () {
         ->send($fixture['order'], $fixture['user'], ['no_attachment_confirmed' => true]);
 })->throws(ValidationException::class);
 
-it('requires explicit confirmation to send an approved email without attachments', function () {
+it('requires explicit confirmation to approve an email without attachments', function () {
     $fixture = makeSupplierOrderEmailFixture();
     $draftService = app(SupplierOrderEmailDraftService::class);
 
-    $draftService->prepareDraft($fixture['order'], $fixture['user']);
+    $draftService->prepareDraft($fixture['order'], $fixture['user'], ['auto_export' => false]);
     $draftService->approveDraft($fixture['order'], $fixture['user']);
-
-    app(SupplierOrderSendService::class)
-        ->send($fixture['order'], $fixture['user']);
 })->throws(ValidationException::class);
 
 it('sends an approved email, writes audit log, and updates status', function () {
@@ -204,8 +201,9 @@ it('sends an approved email, writes audit log, and updates status', function () 
 
     expect($sentEmail)->toBeInstanceOf(EmailMessage::class)
         ->and($sentEmail->status)->toBe('sent')
-        ->and($sentEmail->message_id)->toStartWith('manual-')
+        ->and($sentEmail->message_id)->toStartWith('log-')
         ->and($order->status)->toBe(SupplierOrderStatus::Sent)
-        ->and($order->email_message_id)->toBe($sentEmail->message_id)
+        ->and($order->email_message_id)->toBe((string) $sentEmail->id)
+        ->and(AuditLog::query()->where('event_type', 'supplier_email_sent')->exists())->toBeTrue()
         ->and(AuditLog::query()->where('event_type', 'supplier_order.email_sent')->exists())->toBeTrue();
 });

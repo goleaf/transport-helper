@@ -19,18 +19,22 @@ class ManualEmailProvider implements EmailProviderInterface, EmailSenderInterfac
         ));
     }
 
-    public function send(EmailAccount $account, array $message): array
+    public function send(?EmailAccount $account, array $message): array
     {
         $messageId = $message['message_id'] ?? sprintf(
             'manual-%s-%s',
-            $account->id,
+            $account?->id ?? 'no-account',
             hash('sha256', (string) json_encode($message)),
         );
 
         return [
+            'sent' => true,
             'message_id' => $messageId,
-            'status' => 'sent',
             'provider' => 'manual',
+            'sent_at' => now()->toISOString(),
+            'raw_response' => [
+                'mode' => 'manual_provider',
+            ],
         ];
     }
 }

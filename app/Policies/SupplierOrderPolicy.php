@@ -15,6 +15,7 @@ class SupplierOrderPolicy
             UserRole::SupplyManager,
             UserRole::LogisticsManager,
             UserRole::Accountant,
+            UserRole::Viewer,
         ]) || $this->hasAnyPermission($user, ['create_supplier_orders', 'view_logistics']);
     }
 
@@ -41,12 +42,12 @@ class SupplierOrderPolicy
 
     public function export(User $user, SupplierOrder $supplierOrder): bool
     {
-        return $this->create($user);
+        return $this->view($user, $supplierOrder) || $this->create($user);
     }
 
     public function prepareEmail(User $user, SupplierOrder $supplierOrder): bool
     {
-        return $this->create($user);
+        return $this->create($user) || $this->approveEmail($user, $supplierOrder);
     }
 
     public function approveEmail(User $user, SupplierOrder $supplierOrder): bool
