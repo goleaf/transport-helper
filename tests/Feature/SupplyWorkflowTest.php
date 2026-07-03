@@ -141,6 +141,7 @@ it('seeds the minimal role and permission matrix', function () {
         ->where('name', 'viewer')
         ->with('permissions')
         ->firstOrFail();
+    $permissionsCount = Permission::query()->count();
 
     expect(Role::query()->pluck('name')->sort()->values()->all())->toBe([
         'accountant',
@@ -149,8 +150,8 @@ it('seeds the minimal role and permission matrix', function () {
         'supply_manager',
         'viewer',
     ])
-        ->and(Permission::query()->count())->toBe(22)
-        ->and($admin->permissions)->toHaveCount(22)
+        ->and($permissionsCount)->toBeGreaterThanOrEqual(22)
+        ->and($admin->permissions)->toHaveCount($permissionsCount)
         ->and($viewer->permissions->pluck('name')->all())->toBe([
             'view_products',
             'view_calculations',

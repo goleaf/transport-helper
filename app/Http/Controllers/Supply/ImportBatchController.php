@@ -101,7 +101,7 @@ class ImportBatchController extends Controller
 
     public function rollback(Request $request, ImportBatch $batch): RedirectResponse
     {
-        $this->importBatchService->rollback($batch, $request->user()?->getKey());
+        $this->importBatchService->rollback($batch, $request->user());
 
         return redirect()->route('supply.imports.show', $batch);
     }

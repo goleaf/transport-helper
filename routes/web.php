@@ -12,7 +12,8 @@ use App\Http\Controllers\Supply\FormAutofillFieldReviewController;
 use App\Http\Controllers\Supply\FormAutofillRunController;
 use App\Http\Controllers\Supply\FormTemplateController;
 use App\Http\Controllers\Supply\FormTemplateFieldController;
-use App\Http\Controllers\Supply\ImportBatchController;
+use App\Http\Controllers\Supply\ImportController;
+use App\Http\Controllers\Supply\ImportRollbackController;
 use App\Http\Controllers\Supply\LogisticsController;
 use App\Http\Controllers\Supply\LogisticsExportController;
 use App\Http\Controllers\Supply\LogisticsGoogleSheetsSyncController;
@@ -52,11 +53,11 @@ Route::middleware(['web'])
         Route::get('settings', [SupplySectionController::class, 'show'])->defaults('section', 'settings')->name('settings.index');
         Route::get('integrations', [SupplySectionController::class, 'show'])->defaults('section', 'integrations')->name('integrations.index');
 
-        Route::get('imports', [ImportBatchController::class, 'index'])->name('imports.index');
-        Route::get('imports/create', [ImportBatchController::class, 'create'])->name('imports.create');
-        Route::post('imports', [ImportBatchController::class, 'store'])->name('imports.store');
-        Route::get('imports/{batch}', [ImportBatchController::class, 'show'])->name('imports.show');
-        Route::post('imports/{batch}/rollback', [ImportBatchController::class, 'rollback'])->name('imports.rollback');
+        Route::get('imports', [ImportController::class, 'index'])->name('imports.index');
+        Route::get('imports/create', [ImportController::class, 'create'])->name('imports.create');
+        Route::post('imports', [ImportController::class, 'store'])->name('imports.store');
+        Route::get('imports/{batch}', [ImportController::class, 'show'])->name('imports.show');
+        Route::post('imports/{batch}/rollback', ImportRollbackController::class)->name('imports.rollback');
 
         Route::get('proposals', [OrderProposalController::class, 'index'])->name('proposals.index');
         Route::get('proposals/{proposal}', [OrderProposalController::class, 'show'])->name('proposals.show');

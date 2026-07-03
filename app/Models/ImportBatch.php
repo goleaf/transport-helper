@@ -19,6 +19,7 @@ class ImportBatch extends Model
      */
     protected $fillable = [
         'company_id',
+        'import_type',
         'source_type',
         'source_name',
         'adapter',

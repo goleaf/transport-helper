@@ -30,6 +30,19 @@
             <div>{{ $errors->first('company_id') }}</div>
 
             <label>
+                Supplier
+                <select name="supplier_id">
+                    <option value="">Optional</option>
+                    @foreach ($suppliers as $supplier)
+                        <option value="{{ $supplier->id }}" @selected((int) old('supplier_id') === $supplier->id)>
+                            {{ $supplier->name }}
+                        </option>
+                    @endforeach
+                </select>
+            </label>
+            <div>{{ $errors->first('supplier_id') }}</div>
+
+            <label>
                 Import type
                 <select name="import_type" required>
                     @foreach ($importTypes as $importType)
@@ -44,12 +57,11 @@
             <label>
                 Adapter
                 <select name="adapter" required>
-                    <option value="csv" @selected(old('adapter', 'csv') === 'csv')>csv</option>
-                    <option value="excel" @selected(old('adapter') === 'excel')>excel</option>
-                    <option value="google_sheets" @selected(old('adapter') === 'google_sheets')>google_sheets</option>
-                    <option value="api" @selected(old('adapter') === 'api')>api</option>
-                    <option value="manual_json" @selected(old('adapter') === 'manual_json')>manual_json</option>
-                    <option value="email_attachment" @selected(old('adapter') === 'email_attachment')>email_attachment</option>
+                    @foreach ($adapters as $adapter)
+                        <option value="{{ $adapter }}" @selected(old('adapter', 'csv') === $adapter)>
+                            {{ $adapter }}
+                        </option>
+                    @endforeach
                 </select>
             </label>
             <div>{{ $errors->first('adapter') }}</div>
@@ -62,12 +74,43 @@
 
             <label>
                 Dry run
+                <input type="hidden" name="dry_run" value="0">
                 <input type="checkbox" name="dry_run" value="1" @checked(old('dry_run'))>
             </label>
 
             <label>
+                Allow duplicate checksum
+                <input type="hidden" name="allow_duplicate" value="0">
+                <input type="checkbox" name="allow_duplicate" value="1" @checked(old('allow_duplicate'))>
+            </label>
+
+            <label>
+                Allow negative stock
+                <input type="hidden" name="allow_negative_stock" value="0">
+                <input type="checkbox" name="allow_negative_stock" value="1" @checked(old('allow_negative_stock'))>
+            </label>
+
+            <label>
+                Delimiter
+                <input name="delimiter" value="{{ old('delimiter', ',') }}">
+            </label>
+            <div>{{ $errors->first('delimiter') }}</div>
+
+            <label>
+                Has header
+                <input type="hidden" name="has_header" value="0">
+                <input type="checkbox" name="has_header" value="1" @checked(old('has_header', true))>
+            </label>
+
+            <label>
+                Date format
+                <input name="date_format" value="{{ old('date_format') }}">
+            </label>
+            <div>{{ $errors->first('date_format') }}</div>
+
+            <label>
                 File
-                <input type="file" name="file" required>
+                <input type="file" name="file">
             </label>
             <div>{{ $errors->first('file') }}</div>
 

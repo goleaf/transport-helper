@@ -5,10 +5,8 @@ namespace App\Contracts\Import;
 interface ImportAdapterInterface
 {
     /**
-     * @param  array<string, mixed>  $options
-     * @return list<array{row_number:int,data:array<string,mixed>}>
+     * @param  array<string, mixed>  $config
+     * @return array<int, array<string, mixed>>
      */
-    public function rows(string $sourcePath, array $options = []): array;
-
-    public function checksum(string $sourcePath): string;
+    public function read(array $config): array;
 }

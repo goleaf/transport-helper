@@ -4,28 +4,45 @@ namespace App\Services\Import;
 
 use App\Contracts\Import\ImportAdapterInterface;
 use App\Contracts\Import\ImportNormalizerInterface;
+use App\Contracts\Import\ImportPersisterInterface;
 use App\Contracts\Import\ImportValidatorInterface;
 use App\Enums\ImportBatchStatus;
-use App\Imports\Adapters\ApiImportAdapter;
-use App\Imports\Adapters\CsvImportAdapter;
-use App\Imports\Adapters\EmailAttachmentImportAdapter;
-use App\Imports\Adapters\ExcelImportAdapter;
-use App\Imports\Adapters\GoogleSheetsImportAdapter;
-use App\Imports\Adapters\ManualJsonImportAdapter;
-use App\Models\AuditLog;
+use App\Enums\ImportRowStatus;
+use App\Models\Company;
 use App\Models\ImportBatch;
 use App\Models\ImportRow;
-use App\Models\InboundOrder;
 use App\Models\InboundOrderItem;
-use App\Models\Product;
 use App\Models\Reservation;
 use App\Models\SalesHistory;
 use App\Models\StockSnapshot;
-use App\Models\Supplier;
 use App\Models\SupplierProductRule;
+use App\Models\User;
+use App\Services\Audit\AuditLogService;
+use App\Services\Import\Adapters\ApiImportAdapter;
+use App\Services\Import\Adapters\CsvImportAdapter;
+use App\Services\Import\Adapters\EmailAttachmentImportAdapter;
+use App\Services\Import\Adapters\ExcelImportAdapter;
+use App\Services\Import\Adapters\GoogleSheetsImportAdapter;
+use App\Services\Import\Adapters\ManualJsonImportAdapter;
+use App\Services\Import\Normalizers\InboundOrderNormalizer;
+use App\Services\Import\Normalizers\ProductRuleNormalizer;
+use App\Services\Import\Normalizers\ReservationNormalizer;
+use App\Services\Import\Normalizers\SalesHistoryNormalizer;
+use App\Services\Import\Normalizers\StockSnapshotNormalizer;
+use App\Services\Import\Persisters\InboundOrderPersister;
+use App\Services\Import\Persisters\ProductRulePersister;
+use App\Services\Import\Persisters\ReservationPersister;
+use App\Services\Import\Persisters\SalesHistoryPersister;
+use App\Services\Import\Persisters\StockSnapshotPersister;
+use App\Services\Import\Validators\InboundOrderValidator;
+use App\Services\Import\Validators\ProductRuleValidator;
+use App\Services\Import\Validators\ReservationValidator;
+use App\Services\Import\Validators\SalesHistoryValidator;
+use App\Services\Import\Validators\StockSnapshotValidator;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use RuntimeException;
+use Throwable;
 
 class ImportBatchService
 {
@@ -39,16 +56,15 @@ class ImportBatchService
         'reservations',
         'product_rules',
         'supplier_products',
-        'carrier_quotes',
-        'logistics_records',
     ];
 
     public function __construct(
+        private AuditLogService $auditLogService,
         private CsvImportAdapter $csvImportAdapter,
+        private ManualJsonImportAdapter $manualJsonImportAdapter,
         private ExcelImportAdapter $excelImportAdapter,
         private GoogleSheetsImportAdapter $googleSheetsImportAdapter,
         private ApiImportAdapter $apiImportAdapter,
-        private ManualJsonImportAdapter $manualJsonImportAdapter,
         private EmailAttachmentImportAdapter $emailAttachmentImportAdapter,
         private SalesHistoryNormalizer $salesHistoryNormalizer,
         private StockSnapshotNormalizer $stockSnapshotNormalizer,
@@ -60,140 +76,291 @@ class ImportBatchService
         private InboundOrderValidator $inboundOrderValidator,
         private ReservationValidator $reservationValidator,
         private ProductRuleValidator $productRuleValidator,
+        private SalesHistoryPersister $salesHistoryPersister,
+        private StockSnapshotPersister $stockSnapshotPersister,
+        private InboundOrderPersister $inboundOrderPersister,
+        private ReservationPersister $reservationPersister,
+        private ProductRulePersister $productRulePersister,
     ) {}
 
     /**
+     * Backward-compatible wrapper for the previous import API.
+     *
      * @param  array<string, mixed>  $input
      */
     public function import(array $input): ImportBatch
     {
-        $companyId = (int) $input['company_id'];
-        $importType = (string) $input['import_type'];
-        $adapterName = (string) ($input['adapter'] ?? 'csv');
-        $sourcePath = (string) $input['source_path'];
-        $originalFilename = $input['original_filename'] ?? null;
-        $sourceName = $input['source_reference'] ?? $originalFilename;
-        $dryRun = (bool) ($input['dry_run'] ?? false);
-        $startedByUserId = $input['started_by_user_id'] ?? null;
-        $adapter = $this->adapter($adapterName);
-        $checksum = $adapter->checksum($sourcePath);
-        $parsedRows = $adapter->rows($sourcePath, $input['adapter_options'] ?? []);
-        $duplicate = $this->isDuplicateFile($companyId, $importType, $checksum, $sourceName);
-        $context = $this->context($companyId, $parsedRows);
+        $user = isset($input['started_by_user_id'])
+            ? User::query()->find($input['started_by_user_id'])
+            : null;
 
-        return DB::transaction(function () use (
+        $result = $this->run(
+            (string) $input['import_type'],
+            (string) ($input['adapter'] ?? 'csv'),
+            [
+                'file_path' => $input['source_path'] ?? $input['file_path'] ?? null,
+                'delimiter' => $input['delimiter'] ?? ($input['adapter_options']['delimiter'] ?? ','),
+                'has_header' => $input['has_header'] ?? ($input['adapter_options']['has_header'] ?? true),
+                'rows' => $input['rows'] ?? null,
+            ],
+            [
+                'company_id' => $input['company_id'],
+                'supplier_id' => $input['supplier_id'] ?? null,
+                'dry_run' => $input['dry_run'] ?? false,
+                'source_type' => $input['source_type'] ?? ($input['adapter'] ?? 'csv'),
+                'source_name' => $input['source_name'] ?? ($input['source_reference'] ?? null),
+                'original_filename' => $input['original_filename'] ?? null,
+                'allow_duplicate' => $input['allow_duplicate'] ?? false,
+                'allow_negative_stock' => $input['allow_negative_stock'] ?? false,
+            ],
+            $user instanceof User ? $user : null,
+        );
+
+        return $result['batch'];
+    }
+
+    /**
+     * @param  array<string, mixed>  $config
+     * @param  array<string, mixed>  $options
+     * @return array{batch:ImportBatch,summary:array<string,mixed>}
+     */
+    public function run(string $importType, string $adapterName, array $config, array $options = [], ?User $user = null): array
+    {
+        $companyId = (int) ($options['company_id'] ?? 0);
+
+        if (! Company::query()->whereKey($companyId)->exists()) {
+            throw new RuntimeException('Import requires a valid company_id.');
+        }
+
+        $adapter = $this->resolveAdapter($adapterName);
+        $normalizer = $this->resolveNormalizer($importType);
+        $validator = $this->resolveValidator($importType);
+        $persister = (bool) ($options['dry_run'] ?? false) ? null : $this->resolvePersister($importType);
+        $checksum = $this->checksum($config, $options);
+        $dryRun = (bool) ($options['dry_run'] ?? false);
+        $warnings = [];
+
+        if ($checksum !== null && ! (bool) ($options['allow_duplicate'] ?? false) && $this->hasCompletedDuplicate($companyId, $importType, $checksum)) {
+            $batch = $this->createBatch($companyId, $importType, $adapterName, $checksum, $options, ImportBatchStatus::Failed, $user);
+            $batch->update([
+                'finished_at' => now(),
+                'error_summary' => 'duplicate_import_checksum',
+            ]);
+
+            $this->auditLogService->logImport($batch->refresh(), 'import_duplicate_blocked', $user, $this->auditMetadata($importType, $adapterName, $dryRun, $checksum, $options));
+
+            return [
+                'batch' => $batch->refresh()->load('rows'),
+                'summary' => [
+                    'total_rows' => 0,
+                    'successful_rows' => 0,
+                    'failed_rows' => 0,
+                    'dry_run' => $dryRun,
+                    'warnings' => ['duplicate_import_checksum'],
+                ],
+            ];
+        }
+
+        $batch = $this->createBatch(
             $companyId,
             $importType,
             $adapterName,
-            $originalFilename,
-            $sourceName,
-            $dryRun,
-            $startedByUserId,
             $checksum,
-            $parsedRows,
-            $duplicate,
-            $context,
-        ): ImportBatch {
-            $now = now();
-            $batch = ImportBatch::query()->create([
-                'company_id' => $companyId,
-                'source_type' => $importType,
-                'source_name' => $sourceName,
-                'adapter' => $adapterName,
-                'original_filename' => $originalFilename,
-                'checksum' => $checksum,
-                'status' => $dryRun ? ImportBatchStatus::DryRun->value : ImportBatchStatus::Processing->value,
-                'total_rows' => count($parsedRows),
-                'successful_rows' => 0,
-                'failed_rows' => 0,
-                'started_by_user_id' => $startedByUserId,
-                'started_at' => $now,
-                'finished_at' => null,
-                'error_summary' => $duplicate ? 'duplicate_file_warning' : null,
+            $options,
+            $dryRun ? ImportBatchStatus::DryRun : ImportBatchStatus::Processing,
+            $user,
+        );
+
+        $this->auditLogService->logImport($batch, 'import_started', $user, $this->auditMetadata($importType, $adapterName, $dryRun, $checksum, $options));
+
+        try {
+            $rawRows = $adapter->read($config);
+        } catch (Throwable $exception) {
+            $batch->update([
+                'status' => ImportBatchStatus::Failed->value,
+                'finished_at' => now(),
+                'error_summary' => $exception->getMessage(),
+            ]);
+            $this->auditLogService->logImport($batch->refresh(), 'import_failed', $user, $this->auditMetadata($importType, $adapterName, $dryRun, $checksum, $options));
+
+            throw $exception;
+        }
+
+        $successfulRows = 0;
+        $failedRows = 0;
+
+        foreach (array_values($rawRows) as $index => $rawRow) {
+            $rowNumber = $index + 1;
+            $importRow = ImportRow::query()->create([
+                'import_batch_id' => $batch->getKey(),
+                'row_number' => $rowNumber,
+                'raw_json' => $rawRow,
+                'normalized_json' => null,
+                'status' => ImportRowStatus::Pending->value,
+                'error_message' => null,
             ]);
 
-            $prepared = $this->prepareRows($batch, $importType, $parsedRows, $context);
-            $relatedModels = $dryRun ? [] : $this->persistDomainRows($batch, $importType, $prepared['valid_rows'], $context);
-            $importRows = $this->importRowPayload($batch, $prepared, $relatedModels, $dryRun, $now);
+            $rowContext = $this->context($batch, $options, $rowNumber);
+            $normalized = $normalizer->normalize($rawRow, $rowContext);
+            $validation = $validator->validate($normalized, $rowContext);
+            $normalized = $validation['normalized'];
 
-            if ($importRows !== []) {
-                ImportRow::query()->insert($importRows);
+            if ($validation['warnings'] !== []) {
+                $warnings = array_values(array_unique(array_merge($warnings, $validation['warnings'])));
             }
 
-            $summary = $this->summary($duplicate, $prepared['failed_rows']);
-            $status = $this->finalStatus($dryRun, count($prepared['failed_rows']));
+            if (! $validation['valid']) {
+                $failedRows++;
+                $importRow->update([
+                    'normalized_json' => $normalized,
+                    'status' => ImportRowStatus::Invalid->value,
+                    'error_message' => implode(' ', $validation['errors']),
+                ]);
 
-            $batch->update([
-                'status' => $status,
-                'successful_rows' => count($prepared['valid_rows']),
-                'failed_rows' => count($prepared['failed_rows']),
-                'finished_at' => $now,
-                'error_summary' => $summary,
-            ]);
+                continue;
+            }
 
-            $this->audit('import_batch.created', $batch, [
-                'import_type' => $importType,
-                'adapter' => $adapterName,
+            if ($dryRun) {
+                $successfulRows++;
+                $importRow->update([
+                    'normalized_json' => $normalized,
+                    'status' => ImportRowStatus::Valid->value,
+                ]);
+
+                continue;
+            }
+
+            try {
+                $persisted = DB::transaction(fn (): array => $this->persistRow($persister, $normalized, $rowContext));
+                $successfulRows++;
+                $importRow->update([
+                    'normalized_json' => $normalized,
+                    'status' => ImportRowStatus::Persisted->value,
+                    'related_model_type' => $persisted['model_type'],
+                    'related_model_id' => $persisted['model_id'],
+                ]);
+            } catch (Throwable $exception) {
+                $failedRows++;
+                $importRow->update([
+                    'normalized_json' => $normalized,
+                    'status' => ImportRowStatus::Failed->value,
+                    'error_message' => $exception->getMessage(),
+                ]);
+            }
+        }
+
+        $status = $this->finalStatus($dryRun, $successfulRows, $failedRows);
+        $batch->update([
+            'total_rows' => count($rawRows),
+            'successful_rows' => $successfulRows,
+            'failed_rows' => $failedRows,
+            'status' => $status->value,
+            'finished_at' => now(),
+            'error_summary' => $this->errorSummary($failedRows, $warnings),
+        ]);
+
+        $eventType = match ($status) {
+            ImportBatchStatus::Completed => 'import_completed',
+            ImportBatchStatus::CompletedWithErrors => 'import_completed_with_errors',
+            ImportBatchStatus::Failed => 'import_failed',
+            ImportBatchStatus::DryRun => 'import_completed',
+            default => 'import_completed',
+        };
+        $batch = $batch->refresh();
+        $this->auditLogService->logImport($batch, $eventType, $user, $this->auditMetadata($importType, $adapterName, $dryRun, $checksum, $options) + [
+            'total_rows' => $batch->total_rows,
+            'successful_rows' => $batch->successful_rows,
+            'failed_rows' => $batch->failed_rows,
+            'warnings' => $warnings,
+        ]);
+
+        return [
+            'batch' => $batch->load('rows'),
+            'summary' => [
+                'total_rows' => $batch->total_rows,
+                'successful_rows' => $batch->successful_rows,
+                'failed_rows' => $batch->failed_rows,
                 'dry_run' => $dryRun,
-                'duplicate_file' => $duplicate,
-                'total_rows' => count($parsedRows),
-                'successful_rows' => count($prepared['valid_rows']),
-                'failed_rows' => count($prepared['failed_rows']),
-            ], $startedByUserId);
-
-            return $batch->refresh()->load(['rows', 'company']);
-        });
+                'warnings' => $warnings,
+            ],
+        ];
     }
 
-    public function rollback(ImportBatch $batch, ?int $userId = null): ImportBatch
+    /**
+     * @return array{rolled_back_count:int,skipped_count:int,skipped_reasons:list<string>}
+     */
+    public function rollback(ImportBatch $batch, ?User $user = null): array
     {
-        return DB::transaction(function () use ($batch, $userId): ImportBatch {
-            $rows = $batch->rows()
-                ->select(['id', 'related_model_type', 'related_model_id'])
-                ->where('status', 'successful')
-                ->whereNotNull('related_model_type')
-                ->whereNotNull('related_model_id')
-                ->get();
+        if ($this->statusValue($batch->status) === ImportBatchStatus::DryRun->value) {
+            return [
+                'rolled_back_count' => 0,
+                'skipped_count' => 0,
+                'skipped_reasons' => ['dry_run_has_no_domain_records'],
+            ];
+        }
 
-            $deleted = 0;
+        if ($this->statusValue($batch->status) === ImportBatchStatus::RolledBack->value) {
+            return [
+                'rolled_back_count' => 0,
+                'skipped_count' => 0,
+                'skipped_reasons' => ['batch_already_rolled_back'],
+            ];
+        }
 
-            foreach ($rows->groupBy('related_model_type') as $modelClass => $groupedRows) {
-                if (! is_string($modelClass) || ! is_a($modelClass, Model::class, true)) {
-                    continue;
+        $rolledBack = 0;
+        $skippedReasons = [];
+
+        $batch->rows()
+            ->select(['id', 'related_model_type', 'related_model_id', 'status'])
+            ->where('status', ImportRowStatus::Persisted->value)
+            ->whereNotNull('related_model_type')
+            ->whereNotNull('related_model_id')
+            ->get()
+            ->each(function (ImportRow $row) use (&$rolledBack, &$skippedReasons): void {
+                $result = $this->rollbackRow($row);
+
+                if ($result === true) {
+                    $rolledBack++;
+
+                    return;
                 }
 
-                $deleted += $modelClass::query()
-                    ->whereKey($groupedRows->pluck('related_model_id')->all())
-                    ->delete();
-            }
+                $skippedReasons[] = $result;
+            });
 
-            $batch->update([
-                'status' => ImportBatchStatus::RolledBack->value,
-                'error_summary' => trim((string) $batch->error_summary.' rolled_back'),
-            ]);
+        $batch->update([
+            'status' => ImportBatchStatus::RolledBack->value,
+            'error_summary' => trim((string) $batch->error_summary.' rolled_back'),
+        ]);
+        $batch = $batch->refresh();
 
-            $this->audit('import_batch.rolled_back', $batch, [
-                'deleted_related_models' => $deleted,
-            ], $userId);
+        $this->auditLogService->logImport($batch, 'import_rolled_back', $user, [
+            'rolled_back_count' => $rolledBack,
+            'skipped_count' => count($skippedReasons),
+            'skipped_reasons' => array_values(array_unique($skippedReasons)),
+        ]);
 
-            return $batch->refresh()->load(['rows', 'company']);
-        });
+        return [
+            'rolled_back_count' => $rolledBack,
+            'skipped_count' => count($skippedReasons),
+            'skipped_reasons' => array_values(array_unique($skippedReasons)),
+        ];
     }
 
-    private function adapter(string $adapter): ImportAdapterInterface
+    protected function resolveAdapter(string $adapterName): ImportAdapterInterface
     {
-        return match ($adapter) {
+        return match ($adapterName) {
             'csv' => $this->csvImportAdapter,
+            'manual_json' => $this->manualJsonImportAdapter,
             'excel' => $this->excelImportAdapter,
             'google_sheets' => $this->googleSheetsImportAdapter,
             'api' => $this->apiImportAdapter,
-            'manual_json' => $this->manualJsonImportAdapter,
             'email_attachment' => $this->emailAttachmentImportAdapter,
-            default => throw new RuntimeException("Unknown import adapter [{$adapter}]."),
+            default => throw new RuntimeException("Unknown import adapter [{$adapterName}]."),
         };
     }
 
-    private function normalizer(string $importType): ImportNormalizerInterface
+    protected function resolveNormalizer(string $importType): ImportNormalizerInterface
     {
         return match ($importType) {
             'sales_history' => $this->salesHistoryNormalizer,
@@ -205,7 +372,7 @@ class ImportBatchService
         };
     }
 
-    private function validator(string $importType): ImportValidatorInterface
+    protected function resolveValidator(string $importType): ImportValidatorInterface
     {
         return match ($importType) {
             'sales_history' => $this->salesHistoryValidator,
@@ -217,464 +384,57 @@ class ImportBatchService
         };
     }
 
-    /**
-     * @param  list<array{row_number:int,data:array<string,mixed>}>  $parsedRows
-     * @return array<string, mixed>
-     */
-    private function context(int $companyId, array $parsedRows): array
+    protected function resolvePersister(string $importType): ImportPersisterInterface
     {
-        $skus = [];
-        $supplierCodes = [];
-
-        foreach ($parsedRows as $parsedRow) {
-            $sku = trim((string) ($parsedRow['data']['sku'] ?? ''));
-            $supplierCode = trim((string) ($parsedRow['data']['supplier_code'] ?? ''));
-
-            if ($sku !== '') {
-                $skus[] = $sku;
-            }
-
-            if ($supplierCode !== '') {
-                $supplierCodes[] = $supplierCode;
-            }
-        }
-
-        $products = $skus === []
-            ? collect()
-            : Product::query()
-                ->select(['id', 'company_id', 'sku'])
-                ->where('company_id', $companyId)
-                ->whereIn('sku', array_values(array_unique($skus)))
-                ->get();
-        $suppliers = $supplierCodes === []
-            ? collect()
-            : Supplier::query()
-                ->select(['id', 'company_id', 'code'])
-                ->where('company_id', $companyId)
-                ->whereIn('code', array_values(array_unique($supplierCodes)))
-                ->get();
-
-        return [
-            'company_id' => $companyId,
-            'products_by_sku' => $products
-                ->mapWithKeys(fn (Product $product): array => [strtoupper($product->sku) => $product])
-                ->all(),
-            'suppliers_by_code' => $suppliers
-                ->mapWithKeys(fn (Supplier $supplier): array => [strtoupper((string) $supplier->code) => $supplier])
-                ->all(),
-        ];
-    }
-
-    /**
-     * @param  list<array{row_number:int,data:array<string,mixed>}>  $parsedRows
-     * @param  array<string, mixed>  $context
-     * @return array{valid_rows:list<array<string,mixed>>,failed_rows:list<array<string,mixed>>}
-     */
-    private function prepareRows(ImportBatch $batch, string $importType, array $parsedRows, array $context): array
-    {
-        $normalizer = $this->normalizer($importType);
-        $validator = $this->validator($importType);
-        $validRows = [];
-        $failedRows = [];
-
-        foreach ($parsedRows as $parsedRow) {
-            $normalized = $normalizer->normalize($parsedRow['data'], $context);
-            $normalized['source_reference'] = $this->rowSourceReference($batch, $parsedRow['row_number']);
-            $errors = $validator->validate($normalized, $context);
-
-            if ($errors !== []) {
-                $failedRows[] = [
-                    'row_number' => $parsedRow['row_number'],
-                    'raw' => $parsedRow['data'],
-                    'normalized' => $normalized,
-                    'errors' => $errors,
-                ];
-
-                continue;
-            }
-
-            $validRows[] = [
-                'row_number' => $parsedRow['row_number'],
-                'raw' => $parsedRow['data'],
-                'normalized' => $this->withResolvedIds($normalized, $context),
-            ];
-        }
-
-        return [
-            'valid_rows' => $validRows,
-            'failed_rows' => $failedRows,
-        ];
-    }
-
-    /**
-     * @param  array<string, mixed>  $row
-     * @param  array<string, mixed>  $context
-     * @return array<string, mixed>
-     */
-    private function withResolvedIds(array $row, array $context): array
-    {
-        if (isset($row['sku'])) {
-            $product = $context['products_by_sku'][strtoupper((string) $row['sku'])] ?? null;
-            $row['product_id'] = $product?->getKey();
-        }
-
-        if (isset($row['supplier_code'])) {
-            $supplier = $context['suppliers_by_code'][strtoupper((string) $row['supplier_code'])] ?? null;
-            $row['supplier_id'] = $supplier?->getKey();
-        }
-
-        return $row;
-    }
-
-    /**
-     * @param  list<array<string,mixed>>  $validRows
-     * @param  array<string, mixed>  $context
-     * @return array<int, array{type:class-string<Model>,id:int}>
-     */
-    private function persistDomainRows(ImportBatch $batch, string $importType, array $validRows, array $context): array
-    {
-        if ($validRows === []) {
-            return [];
-        }
-
         return match ($importType) {
-            'sales_history' => $this->persistSalesHistory($batch, $validRows),
-            'stock_snapshot' => $this->persistStockSnapshots($batch, $validRows),
-            'reservations' => $this->persistReservations($batch, $validRows),
-            'product_rules', 'supplier_products' => $this->persistProductRules($validRows),
-            'inbound_orders' => $this->persistInboundOrders($batch, $validRows, $context),
+            'sales_history' => $this->salesHistoryPersister,
+            'stock_snapshot' => $this->stockSnapshotPersister,
+            'inbound_orders' => $this->inboundOrderPersister,
+            'reservations' => $this->reservationPersister,
+            'product_rules', 'supplier_products' => $this->productRulePersister,
             default => throw new RuntimeException("Import type [{$importType}] is not configured yet."),
         };
     }
 
     /**
-     * @param  list<array<string,mixed>>  $validRows
-     * @return array<int, array{type:class-string<Model>,id:int}>
+     * @param  array<string, mixed>  $options
      */
-    private function persistSalesHistory(ImportBatch $batch, array $validRows): array
+    private function createBatch(int $companyId, string $importType, string $adapterName, ?string $checksum, array $options, ImportBatchStatus $status, ?User $user): ImportBatch
     {
-        $now = now();
-        $payload = [];
-
-        foreach ($validRows as $validRow) {
-            $row = $validRow['normalized'];
-            $payload[] = [
-                'company_id' => $batch->company_id,
-                'product_id' => $row['product_id'],
-                'sales_date' => $row['sales_date'],
-                'quantity' => $row['quantity'],
-                'channel' => $row['channel'],
-                'customer_id' => $row['customer_id'],
-                'is_promotion' => $row['is_promotion'],
-                'is_anomaly' => $row['is_anomaly'],
-                'anomaly_reason' => $row['anomaly_reason'],
-                'source_type' => $row['source_type'],
-                'source_reference' => $row['source_reference'],
-                'import_batch_id' => $batch->getKey(),
-                'created_at' => $now,
-                'updated_at' => $now,
-            ];
-        }
-
-        SalesHistory::query()->insert($payload);
-
-        return $this->relatedMap(
-            SalesHistory::query()
-                ->select(['id', 'source_reference'])
-                ->where('import_batch_id', $batch->getKey())
-                ->get(),
-            SalesHistory::class,
-            $validRows,
-        );
-    }
-
-    /**
-     * @param  list<array<string,mixed>>  $validRows
-     * @return array<int, array{type:class-string<Model>,id:int}>
-     */
-    private function persistStockSnapshots(ImportBatch $batch, array $validRows): array
-    {
-        $now = now();
-        $payload = [];
-
-        foreach ($validRows as $validRow) {
-            $row = $validRow['normalized'];
-            $payload[] = [
-                'company_id' => $batch->company_id,
-                'product_id' => $row['product_id'],
-                'snapshot_date' => $row['snapshot_date'],
-                'free_stock' => $row['free_stock'],
-                'total_stock' => $row['total_stock'],
-                'reserved_quantity' => $row['reserved_quantity'],
-                'damaged_quantity' => $row['damaged_quantity'],
-                'inactive_quantity' => $row['inactive_quantity'],
-                'in_transit_quantity' => $row['in_transit_quantity'],
-                'source_type' => $row['source_type'],
-                'source_reference' => $row['source_reference'],
-                'import_batch_id' => $batch->getKey(),
-                'created_at' => $now,
-                'updated_at' => $now,
-            ];
-        }
-
-        StockSnapshot::query()->insert($payload);
-
-        return $this->relatedMap(
-            StockSnapshot::query()
-                ->select(['id', 'source_reference'])
-                ->where('import_batch_id', $batch->getKey())
-                ->get(),
-            StockSnapshot::class,
-            $validRows,
-        );
-    }
-
-    /**
-     * @param  list<array<string,mixed>>  $validRows
-     * @return array<int, array{type:class-string<Model>,id:int}>
-     */
-    private function persistReservations(ImportBatch $batch, array $validRows): array
-    {
-        $now = now();
-        $payload = [];
-
-        foreach ($validRows as $validRow) {
-            $row = $validRow['normalized'];
-            $payload[] = [
-                'company_id' => $batch->company_id,
-                'product_id' => $row['product_id'],
-                'quantity' => $row['quantity'],
-                'project_name' => $row['project_name'],
-                'customer_name' => $row['customer_name'],
-                'manager_name' => $row['manager_name'],
-                'reserved_at' => $row['reserved_at'],
-                'expected_usage_date' => $row['expected_usage_date'],
-                'status' => $row['status'],
-                'source_type' => $row['source_type'],
-                'source_reference' => $row['source_reference'],
-                'created_at' => $now,
-                'updated_at' => $now,
-            ];
-        }
-
-        Reservation::query()->insert($payload);
-
-        return $this->relatedMap(
-            Reservation::query()
-                ->select(['id', 'source_reference'])
-                ->where('company_id', $batch->company_id)
-                ->whereIn('source_reference', array_column($payload, 'source_reference'))
-                ->get(),
-            Reservation::class,
-            $validRows,
-        );
-    }
-
-    /**
-     * @param  list<array<string,mixed>>  $validRows
-     * @return array<int, array{type:class-string<Model>,id:int}>
-     */
-    private function persistProductRules(array $validRows): array
-    {
-        $now = now();
-        $payload = [];
-
-        foreach ($validRows as $validRow) {
-            $row = $validRow['normalized'];
-            $payload[] = [
-                'supplier_id' => $row['supplier_id'],
-                'product_id' => $row['product_id'],
-                'supplier_sku' => $row['supplier_sku'],
-                'moq' => $row['moq'],
-                'pack_multiple' => $row['pack_multiple'],
-                'pallet_quantity' => $row['pallet_quantity'],
-                'min_transport_quantity' => $row['min_transport_quantity'],
-                'lead_time_days' => $row['lead_time_days'],
-                'safety_days' => $row['safety_days'],
-                'safety_rule_type' => $row['safety_rule_type'],
-                'transport_rule_type' => $row['transport_rule_type'],
-                'order_enabled' => $row['order_enabled'],
-                'created_at' => $now,
-                'updated_at' => $now,
-            ];
-        }
-
-        SupplierProductRule::query()->upsert($payload, ['supplier_id', 'product_id'], [
-            'supplier_sku',
-            'moq',
-            'pack_multiple',
-            'pallet_quantity',
-            'min_transport_quantity',
-            'lead_time_days',
-            'safety_days',
-            'safety_rule_type',
-            'transport_rule_type',
-            'order_enabled',
-            'updated_at',
+        return ImportBatch::query()->create([
+            'company_id' => $companyId,
+            'import_type' => $importType,
+            'source_type' => $options['source_type'] ?? $adapterName,
+            'source_name' => $options['source_name'] ?? null,
+            'adapter' => $adapterName,
+            'original_filename' => $options['original_filename'] ?? null,
+            'checksum' => $checksum,
+            'status' => $status->value,
+            'total_rows' => 0,
+            'successful_rows' => 0,
+            'failed_rows' => 0,
+            'started_by_user_id' => $user?->getKey(),
+            'started_at' => now(),
+            'finished_at' => null,
+            'error_summary' => null,
         ]);
-
-        $models = SupplierProductRule::query()
-            ->select(['id', 'supplier_id', 'product_id'])
-            ->whereIn('supplier_id', array_values(array_unique(array_column($payload, 'supplier_id'))))
-            ->whereIn('product_id', array_values(array_unique(array_column($payload, 'product_id'))))
-            ->get()
-            ->keyBy(fn (SupplierProductRule $rule): string => $rule->supplier_id.':'.$rule->product_id);
-        $related = [];
-
-        foreach ($validRows as $validRow) {
-            $row = $validRow['normalized'];
-            $model = $models->get($row['supplier_id'].':'.$row['product_id']);
-
-            if ($model instanceof SupplierProductRule) {
-                $related[(int) $validRow['row_number']] = [
-                    'type' => SupplierProductRule::class,
-                    'id' => (int) $model->getKey(),
-                ];
-            }
-        }
-
-        return $related;
     }
 
     /**
-     * @param  list<array<string,mixed>>  $validRows
-     * @param  array<string, mixed>  $context
-     * @return array<int, array{type:class-string<Model>,id:int}>
+     * @param  array<string, mixed>  $options
+     * @return array<string, mixed>
      */
-    private function persistInboundOrders(ImportBatch $batch, array $validRows, array $context): array
+    private function context(ImportBatch $batch, array $options, int $rowNumber): array
     {
-        $now = now();
-        $orders = [];
-
-        foreach ($validRows as $validRow) {
-            $row = $validRow['normalized'];
-            $orders[] = [
-                'company_id' => $batch->company_id,
-                'supplier_id' => $row['supplier_id'],
-                'order_number' => $row['order_number'],
-                'supplier_order_reference' => $row['source_reference'],
-                'status' => $row['status'],
-                'ordered_at' => $now,
-                'expected_arrival_date' => $row['expected_arrival_date'],
-                'confirmed_arrival_date' => $row['confirmed_arrival_date'],
-                'created_at' => $now,
-                'updated_at' => $now,
-            ];
-        }
-
-        InboundOrder::query()->insert($orders);
-
-        $orderModels = InboundOrder::query()
-            ->select(['id', 'supplier_order_reference'])
-            ->where('company_id', $batch->company_id)
-            ->whereIn('supplier_order_reference', array_column($orders, 'supplier_order_reference'))
-            ->get()
-            ->keyBy('supplier_order_reference');
-        $items = [];
-        $related = [];
-
-        foreach ($validRows as $validRow) {
-            $row = $validRow['normalized'];
-            $order = $orderModels->get($row['source_reference']);
-
-            if (! $order instanceof InboundOrder) {
-                continue;
-            }
-
-            $items[] = [
-                'inbound_order_id' => $order->getKey(),
-                'product_id' => $row['product_id'],
-                'ordered_quantity' => $row['ordered_quantity'],
-                'confirmed_quantity' => $row['confirmed_quantity'],
-                'received_quantity' => null,
-                'expected_arrival_date' => $row['expected_arrival_date'],
-                'confirmed_arrival_date' => $row['confirmed_arrival_date'],
-                'status' => $row['status'],
-                'created_at' => $now,
-                'updated_at' => $now,
-            ];
-            $related[(int) $validRow['row_number']] = [
-                'type' => InboundOrder::class,
-                'id' => (int) $order->getKey(),
-            ];
-        }
-
-        if ($items !== []) {
-            InboundOrderItem::query()->insert($items);
-        }
-
-        return $related;
-    }
-
-    /**
-     * @param  iterable<Model>  $models
-     * @param  class-string<Model>  $modelClass
-     * @param  list<array<string,mixed>>  $validRows
-     * @return array<int, array{type:class-string<Model>,id:int}>
-     */
-    private function relatedMap(iterable $models, string $modelClass, array $validRows): array
-    {
-        $modelsByReference = collect($models)->keyBy('source_reference');
-        $related = [];
-
-        foreach ($validRows as $validRow) {
-            $sourceReference = $validRow['normalized']['source_reference'];
-            $model = $modelsByReference->get($sourceReference);
-
-            if ($model instanceof Model) {
-                $related[(int) $validRow['row_number']] = [
-                    'type' => $modelClass,
-                    'id' => (int) $model->getKey(),
-                ];
-            }
-        }
-
-        return $related;
-    }
-
-    /**
-     * @param  array{valid_rows:list<array<string,mixed>>,failed_rows:list<array<string,mixed>>}  $prepared
-     * @param  array<int, array{type:class-string<Model>,id:int}>  $relatedModels
-     * @return list<array<string,mixed>>
-     */
-    private function importRowPayload(ImportBatch $batch, array $prepared, array $relatedModels, bool $dryRun, mixed $now): array
-    {
-        $rows = [];
-
-        foreach ($prepared['valid_rows'] as $validRow) {
-            $related = $relatedModels[(int) $validRow['row_number']] ?? null;
-            $rows[] = [
-                'import_batch_id' => $batch->getKey(),
-                'row_number' => $validRow['row_number'],
-                'raw_json' => json_encode($validRow['raw'], JSON_THROW_ON_ERROR),
-                'normalized_json' => json_encode($validRow['normalized'], JSON_THROW_ON_ERROR),
-                'status' => $dryRun ? 'dry_run' : 'successful',
-                'error_message' => null,
-                'related_model_type' => $related['type'] ?? null,
-                'related_model_id' => $related['id'] ?? null,
-                'created_at' => $now,
-                'updated_at' => $now,
-            ];
-        }
-
-        foreach ($prepared['failed_rows'] as $failedRow) {
-            $rows[] = [
-                'import_batch_id' => $batch->getKey(),
-                'row_number' => $failedRow['row_number'],
-                'raw_json' => json_encode($failedRow['raw'], JSON_THROW_ON_ERROR),
-                'normalized_json' => json_encode($failedRow['normalized'], JSON_THROW_ON_ERROR),
-                'status' => 'failed',
-                'error_message' => implode(' ', $failedRow['errors']),
-                'related_model_type' => null,
-                'related_model_id' => null,
-                'created_at' => $now,
-                'updated_at' => $now,
-            ];
-        }
-
-        usort($rows, fn (array $left, array $right): int => $left['row_number'] <=> $right['row_number']);
-
-        return $rows;
+        return [
+            'company_id' => (int) $batch->company_id,
+            'supplier_id' => $options['supplier_id'] ?? null,
+            'source_type' => $options['source_type'] ?? $batch->adapter,
+            'source_reference' => $this->rowSourceReference($batch, $rowNumber),
+            'import_batch_id' => $batch->getKey(),
+            'allow_negative_stock' => (bool) ($options['allow_negative_stock'] ?? false),
+            'allow_product_update' => (bool) ($options['allow_product_update'] ?? false),
+        ];
     }
 
     private function rowSourceReference(ImportBatch $batch, int $rowNumber): string
@@ -682,66 +442,134 @@ class ImportBatchService
         return 'import_batch_'.$batch->getKey().'_row_'.$rowNumber;
     }
 
-    private function isDuplicateFile(int $companyId, string $importType, string $checksum, mixed $sourceName): bool
+    /**
+     * @return array{model_type:class-string,model_id:int,model:object,metadata?:array<string,mixed>}
+     */
+    private function persistRow(?ImportPersisterInterface $persister, array $normalized, array $context): array
     {
-        return ImportBatch::query()
-            ->where('company_id', $companyId)
-            ->where('source_type', $importType)
-            ->where('checksum', $checksum)
-            ->when($sourceName !== null, fn ($query) => $query->where('source_name', $sourceName))
-            ->exists();
-    }
-
-    private function finalStatus(bool $dryRun, int $failedRows): string
-    {
-        if ($dryRun) {
-            return ImportBatchStatus::DryRun->value;
+        if (! $persister instanceof ImportPersisterInterface) {
+            throw new RuntimeException('Import persister is not configured.');
         }
 
-        return $failedRows > 0
-            ? ImportBatchStatus::CompletedWithErrors->value
-            : ImportBatchStatus::Completed->value;
+        return $persister->persist($normalized, $context);
+    }
+
+    private function finalStatus(bool $dryRun, int $successfulRows, int $failedRows): ImportBatchStatus
+    {
+        if ($dryRun) {
+            return ImportBatchStatus::DryRun;
+        }
+
+        if ($failedRows === 0) {
+            return ImportBatchStatus::Completed;
+        }
+
+        return $successfulRows > 0
+            ? ImportBatchStatus::CompletedWithErrors
+            : ImportBatchStatus::Failed;
     }
 
     /**
-     * @param  list<array<string,mixed>>  $failedRows
+     * @param  list<string>  $warnings
      */
-    private function summary(bool $duplicate, array $failedRows): ?string
+    private function errorSummary(int $failedRows, array $warnings): ?string
     {
         $messages = [];
 
-        if ($duplicate) {
-            $messages[] = 'duplicate_file_warning';
+        if ($failedRows > 0) {
+            $messages[] = $failedRows.' row(s) failed validation or persistence';
         }
 
-        if ($failedRows !== []) {
-            $messages[] = count($failedRows).' row(s) failed validation';
+        foreach ($warnings as $warning) {
+            $messages[] = $warning;
         }
 
-        return $messages === [] ? null : implode('; ', $messages);
+        return $messages === [] ? null : implode('; ', array_values(array_unique($messages)));
     }
 
     /**
-     * @param  array<string, mixed>  $metadata
+     * @param  array<string, mixed>  $config
+     * @param  array<string, mixed>  $options
      */
-    private function audit(string $eventType, ImportBatch $batch, array $metadata, mixed $userId): void
+    private function checksum(array $config, array $options): ?string
     {
-        AuditLog::query()->create([
-            'company_id' => $batch->company_id,
-            'user_id' => $userId,
-            'event_type' => $eventType,
-            'auditable_type' => $batch->getMorphClass(),
-            'auditable_id' => $batch->getKey(),
-            'old_values_json' => null,
-            'new_values_json' => [
-                'status' => $batch->status?->value ?? $batch->status,
-                'successful_rows' => $batch->successful_rows,
-                'failed_rows' => $batch->failed_rows,
-            ],
-            'metadata_json' => $metadata,
-            'ip_address' => null,
-            'user_agent' => null,
-            'created_at' => now(),
-        ]);
+        if (isset($options['checksum']) && is_string($options['checksum'])) {
+            return $options['checksum'];
+        }
+
+        $filePath = $config['file_path'] ?? null;
+
+        if (is_string($filePath) && is_readable($filePath)) {
+            $checksum = hash_file('sha256', $filePath);
+
+            return $checksum === false ? null : $checksum;
+        }
+
+        if (isset($config['rows']) && is_array($config['rows'])) {
+            return hash('sha256', json_encode($config['rows'], JSON_THROW_ON_ERROR));
+        }
+
+        return null;
+    }
+
+    private function hasCompletedDuplicate(int $companyId, string $importType, string $checksum): bool
+    {
+        return ImportBatch::query()
+            ->where('company_id', $companyId)
+            ->where('import_type', $importType)
+            ->where('checksum', $checksum)
+            ->whereIn('status', [
+                ImportBatchStatus::Completed->value,
+                ImportBatchStatus::CompletedWithErrors->value,
+            ])
+            ->exists();
+    }
+
+    /**
+     * @param  array<string, mixed>  $options
+     * @return array<string, mixed>
+     */
+    private function auditMetadata(string $importType, string $adapterName, bool $dryRun, ?string $checksum, array $options): array
+    {
+        return [
+            'import_type' => $importType,
+            'adapter' => $adapterName,
+            'dry_run' => $dryRun,
+            'checksum' => $checksum,
+            'original_filename' => $options['original_filename'] ?? null,
+        ];
+    }
+
+    private function rollbackRow(ImportRow $row): true|string
+    {
+        $modelClass = $row->related_model_type;
+        $modelId = $row->related_model_id;
+
+        if (! is_string($modelClass) || ! is_numeric($modelId) || ! is_a($modelClass, Model::class, true)) {
+            return 'invalid_related_model';
+        }
+
+        if ($modelClass === SupplierProductRule::class) {
+            return 'unsafe_product_rule_rollback';
+        }
+
+        if (! in_array($modelClass, [SalesHistory::class, StockSnapshot::class, Reservation::class, InboundOrderItem::class], true)) {
+            return 'unsupported_rollback_model_'.$modelClass;
+        }
+
+        $model = $modelClass::query()->find((int) $modelId);
+
+        if (! $model instanceof Model) {
+            return 'related_model_missing';
+        }
+
+        $model->delete();
+
+        return true;
+    }
+
+    private function statusValue(mixed $status): ?string
+    {
+        return $status instanceof \BackedEnum ? $status->value : (is_string($status) ? $status : null);
     }
 }

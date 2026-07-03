@@ -16,9 +16,10 @@ class ImportBatchFactory extends Factory
     {
         return [
             'company_id' => Company::factory(),
+            'import_type' => 'sales_history',
             'source_type' => 'csv',
             'source_name' => fake()->optional()->word(),
-            'adapter' => 'manual_upload',
+            'adapter' => 'csv',
             'original_filename' => fake()->optional()->lexify('import-????.csv'),
             'checksum' => fake()->sha256(),
             'status' => 'completed',

@@ -17,8 +17,14 @@
         <dl>
             <dt>Company</dt>
             <dd>{{ $batch->company?->name }}</dd>
-            <dt>Type</dt>
+            <dt>Import type</dt>
+            <dd>{{ $batch->import_type }}</dd>
+            <dt>Source type</dt>
             <dd>{{ $batch->source_type }}</dd>
+            <dt>Adapter</dt>
+            <dd>{{ $batch->adapter }}</dd>
+            <dt>Filename</dt>
+            <dd>{{ $batch->original_filename }}</dd>
             <dt>Status</dt>
             <dd>{{ $batch->status instanceof \BackedEnum ? $batch->status->value : $batch->status }}</dd>
             <dt>Total</dt>
@@ -31,10 +37,12 @@
             <dd>{{ $batch->error_summary }}</dd>
         </dl>
 
-        <form method="POST" action="{{ route('supply.imports.rollback', $batch) }}">
-            @csrf
-            <button type="submit">Rollback</button>
-        </form>
+        @if ($canRollback)
+            <form method="POST" action="{{ route('supply.imports.rollback', $batch) }}">
+                @csrf
+                <button type="submit">Rollback</button>
+            </form>
+        @endif
 
         <table>
             <thead>
@@ -43,23 +51,29 @@
                     <th>Status</th>
                     <th>Error</th>
                     <th>Related</th>
+                    <th>Raw</th>
+                    <th>Normalized</th>
                 </tr>
             </thead>
             <tbody>
-                @forelse ($batch->rows as $row)
+                @forelse ($rows as $row)
                     <tr>
                         <td>{{ $row->row_number }}</td>
                         <td>{{ $row->status }}</td>
                         <td>{{ $row->error_message }}</td>
                         <td>{{ $row->related_model_type }} {{ $row->related_model_id }}</td>
+                        <td><pre>{{ json_encode($row->raw_json, JSON_PRETTY_PRINT) }}</pre></td>
+                        <td><pre>{{ json_encode($row->normalized_json, JSON_PRETTY_PRINT) }}</pre></td>
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="4">No rows.</td>
+                        <td colspan="6">No rows.</td>
                     </tr>
                 @endforelse
             </tbody>
         </table>
+
+        {{ $rows->links() }}
     </main>
 </body>
 </html>

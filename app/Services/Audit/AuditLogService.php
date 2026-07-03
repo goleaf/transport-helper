@@ -97,7 +97,7 @@ class AuditLogService
     public function logImport(ImportBatch $batch, string $eventType, ?User $user = null, array $metadata = []): AuditLog
     {
         return $this->write($eventType, $batch, $user, null, [
-            'status' => $batch->status,
+            'status' => $this->scalarValue($batch->status),
             'total_rows' => $batch->total_rows,
             'successful_rows' => $batch->successful_rows,
             'failed_rows' => $batch->failed_rows,

@@ -10,13 +10,29 @@ Input:
 * reservations;
 * supplier product rules.
 
+Processing:
+
+* upload CSV or provide adapter source;
+* create import batch;
+* create import rows preserving raw_json;
+* normalize rows;
+* validate normalized rows;
+* store validation errors per row;
+* persist valid rows unless dry_run is enabled;
+* link persisted rows to related_model_type and related_model_id;
+* detect duplicate checksums;
+* support safe rollback for rollback-safe records;
+* write audit logs.
+
 Output:
 
 * import batch;
 * import rows;
 * normalized records;
 * row errors;
-* audit log.
+* audit log;
+* duplicate checksum block by default unless allow_duplicate is enabled;
+* dry-run validation without domain persistence.
 
 ## 2. Calculation
 

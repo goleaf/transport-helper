@@ -21,6 +21,8 @@ Result:
 
 ## Step 3. Core Database
 
+Status: implemented in Punkt 3.
+
 Result:
 
 * migrations;
@@ -30,6 +32,15 @@ Result:
 * seeders;
 * roles;
 * permissions.
+
+Implementation:
+
+* core supply tables verified;
+* user preferences and saved views added;
+* model relationships, casts and simple scopes added or verified;
+* custom role-permission system reused;
+* demo seeders verified as idempotent;
+* core database tests added or updated.
 
 ## Step 4. Audit Service And Calculation Engine
 
@@ -54,13 +65,33 @@ Next recommended step:
 
 ## Step 5. Import System
 
+Status: implemented in Stage 3.
+
 Result:
 
-* CSV import;
-* batches;
-* rows;
-* validators;
-* dry-run.
+* CSV import implemented;
+* batches implemented;
+* rows implemented;
+* normalizers implemented;
+* validators implemented;
+* persisters implemented;
+* dry-run implemented;
+* duplicate checksum blocking implemented;
+* safe rollback implemented for safe row types;
+* import UI implemented.
+
+## Step 5 Result
+
+* adapter contracts created;
+* CSV adapter created;
+* placeholder adapters created;
+* import value normalizer created;
+* import type normalizers created;
+* import type validators created;
+* import type persisters created;
+* ImportBatchService lifecycle implemented;
+* Blade import screens and routes created;
+* base import tests created.
 
 ## Step 6. Order Proposal Workflow
 

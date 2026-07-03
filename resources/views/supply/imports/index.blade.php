@@ -14,34 +14,59 @@
             <a href="{{ route('supply.imports.create') }}">Create import</a>
         </header>
 
+        <form method="GET" action="{{ route('supply.imports.index') }}">
+            <label>
+                Status
+                <input name="status" value="{{ $filters['status'] ?? '' }}">
+            </label>
+            <label>
+                Import type
+                <input name="import_type" value="{{ $filters['import_type'] ?? '' }}">
+            </label>
+            <button type="submit">Filter</button>
+            <a href="{{ route('supply.imports.index') }}">Clear</a>
+        </form>
+
         <table>
             <thead>
                 <tr>
+                    <th>ID</th>
                     <th>Company</th>
-                    <th>Type</th>
+                    <th>Import type</th>
+                    <th>Source</th>
+                    <th>Adapter</th>
+                    <th>Filename</th>
                     <th>Status</th>
                     <th>Total</th>
                     <th>Successful</th>
                     <th>Failed</th>
                     <th>Rows</th>
+                    <th>Started</th>
+                    <th>Finished</th>
                     <th></th>
                 </tr>
             </thead>
             <tbody>
                 @forelse ($batches as $batch)
                     <tr>
+                        <td>{{ $batch->id }}</td>
                         <td>{{ $batch->company?->name }}</td>
+                        <td>{{ $batch->import_type }}</td>
                         <td>{{ $batch->source_type }}</td>
+                        <td>{{ $batch->adapter }}</td>
+                        <td>{{ $batch->original_filename }}</td>
                         <td>{{ $batch->status instanceof \BackedEnum ? $batch->status->value : $batch->status }}</td>
                         <td>{{ $batch->total_rows }}</td>
                         <td>{{ $batch->successful_rows }}</td>
                         <td>{{ $batch->failed_rows }}</td>
                         <td>{{ $batch->rows_count }}</td>
+                        <td>{{ $batch->started_at }}</td>
+                        <td>{{ $batch->finished_at }}</td>
                         <td><a href="{{ route('supply.imports.show', $batch) }}">Open</a></td>
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="8">No imports yet.</td>
+                        <td colspan="13">No imports yet.</td>
                     </tr>
                 @endforelse
             </tbody>
