@@ -38,6 +38,16 @@ class CarrierQuoteFactory extends Factory
             'status' => 'received',
             'created_from_ai_extraction_id' => AiEmailExtraction::factory(),
             'created_from_form_autofill_run_id' => null,
+            'source_type' => 'manual',
+            'source_id' => null,
+            'created_by_user_id' => null,
+            'selected_by_user_id' => null,
+            'selected_at' => null,
+            'rejected_by_user_id' => null,
+            'rejected_at' => null,
+            'rejection_reason' => null,
+            'validation_errors_json' => null,
+            'warnings_json' => null,
         ];
     }
 }

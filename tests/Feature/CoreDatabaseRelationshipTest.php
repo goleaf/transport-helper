@@ -24,6 +24,7 @@ use App\Models\OrderProposalItem;
 use App\Models\Product;
 use App\Models\Reservation;
 use App\Models\SalesHistory;
+use App\Models\SavedView;
 use App\Models\StockSnapshot;
 use App\Models\Supplier;
 use App\Models\SupplierConfirmation;
@@ -33,6 +34,7 @@ use App\Models\SupplierOrder;
 use App\Models\SupplierOrderItem;
 use App\Models\SupplierProductRule;
 use App\Models\User;
+use App\Models\UserPreference;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
@@ -109,6 +111,12 @@ it('connects the core supply database models through relationships', function ()
         'auditable_type' => SupplierOrder::class,
         'auditable_id' => $supplierOrder->getKey(),
     ]);
+    $preference = UserPreference::factory()->for($user)->create();
+    $savedView = SavedView::factory()
+        ->for($user)
+        ->for($company)
+        ->for($user, 'createdBy')
+        ->create();
 
     expect($supplier->company->is($company))->toBeTrue()
         ->and($supplier->contacts->contains($contact))->toBeTrue()
@@ -131,5 +139,8 @@ it('connects the core supply database models through relationships', function ()
         ->and($importBatch->rows->contains($importRow))->toBeTrue()
         ->and($exportFile->company->is($company))->toBeTrue()
         ->and($integration->company->is($company))->toBeTrue()
-        ->and($auditLog->auditable->is($supplierOrder))->toBeTrue();
+        ->and($auditLog->auditable->is($supplierOrder))->toBeTrue()
+        ->and($user->preferences->contains($preference))->toBeTrue()
+        ->and($user->savedViews->contains($savedView))->toBeTrue()
+        ->and($company->savedViews->contains($savedView))->toBeTrue();
 });

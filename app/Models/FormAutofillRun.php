@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\FormAutofillRunStatus;
 use Database\Factories\FormAutofillRunFactory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -101,5 +102,15 @@ class FormAutofillRun extends Model
     public function carrierQuotes(): HasMany
     {
         return $this->hasMany(CarrierQuote::class, 'created_from_form_autofill_run_id');
+    }
+
+    public function scopeNeedsReview(Builder $query): Builder
+    {
+        return $query->where('status', FormAutofillRunStatus::NeedsReview->value);
+    }
+
+    public function scopeValidated(Builder $query): Builder
+    {
+        return $query->where('status', FormAutofillRunStatus::Validated->value);
     }
 }

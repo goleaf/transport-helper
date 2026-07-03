@@ -29,6 +29,12 @@ class SupplierConfirmationFactory extends Factory
             'discrepancy_summary' => null,
             'created_from_ai_extraction_id' => AiEmailExtraction::factory(),
             'created_from_form_autofill_run_id' => null,
+            'source_type' => 'manual',
+            'source_id' => null,
+            'output_json' => null,
+            'discrepancies_json' => null,
+            'applied_by_user_id' => null,
+            'applied_at' => null,
         ];
     }
 }

@@ -20,6 +20,8 @@ class InboundOrderItemFactory extends Factory
             'ordered_quantity' => fake()->numberBetween(1, 200),
             'confirmed_quantity' => null,
             'received_quantity' => null,
+            'damaged_quantity' => null,
+            'receiving_notes' => null,
             'expected_arrival_date' => now()->addDays(14)->toDateString(),
             'confirmed_arrival_date' => null,
             'status' => 'open',

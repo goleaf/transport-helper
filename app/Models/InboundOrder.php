@@ -19,6 +19,7 @@ class InboundOrder extends Model
     protected $fillable = [
         'company_id',
         'supplier_id',
+        'supplier_order_id',
         'order_number',
         'supplier_order_reference',
         'status',
@@ -49,6 +50,11 @@ class InboundOrder extends Model
     public function supplier(): BelongsTo
     {
         return $this->belongsTo(Supplier::class);
+    }
+
+    public function supplierOrder(): BelongsTo
+    {
+        return $this->belongsTo(SupplierOrder::class);
     }
 
     public function items(): HasMany

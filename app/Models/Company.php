@@ -122,6 +122,11 @@ class Company extends Model
         return $this->hasMany(AuditLog::class);
     }
 
+    public function savedViews(): HasMany
+    {
+        return $this->hasMany(SavedView::class);
+    }
+
     public function formTemplates(): HasMany
     {
         return $this->hasMany(FormTemplate::class);

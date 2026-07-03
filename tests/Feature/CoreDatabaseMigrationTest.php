@@ -43,6 +43,8 @@ it('creates all supply agent core database tables', function () {
         'integration_connections',
         'app_settings',
         'audit_logs',
+        'user_preferences',
+        'saved_views',
         'roles',
         'permissions',
         'permission_role',
@@ -63,6 +65,8 @@ it('creates core stage one columns needed by later workflows', function () {
         ->and(Schema::hasColumns('carrier_quotes', ['calculated_score', 'score_explanation_json']))->toBeTrue()
         ->and(Schema::hasColumns('logistics_records', ['delivery_date', 'transport_price', 'status']))->toBeTrue()
         ->and(Schema::hasColumns('audit_logs', ['event_type', 'auditable_type', 'auditable_id']))->toBeTrue()
+        ->and(Schema::hasColumns('user_preferences', ['user_id', 'key', 'value_json']))->toBeTrue()
+        ->and(Schema::hasColumns('saved_views', ['user_id', 'company_id', 'route_name', 'filters_json', 'columns_json', 'sort_json']))->toBeTrue()
         ->and(Schema::hasColumns('roles', ['name', 'label']))->toBeTrue()
         ->and(Schema::hasColumns('permissions', ['name', 'label']))->toBeTrue();
 });

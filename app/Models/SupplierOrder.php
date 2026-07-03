@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\SupplierOrderStatus;
 use Database\Factories\SupplierOrderFactory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -102,5 +103,18 @@ class SupplierOrder extends Model
     public function logisticsRecords(): HasMany
     {
         return $this->hasMany(LogisticsRecord::class);
+    }
+
+    public function scopeOpen(Builder $query): Builder
+    {
+        return $query->whereNotIn('status', [
+            SupplierOrderStatus::Completed->value,
+            SupplierOrderStatus::Cancelled->value,
+        ]);
+    }
+
+    public function scopeSent(Builder $query): Builder
+    {
+        return $query->where('status', SupplierOrderStatus::Sent->value);
     }
 }

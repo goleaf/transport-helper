@@ -36,6 +36,9 @@ class FormAutofillFieldValue extends Model
     protected function casts(): array
     {
         return [
+            'extracted_value' => 'array',
+            'normalized_value' => 'array',
+            'final_value' => 'array',
             'confidence' => 'decimal:2',
             'requires_review' => 'boolean',
             'accepted_at' => 'datetime',

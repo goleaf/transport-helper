@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\CarrierQuoteStatus;
 use Database\Factories\CarrierQuoteFactory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -33,6 +34,16 @@ class CarrierQuote extends Model
         'status',
         'created_from_ai_extraction_id',
         'created_from_form_autofill_run_id',
+        'source_type',
+        'source_id',
+        'created_by_user_id',
+        'selected_by_user_id',
+        'selected_at',
+        'rejected_by_user_id',
+        'rejected_at',
+        'rejection_reason',
+        'validation_errors_json',
+        'warnings_json',
     ];
 
     protected function casts(): array
@@ -45,6 +56,10 @@ class CarrierQuote extends Model
             'reliability_score' => 'decimal:2',
             'calculated_score' => 'decimal:3',
             'score_explanation_json' => 'array',
+            'selected_at' => 'datetime',
+            'rejected_at' => 'datetime',
+            'validation_errors_json' => 'array',
+            'warnings_json' => 'array',
             'status' => CarrierQuoteStatus::class,
         ];
     }
@@ -77,5 +92,28 @@ class CarrierQuote extends Model
     public function formAutofillRun(): BelongsTo
     {
         return $this->belongsTo(FormAutofillRun::class, 'created_from_form_autofill_run_id');
+    }
+
+    public function createdBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'created_by_user_id');
+    }
+
+    public function selectedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'selected_by_user_id');
+    }
+
+    public function rejectedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'rejected_by_user_id');
+    }
+
+    public function scopeSelectable(Builder $query): Builder
+    {
+        return $query->whereIn('status', [
+            CarrierQuoteStatus::Received->value,
+            CarrierQuoteStatus::NeedsReview->value,
+        ]);
     }
 }

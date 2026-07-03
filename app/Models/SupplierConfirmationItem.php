@@ -23,6 +23,10 @@ class SupplierConfirmationItem extends Model
         'discrepancy_quantity',
         'status',
         'notes',
+        'source_item_json',
+        'matched_by',
+        'discrepancy_type',
+        'discrepancies_json',
     ];
 
     protected function casts(): array
@@ -31,6 +35,8 @@ class SupplierConfirmationItem extends Model
             'ordered_quantity' => 'decimal:3',
             'confirmed_quantity' => 'decimal:3',
             'discrepancy_quantity' => 'decimal:3',
+            'source_item_json' => 'array',
+            'discrepancies_json' => 'array',
         ];
     }
 

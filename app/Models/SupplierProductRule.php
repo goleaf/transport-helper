@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Database\Factories\SupplierProductRuleFactory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -51,5 +52,10 @@ class SupplierProductRule extends Model
     public function product(): BelongsTo
     {
         return $this->belongsTo(Product::class);
+    }
+
+    public function scopeOrderEnabled(Builder $query): Builder
+    {
+        return $query->where('order_enabled', true);
     }
 }

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\SupplierType;
 use Database\Factories\SupplierFactory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -86,5 +87,25 @@ class Supplier extends Model
     public function formTemplates(): HasMany
     {
         return $this->hasMany(FormTemplate::class);
+    }
+
+    public function scopeActive(Builder $query): Builder
+    {
+        return $query->where('is_active', true);
+    }
+
+    public function scopeForCompany(Builder $query, Company|int $company): Builder
+    {
+        return $query->where('company_id', $company instanceof Company ? $company->getKey() : $company);
+    }
+
+    public function scopeManufacturers(Builder $query): Builder
+    {
+        return $query->where('type', SupplierType::Manufacturer->value);
+    }
+
+    public function scopeCarriers(Builder $query): Builder
+    {
+        return $query->where('type', SupplierType::Carrier->value);
     }
 }

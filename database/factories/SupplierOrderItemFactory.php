@@ -20,6 +20,8 @@ class SupplierOrderItemFactory extends Factory
             'ordered_quantity' => 156,
             'confirmed_quantity' => null,
             'received_quantity' => null,
+            'damaged_quantity' => null,
+            'receiving_notes' => null,
             'unit_price' => fake()->optional()->randomFloat(3, 1, 1000),
             'currency' => 'EUR',
             'status' => 'ordered',

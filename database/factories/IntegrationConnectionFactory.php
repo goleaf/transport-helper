@@ -17,11 +17,23 @@ class IntegrationConnectionFactory extends Factory
             'company_id' => Company::factory(),
             'type' => fake()->randomElement(['erp', 'warehouse', 'google_sheets', 'accounting']),
             'name' => fake()->company(),
+            'provider' => 'manual',
+            'environment' => 'test',
             'encrypted_config' => [
                 'configured' => true,
             ],
+            'is_external' => false,
+            'requires_approval' => true,
+            'status' => 'draft',
+            'approval_status' => null,
+            'approved_by_user_id' => null,
+            'approved_at' => null,
+            'last_tested_at' => null,
+            'last_test_status' => null,
+            'last_test_result_json' => null,
             'is_active' => true,
             'last_sync_at' => null,
+            'notes' => null,
         ];
     }
 }

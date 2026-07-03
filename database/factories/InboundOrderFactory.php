@@ -17,6 +17,7 @@ class InboundOrderFactory extends Factory
         return [
             'company_id' => Company::factory(),
             'supplier_id' => Supplier::factory(),
+            'supplier_order_id' => null,
             'order_number' => fake()->optional()->bothify('IN-####'),
             'supplier_order_reference' => fake()->optional()->bothify('SUPREF-####'),
             'status' => 'open',

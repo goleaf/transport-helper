@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\OrderProposalStatus;
 use Database\Factories\OrderProposalFactory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -72,5 +73,15 @@ class OrderProposal extends Model
     public function supplierOrder(): HasOne
     {
         return $this->hasOne(SupplierOrder::class);
+    }
+
+    public function scopeNeedsReview(Builder $query): Builder
+    {
+        return $query->where('status', OrderProposalStatus::NeedsReview->value);
+    }
+
+    public function scopeApproved(Builder $query): Builder
+    {
+        return $query->where('status', OrderProposalStatus::Approved->value);
     }
 }

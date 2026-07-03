@@ -21,6 +21,8 @@ class LogisticsRecordFactory extends Factory
             'supplier_order_id' => SupplierOrder::factory(),
             'supplier_id' => Supplier::factory(),
             'carrier_id' => Carrier::factory(),
+            'supplier_confirmation_id' => null,
+            'selected_carrier_quote_id' => null,
             'order_date' => now()->toDateString(),
             'confirmation_date' => now()->addDays(1)->toDateString(),
             'ready_date' => now()->addDays(10)->toDateString(),
@@ -31,6 +33,11 @@ class LogisticsRecordFactory extends Factory
             'currency' => 'EUR',
             'status' => 'planned',
             'external_sheet_reference' => fake()->optional()->uuid(),
+            'receiving_discrepancies_json' => null,
+            'received_by_user_id' => null,
+            'received_at' => null,
+            'last_delay_checked_at' => null,
+            'delay_reason' => null,
             'notes' => fake()->optional()->sentence(),
         ];
     }

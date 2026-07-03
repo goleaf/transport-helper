@@ -98,6 +98,21 @@ class User extends Authenticatable
         return $this->hasMany(AuditLog::class);
     }
 
+    public function preferences(): HasMany
+    {
+        return $this->hasMany(UserPreference::class);
+    }
+
+    public function savedViews(): HasMany
+    {
+        return $this->hasMany(SavedView::class);
+    }
+
+    public function createdSavedViews(): HasMany
+    {
+        return $this->hasMany(SavedView::class, 'created_by_user_id');
+    }
+
     public function createdFormAutofillRuns(): HasMany
     {
         return $this->hasMany(FormAutofillRun::class, 'created_by_user_id');
@@ -153,6 +168,11 @@ class User extends Authenticatable
         return $this->roles()
             ->whereHas('permissions', fn ($query) => $query->where('name', $permission))
             ->exists();
+    }
+
+    public function hasPermission(string $permission): bool
+    {
+        return $this->hasPermissionTo($permission);
     }
 
     public function canManageSupplyWorkflow(): bool

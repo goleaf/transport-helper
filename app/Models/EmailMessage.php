@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\EmailDirection;
 use Database\Factories\EmailMessageFactory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -92,5 +93,20 @@ class EmailMessage extends Model
     public function formAutofillRuns(): HasMany
     {
         return $this->hasMany(FormAutofillRun::class);
+    }
+
+    public function scopeInbound(Builder $query): Builder
+    {
+        return $query->where('direction', EmailDirection::Inbound->value);
+    }
+
+    public function scopeOutbound(Builder $query): Builder
+    {
+        return $query->where('direction', EmailDirection::Outbound->value);
+    }
+
+    public function scopeForCompany(Builder $query, Company|int $company): Builder
+    {
+        return $query->where('company_id', $company instanceof Company ? $company->getKey() : $company);
     }
 }

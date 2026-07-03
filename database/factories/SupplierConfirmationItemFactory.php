@@ -22,6 +22,10 @@ class SupplierConfirmationItemFactory extends Factory
             'discrepancy_quantity' => 0,
             'status' => 'matched',
             'notes' => null,
+            'source_item_json' => null,
+            'matched_by' => 'sku',
+            'discrepancy_type' => null,
+            'discrepancies_json' => null,
         ];
     }
 }

@@ -21,6 +21,8 @@ class InboundOrderItem extends Model
         'ordered_quantity',
         'confirmed_quantity',
         'received_quantity',
+        'damaged_quantity',
+        'receiving_notes',
         'expected_arrival_date',
         'confirmed_arrival_date',
         'status',
@@ -32,6 +34,7 @@ class InboundOrderItem extends Model
             'ordered_quantity' => 'decimal:3',
             'confirmed_quantity' => 'decimal:3',
             'received_quantity' => 'decimal:3',
+            'damaged_quantity' => 'decimal:4',
             'expected_arrival_date' => 'date',
             'confirmed_arrival_date' => 'date',
         ];

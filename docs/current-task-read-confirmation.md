@@ -11,6 +11,12 @@
 * .codex/skills/05-git-commit-push.md
 * .codex/skills/06-blockers-and-not-complete.md
 * docs/current-task.md
+* docs/architecture.md
+* docs/domain-model.md
+* docs/workflow-map.md
+* docs/status-machines.md
+* docs/decision-log.md
+* docs/calculation-engine.md
 
 ## Headings Found In Current Task
 
@@ -30,18 +36,18 @@
 
 ## Understanding
 
-* Task Title: This is the Supply Agent Architecture Bootstrap task.
-* Task Goal: Create base repository architecture memory for the Laravel Supply / Procurement Agent without implementing business code.
-* Required Reading: Read AGENTS.md, all strict .codex skill files, and the current task templates before implementation.
-* Non-Negotiable Rules: Create confirmation and progress files first, avoid DTO/app/Data, avoid runtime implementation, avoid external services and AI, and prove completion with checks.
-* Scope: Create or update architecture documentation, workflow documentation, roadmap documentation, README links, and architecture documentation tests.
-* Out Of Scope: Do not create migrations, models, factories, seeders, services, controllers, routes, UI, providers, imports, calculations, supplier orders, transport, or logistics workflows.
-* Required Implementation: Explain Laravel business ownership, AI boundaries, deterministic calculation, human approval, audit, no DTO, adapter data sources, and supplier order/email/confirmation/transport/logistics support.
-* Required Tests: Because tests are configured, maintain tests/Feature/ArchitectureDocsExistTest.php to assert required docs and guardrail text exist.
-* Required Documentation: All documentation files listed in Scope must be created or updated.
-* Acceptance Criteria: Every checklist item in docs/current-task.md must be completed or a blocker must be documented.
-* Required Commands: Run the no-DTO, no-secrets, project-docs checks and php artisan test, plus Pint and npm build when available.
-* Commit Message: The task commit message is Add supply agent architecture bootstrap task.
+* Task Title: The task is the Core Database Schema For Supply Agent.
+* Task Goal: Create the Laravel data/model foundation for the Supply / Procurement Agent without building workflow services or UI.
+* Required Reading: Project rules, strict workflow skills and architecture/domain docs must be read before implementation.
+* Non-Negotiable Rules: Work stays database/model-only, with no DTO, no app/Data, no external services, no AI calls and no fake success claim.
+* Scope: Enums, models, migrations, factories, seeders, core database tests and required docs are in scope.
+* Out Of Scope: Calculation/import/email/AI/autofill/confirmation/transport/logistics business workflows and UI are out of scope.
+* Required Implementation: Core schema must cover all planned procurement objects, including user preferences and saved views, with relationships, casts, seeders and roles.
+* Required Tests: Core migration, relationship, role-permission, demo seeder and no-DTO tests must be created or updated.
+* Required Documentation: Core database implementation notes and domain model docs must be updated.
+* Acceptance Criteria: Every listed criterion must pass or be documented as a blocker.
+* Required Commands: Run no-DTO, no-secrets, docs check, migrate:fresh --seed, php artisan test and optional formatter/build.
+* Commit Message: The required commit message is Add supply agent core database schema.
 
 ## Acceptance Criteria Copied
 
@@ -50,32 +56,31 @@
 * [ ] docs/current-task.md read from start to end.
 * [ ] docs/current-task-read-confirmation.md created.
 * [ ] docs/current-task-progress.md created.
-* [ ] docs/architecture.md created.
-* [ ] docs/domain-model.md created.
-* [ ] docs/workflow-map.md created.
-* [ ] docs/decision-log.md created.
-* [ ] docs/calculation-engine.md created.
-* [ ] docs/email-ai-boundary.md created.
-* [ ] docs/email-form-autofill.md created.
-* [ ] docs/import-export-adapters.md created.
-* [ ] docs/status-machines.md created.
-* [ ] docs/audit-and-security.md created.
-* [ ] docs/backup-plan.md created.
-* [ ] docs/implementation-roadmap.md created.
-* [ ] docs/next-codex-prompts.md created.
-* [ ] docs/repository-architecture-bootstrap-notes.md created.
-* [ ] README.md links updated.
-* [ ] Architecture docs explain AI boundary.
-* [ ] Architecture docs explain deterministic calculation.
-* [ ] Architecture docs explain no DTO rule.
-* [ ] Architecture docs explain human review.
-* [ ] Architecture docs explain audit.
-* [ ] Architecture docs explain full workflow.
-* [ ] Tests added if project supports tests.
+* [ ] Enums/constants created.
+* [ ] Core migrations created.
+* [ ] Core models created.
+* [ ] Model relationships created.
+* [ ] Model casts created.
+* [ ] Factories created.
+* [ ] Seeders created.
+* [ ] Roles/permissions created or existing system reused.
+* [ ] Demo company seeded.
+* [ ] Demo supplier seeded.
+* [ ] Demo carrier seeded.
+* [ ] Demo products seeded.
+* [ ] Demo form templates seeded.
+* [ ] Core database tests created.
+* [ ] Relationship tests created.
+* [ ] Role/permission tests created.
+* [ ] Demo seeder tests created.
+* [ ] No DTO test created.
+* [ ] docs/core-database-implementation-notes.md created.
+* [ ] docs/domain-model.md updated.
+* [ ] php artisan migrate:fresh --seed passed or blocker documented.
 * [ ] ./scripts/check-no-dto.sh passed.
 * [ ] ./scripts/check-no-secrets.sh passed.
 * [ ] ./scripts/check-project-docs.sh passed.
-* [ ] php artisan test passed or skipped with documented reason.
+* [ ] php artisan test passed or blocker documented.
 * [ ] Formatter passed if available.
 * [ ] npm build passed if applicable.
 * [ ] No secrets committed.

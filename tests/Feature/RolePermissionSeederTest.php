@@ -23,7 +23,10 @@ it('seeds the supply role and permission matrix', function () {
             'apply_email_form_autofill',
             'select_carrier',
             'view_audit_logs',
-        ])->count())->toBe(5);
+            'view_analytics',
+            'export_analytics',
+            'manage_saved_reports',
+        ])->count())->toBe(8);
 
     $permissionsCount = Permission::query()->count();
     $admin = Role::query()->where('name', 'admin')->with('permissions')->firstOrFail();
@@ -34,5 +37,7 @@ it('seeds the supply role and permission matrix', function () {
     expect($admin->permissions)->toHaveCount($permissionsCount)
         ->and($viewer->permissions->pluck('name'))->not->toContain('approve_order_proposals')
         ->and($supplyManager->permissions->pluck('name'))->toContain('approve_order_proposals')
-        ->and($logisticsManager->permissions->pluck('name'))->toContain('select_carrier');
+        ->and($supplyManager->permissions->pluck('name'))->toContain('manage_saved_reports')
+        ->and($logisticsManager->permissions->pluck('name'))->toContain('select_carrier')
+        ->and($logisticsManager->permissions->pluck('name'))->toContain('export_analytics');
 });

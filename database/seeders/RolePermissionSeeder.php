@@ -36,6 +36,9 @@ class RolePermissionSeeder extends Seeder
             'review_ai_extractions',
             'use_email_form_autofill',
             'apply_email_form_autofill',
+            'view_analytics',
+            'export_analytics',
+            'manage_saved_reports',
         ];
 
         $permissionModels = collect($permissions)
@@ -66,6 +69,9 @@ class RolePermissionSeeder extends Seeder
                 'review_ai_extractions',
                 'use_email_form_autofill',
                 'apply_email_form_autofill',
+                'view_analytics',
+                'export_analytics',
+                'manage_saved_reports',
             ],
             'logistics_manager' => [
                 'view_products',
@@ -77,6 +83,8 @@ class RolePermissionSeeder extends Seeder
                 'review_ai_extractions',
                 'use_email_form_autofill',
                 'apply_email_form_autofill',
+                'view_analytics',
+                'export_analytics',
             ],
             'accountant' => [
                 'view_products',
@@ -84,6 +92,7 @@ class RolePermissionSeeder extends Seeder
                 'view_supplier_confirmations',
                 'view_logistics',
                 'view_audit_logs',
+                'view_analytics',
             ],
             'viewer' => [
                 'view_products',

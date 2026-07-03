@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\OrderProposalItemStatus;
 use Database\Factories\OrderProposalItemFactory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -82,5 +83,10 @@ class OrderProposalItem extends Model
     public function product(): BelongsTo
     {
         return $this->belongsTo(Product::class);
+    }
+
+    public function scopeNeedsReview(Builder $query): Builder
+    {
+        return $query->where('status', OrderProposalItemStatus::NeedsReview->value);
     }
 }

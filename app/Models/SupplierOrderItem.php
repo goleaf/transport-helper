@@ -21,6 +21,8 @@ class SupplierOrderItem extends Model
         'ordered_quantity',
         'confirmed_quantity',
         'received_quantity',
+        'damaged_quantity',
+        'receiving_notes',
         'unit_price',
         'currency',
         'status',
@@ -33,6 +35,7 @@ class SupplierOrderItem extends Model
             'ordered_quantity' => 'decimal:3',
             'confirmed_quantity' => 'decimal:3',
             'received_quantity' => 'decimal:3',
+            'damaged_quantity' => 'decimal:4',
             'unit_price' => 'decimal:3',
         ];
     }

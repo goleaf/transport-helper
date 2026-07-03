@@ -3,17 +3,23 @@
 ## Existing Project Findings
 
 - Laravel version: 13.18.1.
-- PHP version: 8.5.7.
+- PHP version: 8.5.
+- Database engine: SQLite.
 - Test framework: Pest 4.
-- Database engine in current app info: SQLite.
 - `users` table and `App\Models\User` already exist.
 - Spatie Permission is not installed.
-- A custom lightweight role-permission system already exists with `roles`, `permissions`, `permission_role`, and `role_user`.
-- The repository already contained supply/procurement migrations, models, factories, seeders, services and tests from earlier implementation work.
+- The repository already has a custom role-permission system: `roles`, `permissions`, `permission_role`, and `role_user`.
+- Existing supply/procurement migrations, models, enums, factories, seeders, services and tests were already present before this Punkt 3 pass.
+- Existing dirty import-system refactor files are present in the worktree and are outside this database task.
 
 ## Created Tables
 
-The core supply tables already existed before this Stage 1 pass:
+This pass added:
+
+- `user_preferences`;
+- `saved_views`.
+
+Existing core tables were reused:
 
 - companies;
 - suppliers;
@@ -56,23 +62,15 @@ The core supply tables already existed before this Stage 1 pass:
 - permission_role;
 - role_user.
 
-This pass added an alignment migration for missing Stage 1 foundation fields and constraints:
-
-- `roles.label`;
-- `permissions.label`;
-- supplier order email approval fields;
-- unique `form_templates(company_id, code, version)`;
-- form-autofill source foreign keys for supplier confirmations and carrier quotes.
-
 ## Reused Existing Tables
 
 All existing supply tables were reused. No duplicate supply table was created.
 
 ## Role System Decision
 
-The project has no Spatie Permission dependency, so the existing custom role-permission system remains the project standard.
+The existing custom role-permission system is reused because the project has no Spatie Permission dependency.
 
-The role matrix is seeded by `RolePermissionSeeder`:
+Roles:
 
 - admin;
 - supply_manager;
@@ -80,18 +78,93 @@ The role matrix is seeded by `RolePermissionSeeder`:
 - accountant;
 - viewer.
 
+Additional Punkt 3 permissions added:
+
+- view_analytics;
+- export_analytics;
+- manage_saved_reports.
+
 ## Naming Decisions
 
-- New enum names follow the existing native PHP enum convention with TitleCase case names.
-- New demo seeders use the requested explicit names: Demo Manufacturer, Demo Distributor, Demo Carrier A/B/C and SKU-1001 through SKU-1005.
-- The previous combined `ProcurementDemoSeeder` remains in place for compatibility, but `DatabaseSeeder` now calls the separated Stage 1 demo seeders.
+- Native PHP enums remain under `app/Enums`.
+- Eloquent models remain under `app/Models`.
+- New table names follow Laravel plural snake_case conventions.
+- No DTO namespace or `app/Data` folder was introduced.
+
+## Migration Compatibility
+
+New schema changes are additive and reversible.
+
+Added nullable alignment columns for:
+
+- inbound order link to supplier order;
+- damaged quantity and receiving notes on inbound/supplier order items;
+- supplier confirmation source/output/discrepancy/apply metadata;
+- supplier confirmation item source/matching/discrepancy metadata;
+- carrier quote source/review/selection/rejection metadata;
+- logistics confirmation/quote/receiving/delay metadata;
+- integration provider/environment/approval/test metadata.
+
+Known compatibility note:
+
+- Some older decimal columns remain at their existing precision from the original procurement migration. This pass did not rewrite existing decimal columns destructively.
+- Some confidence columns remain at existing scale from prior migrations. A later schema-hardening task can normalize precision if required.
+
+## Factories
+
+Factories exist for the core supply models, including new factories for:
+
+- UserPreferenceFactory;
+- SavedViewFactory.
+
+Factories use fake/test data only.
+
+## Seeders
+
+Seeders are idempotent:
+
+- RolePermissionSeeder;
+- DemoCompanySeeder;
+- DemoSupplierSeeder;
+- DemoCarrierSeeder;
+- DemoProductSeeder;
+- DemoFormTemplateSeeder.
+
+`DatabaseSeeder` calls the role and demo seeders.
+
+## Tests Added
+
+Updated tests:
+
+- CoreDatabaseMigrationTest;
+- CoreDatabaseRelationshipTest;
+- RolePermissionSeederTest.
+
+Existing tests used:
+
+- DemoSeederTest;
+- NoDtoRuleTest;
+- ProcurementEnumsTest.
 
 ## Known Conflicts
 
-- The existing advanced workflow implementation stores some confidence values as percentages in application code, while the target architecture describes 0.0-1.0 confidence values. This pass did not refactor workflow services because Stage 1 is limited to database foundation.
-- Some existing legacy/demo workflow models remain in the repository from earlier implementation work. They were not removed because this stage is non-destructive.
-- Existing decimal column precision in the original procurement migration is narrower than the ideal Stage 1 specification in some places. This pass avoided broad destructive column rewrites and documents the gap for a later schema-hardening pass.
+- The working tree contains an unrelated import-system refactor. If the full suite fails in import workflow tests, that failure must be treated separately from this core database task.
+
+## Checks Run
+
+Passing so far:
+
+- php artisan migrate:fresh --seed --env=testing --no-interaction;
+- php artisan test --filter=CoreDatabaseMigrationTest;
+- php artisan test --filter=CoreDatabaseRelationshipTest;
+- php artisan test --filter=RolePermissionSeederTest;
+- php artisan test --filter=DemoSeederTest;
+- php artisan test --filter=NoDtoRuleTest.
+
+Final full-suite and guard results are recorded in `docs/current-task-progress.md`.
 
 ## Next Step
 
-Implement the next technical slice: AuditLogService and deterministic calculation engine foundation, with explicit tests for the required 150 -> 156 calculation example.
+Next recommended task after Punkt 3:
+
+Punkt 4 — AuditLogService and deterministic calculation engine.

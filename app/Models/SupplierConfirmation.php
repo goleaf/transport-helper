@@ -30,6 +30,12 @@ class SupplierConfirmation extends Model
         'discrepancy_summary',
         'created_from_ai_extraction_id',
         'created_from_form_autofill_run_id',
+        'source_type',
+        'source_id',
+        'output_json',
+        'discrepancies_json',
+        'applied_by_user_id',
+        'applied_at',
     ];
 
     protected function casts(): array
@@ -39,6 +45,9 @@ class SupplierConfirmation extends Model
             'ready_date' => 'date',
             'shipping_date' => 'date',
             'expected_arrival_date' => 'date',
+            'output_json' => 'array',
+            'discrepancies_json' => 'array',
+            'applied_at' => 'datetime',
             'status' => SupplierConfirmationStatus::class,
         ];
     }
@@ -66,6 +75,11 @@ class SupplierConfirmation extends Model
     public function formAutofillRun(): BelongsTo
     {
         return $this->belongsTo(FormAutofillRun::class, 'created_from_form_autofill_run_id');
+    }
+
+    public function appliedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'applied_by_user_id');
     }
 
     public function items(): HasMany

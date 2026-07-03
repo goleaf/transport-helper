@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Database\Factories\AuditLogFactory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -55,5 +56,15 @@ class AuditLog extends Model
     public function auditable(): MorphTo
     {
         return $this->morphTo();
+    }
+
+    public function scopeForCompany(Builder $query, Company|int $company): Builder
+    {
+        return $query->where('company_id', $company instanceof Company ? $company->getKey() : $company);
+    }
+
+    public function scopeForEvent(Builder $query, string $eventType): Builder
+    {
+        return $query->where('event_type', $eventType);
     }
 }

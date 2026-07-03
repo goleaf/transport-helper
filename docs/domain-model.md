@@ -158,3 +158,36 @@ System setting.
 ## AuditLog
 
 Critical event log.
+
+## UserPreference
+
+Per-user setting for dashboards, filters and operator preferences.
+
+Key relationships:
+
+* belongs to User.
+
+## SavedView
+
+Saved table/report view definition for repeatable filters, columns and sort settings.
+
+Key relationships:
+
+* belongs to User;
+* belongs to Company;
+* belongs to creator User.
+
+# Core Database Implementation Relationships
+
+The current database foundation includes Eloquent models for all planned core objects. The most important relationship chains are:
+
+* Company has suppliers, products, stock snapshots, sales history, inbound orders, reservations, calculation runs, order proposals, supplier orders, email accounts/messages, form templates, form autofill runs, supplier confirmations, carriers, carrier quotes, logistics records, import batches, export files, integration connections, app settings, saved views and audit logs.
+* Supplier belongs to Company and has contacts, product rules, inbound orders, calculation runs, order proposals, supplier orders, email messages, logistics records and form templates.
+* Product belongs to Company and has supplier product rules, stock snapshots, sales history, inbound order items, reservations, order proposal items, supplier order items and supplier confirmation items.
+* SupplierOrder belongs to Company, Supplier and optionally OrderProposal; it has items, email messages, confirmations, carrier quotes and logistics records.
+* EmailMessage belongs to Company and optionally EmailAccount, Supplier and SupplierOrder; it has attachments, AI extractions, form autofill runs, supplier confirmations and carrier quotes.
+* FormAutofillRun belongs to Company, EmailMessage, FormTemplate and optionally AiEmailExtraction; it has field values, outputs, supplier confirmations and carrier quotes.
+* SupplierConfirmation belongs to Company, SupplierOrder, EmailMessage, AiEmailExtraction and FormAutofillRun; it has confirmation items and an optional applying user.
+* CarrierQuote belongs to Company, SupplierOrder, Carrier, EmailMessage, AiEmailExtraction and FormAutofillRun; users can be linked as creator, selector or rejector.
+* LogisticsRecord belongs to Company and may link SupplierOrder, Supplier, Carrier, SupplierConfirmation, selected CarrierQuote and receiving User.
+* AuditLog belongs to Company and User and uses a polymorphic auditable relationship.
