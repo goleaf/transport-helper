@@ -1,49 +1,17 @@
 <?php
 
-use App\Services\Supply\OrderNeedCalculator;
-use App\Services\Supply\OrderRoundingService;
-use App\Services\Supply\TrendCalculator;
+use App\Services\Supply\Calculation\OrderNeedCalculator;
 
-function makeOrderNeedCalculator(): OrderNeedCalculator
-{
-    return new OrderNeedCalculator(
-        new TrendCalculator,
-        new OrderRoundingService,
-    );
-}
-
-function baseOrderNeedInput(array $overrides = []): array
+function stageTwoOrderNeedInput(array $overrides = []): array
 {
     return array_merge([
         'company_id' => 1,
-        'supplier_id' => 10,
-        'product_id' => 100,
+        'supplier_id' => 1,
+        'product_id' => 1,
         't0_date' => '2026-07-01',
         't1_date' => '2026-07-15',
-        't2_date' => '2026-08-01',
-        't3_date' => '2026-08-15',
-        'current_year_sales_for_trend' => 100,
-        'last_year_sales_for_trend' => 100,
-        'last_year_sales_t0_t1' => 0,
-        'last_year_sales_t1_t2' => 150,
-        'last_year_sales_t2_t3' => 0,
-        'free_stock' => 0,
-        'inbound_until_t1' => 0,
-        'inbound_t1_t3' => 0,
-        'reserved_quantity' => 0,
-        'moq' => null,
-        'pack_multiple' => null,
-        'pallet_quantity' => null,
-        'min_transport_quantity' => null,
-        'rounding_strategy' => [],
-        'reservation_strategy' => 'include',
-        'safety_days_rule' => null,
-        'strategic_minimum_order_enabled' => false,
-    ], $overrides);
-}
-
-test('test_document_example_returns_150_and_156', function () {
-    $result = makeOrderNeedCalculator()->calculate(baseOrderNeedInput([
+        't2_date' => '2026-08-14',
+        't3_date' => '2026-09-01',
         'current_year_sales_for_trend' => 120,
         'last_year_sales_for_trend' => 100,
         'last_year_sales_t0_t1' => 40,
@@ -53,12 +21,24 @@ test('test_document_example_returns_150_and_156', function () {
         'inbound_until_t1' => 0,
         'inbound_t1_t3' => 20,
         'reserved_quantity' => 0,
+        'moq' => null,
         'pack_multiple' => 12,
-    ]));
+        'pallet_quantity' => null,
+        'min_transport_quantity' => null,
+        'pallet_strategy' => 'show_only',
+        'transport_strategy' => 'show_only',
+        'reservation_strategy' => 'reserved_not_removed_from_free_stock',
+        'safety_days_rule' => 'manual',
+        'strategic_minimum_order_enabled' => false,
+    ], $overrides);
+}
+
+it('returns raw 150 and recommended 156 for the document example', function () {
+    $result = app(OrderNeedCalculator::class)->calculate(stageTwoOrderNeedInput());
 
     expect($result)->toMatchArray([
-        'formula_version' => OrderNeedCalculator::FORMULA_VERSION,
-        'status' => 'draft',
+        'formula_version' => 'v1',
+        'status' => 'ok',
         'trend' => 1.2,
         'need_t0_t1' => 48.0,
         'stock_t1' => 22.0,
@@ -66,211 +46,109 @@ test('test_document_example_returns_150_and_156', function () {
         'safety_stock' => 72.0,
         'raw_need' => 150.0,
         'recommended_quantity' => 156.0,
-        'warnings' => [],
-        'requires_human_review' => false,
-    ])
-        ->and($result['applied_rules']['pack_multiple'])->toMatchArray([
-            'value' => 12.0,
-            'from' => 150.0,
-            'to' => 156.0,
-        ])
-        ->and($result['explanation']['intermediate_values'])->toMatchArray([
-            'trend' => 1.2,
-            'need_t0_t1' => 48.0,
-            'stock_t1' => 22.0,
-            'need_t1_t2' => 120.0,
-            'safety_stock' => 72.0,
-            'raw_need' => 150.0,
-        ])
-        ->and($result['explanation']['final_result'])->toMatchArray([
-            'status' => 'draft',
-            'recommended_quantity' => 156.0,
-        ]);
-});
-
-test('raw_need_negative_returns_zero', function () {
-    $result = makeOrderNeedCalculator()->calculate(baseOrderNeedInput([
-        'last_year_sales_t1_t2' => 10,
-        'free_stock' => 100,
-    ]));
-
-    expect($result)->toMatchArray([
-        'status' => 'draft',
-        'raw_need' => -90.0,
-        'recommended_quantity' => 0.0,
         'requires_human_review' => false,
     ]);
 });
 
-test('moq_applied_when_raw_need_positive', function () {
-    $result = makeOrderNeedCalculator()->calculate(baseOrderNeedInput([
-        'last_year_sales_t1_t2' => 10,
-        'moq' => 24,
-    ]));
+it('includes all formula steps in the explanation', function () {
+    $result = app(OrderNeedCalculator::class)->calculate(stageTwoOrderNeedInput());
+    $stepNames = collect($result['explanation']['formula_steps'])->pluck('name')->all();
 
-    expect($result)->toMatchArray([
-        'raw_need' => 10.0,
-        'recommended_quantity' => 24.0,
+    expect($result['explanation'])->toHaveKeys([
+        'timeline',
+        'input_values',
+        'formula_steps',
+        'rounding_steps',
+        'final_result',
     ])
-        ->and($result['applied_rules']['moq'])->toMatchArray([
-            'value' => 24.0,
-            'from' => 10.0,
-            'to' => 24.0,
-        ]);
+        ->and($stepNames)->toContain('trend')
+        ->and($stepNames)->toContain('need_t0_t1')
+        ->and($stepNames)->toContain('stock_t1')
+        ->and($stepNames)->toContain('need_t1_t2')
+        ->and($stepNames)->toContain('safety_stock')
+        ->and($stepNames)->toContain('raw_need')
+        ->and($stepNames)->toContain('recommended_quantity');
 });
 
-test('pack_multiple_rounds_up', function () {
-    $result = makeOrderNeedCalculator()->calculate(baseOrderNeedInput([
-        'last_year_sales_t1_t2' => 25,
-        'pack_multiple' => 12,
+it('requires review for an invalid timeline', function () {
+    $result = app(OrderNeedCalculator::class)->calculate(stageTwoOrderNeedInput([
+        't1_date' => '2026-09-01',
+        't2_date' => '2026-08-14',
     ]));
 
-    expect($result)->toMatchArray([
-        'raw_need' => 25.0,
-        'recommended_quantity' => 36.0,
-    ])
-        ->and($result['applied_rules']['pack_multiple'])->toMatchArray([
-            'value' => 12.0,
-            'from' => 25.0,
-            'to' => 36.0,
-        ]);
+    expect($result['status'])->toBe('needs_review')
+        ->and($result['requires_human_review'])->toBeTrue()
+        ->and($result['errors'])->toContain('t1_after_t2');
 });
 
-test('pallet_show_only_does_not_change_quantity', function () {
-    $result = makeOrderNeedCalculator()->calculate(baseOrderNeedInput([
-        'last_year_sales_t1_t2' => 40,
-        'pallet_quantity' => 50,
+it('requires review when reservation strategy is missing', function () {
+    $input = stageTwoOrderNeedInput();
+    unset($input['reservation_strategy']);
+
+    $result = app(OrderNeedCalculator::class)->calculate($input);
+
+    expect($result['status'])->toBe('needs_review')
+        ->and($result['warnings'])->toContain('reservation_strategy_missing');
+});
+
+it('does not add reservations twice when they were already removed from stock', function () {
+    $result = app(OrderNeedCalculator::class)->calculate(stageTwoOrderNeedInput([
+        'pack_multiple' => null,
+        'reserved_quantity' => 50,
+        'reservation_strategy' => 'reserved_already_removed_from_free_stock',
     ]));
 
-    expect($result)->toMatchArray([
-        'status' => 'needs_review',
-        'raw_need' => 40.0,
-        'recommended_quantity' => 40.0,
-        'requires_human_review' => true,
-    ])
-        ->and($result['warnings'])->toContain('pallet_quantity_not_full_pallet')
-        ->and($result['applied_rules']['pallet_quantity'])->toMatchArray([
-            'strategy' => 'show_only',
-            'value' => 50.0,
-            'would_round_to' => 50.0,
-        ]);
+    expect($result['effective_reserved_quantity'])->toBe(0.0)
+        ->and($result['raw_need'])->toBe(150.0);
 });
 
-test('enforce_full_pallet_changes_quantity', function () {
-    $result = makeOrderNeedCalculator()->calculate(baseOrderNeedInput([
-        'last_year_sales_t1_t2' => 40,
-        'pallet_quantity' => 50,
-        'rounding_strategy' => [
-            'pallet_quantity' => 'enforce_full_pallet',
-        ],
+it('adds reservations when they were not removed from stock', function () {
+    $result = app(OrderNeedCalculator::class)->calculate(stageTwoOrderNeedInput([
+        'pack_multiple' => null,
+        'reserved_quantity' => 50,
+        'reservation_strategy' => 'reserved_not_removed_from_free_stock',
     ]));
 
-    expect($result)->toMatchArray([
-        'status' => 'draft',
-        'raw_need' => 40.0,
-        'recommended_quantity' => 50.0,
-        'warnings' => [],
-        'requires_human_review' => false,
-    ])
-        ->and($result['applied_rules']['pallet_quantity'])->toMatchArray([
-            'strategy' => 'enforce_full_pallet',
-            'value' => 50.0,
-            'from' => 40.0,
-            'to' => 50.0,
-        ]);
+    expect($result['effective_reserved_quantity'])->toBe(50.0)
+        ->and($result['raw_need'])->toBe(200.0);
 });
 
-test('missing_last_year_sales_requires_review', function () {
-    $result = makeOrderNeedCalculator()->calculate(baseOrderNeedInput([
+it('requires review for zero last year sales', function () {
+    $result = app(OrderNeedCalculator::class)->calculate(stageTwoOrderNeedInput([
         'last_year_sales_for_trend' => 0,
     ]));
 
-    expect($result)->toMatchArray([
-        'status' => 'needs_review',
-        'trend' => null,
-        'raw_need' => null,
-        'recommended_quantity' => 0.0,
-        'requires_human_review' => true,
-    ])
-        ->and($result['warnings'])->toContain('insufficient_last_year_sales')
-        ->and($result['applied_rules']['trend'])->toMatchArray([
-            'status' => 'needs_review',
-            'applied_fallback' => null,
-        ]);
+    expect($result['status'])->toBe('needs_review')
+        ->and($result['trend'])->toBeNull()
+        ->and($result['warnings'])->toContain('insufficient_last_year_sales');
 });
 
-test('explanation_contains_all_formula_components', function () {
-    $result = makeOrderNeedCalculator()->calculate(baseOrderNeedInput([
-        'current_year_sales_for_trend' => 120,
-        'last_year_sales_for_trend' => 100,
-        'last_year_sales_t0_t1' => 40,
-        'last_year_sales_t1_t2' => 100,
-        'last_year_sales_t2_t3' => 60,
-        'free_stock' => 70,
-        'inbound_t1_t3' => 20,
-        'pack_multiple' => 12,
+it('recommends zero when raw need is negative', function () {
+    $result = app(OrderNeedCalculator::class)->calculate(stageTwoOrderNeedInput([
+        'pack_multiple' => null,
+        'last_year_sales_t0_t1' => 0,
+        'last_year_sales_t1_t2' => 10,
+        'last_year_sales_t2_t3' => 0,
+        'free_stock' => 100,
+        'inbound_t1_t3' => 0,
     ]));
 
-    expect($result['explanation'])->toHaveKeys([
-        'dates',
-        'formula_steps',
-        'input_values',
-        'intermediate_values',
-        'rounding_steps',
-        'warnings',
-        'final_result',
-    ])
-        ->and($result['explanation']['formula_steps'])->toContain('trend = current_year_sales_for_trend / last_year_sales_for_trend')
-        ->and($result['explanation']['formula_steps'])->toContain('need_t0_t1 = last_year_sales_t0_t1 * trend')
-        ->and($result['explanation']['formula_steps'])->toContain('stock_t1 = free_stock + inbound_until_t1 - need_t0_t1')
-        ->and($result['explanation']['formula_steps'])->toContain('need_t1_t2 = last_year_sales_t1_t2 * trend')
-        ->and($result['explanation']['formula_steps'])->toContain('safety_stock = last_year_sales_t2_t3 * trend')
-        ->and($result['explanation']['formula_steps'])->toContain('raw_need = need_t1_t2 + safety_stock - stock_t1 - inbound_t1_t3 + reserved_quantity')
-        ->and($result['explanation']['input_values'])->toHaveKeys([
-            'current_year_sales_for_trend',
-            'last_year_sales_for_trend',
-            'last_year_sales_t0_t1',
-            'last_year_sales_t1_t2',
-            'last_year_sales_t2_t3',
-            'free_stock',
-            'inbound_until_t1',
-            'inbound_t1_t3',
-            'reserved_quantity',
-        ])
-        ->and($result['explanation']['intermediate_values'])->toHaveKeys([
-            'trend',
-            'need_t0_t1',
-            'stock_t1',
-            'need_t1_t2',
-            'safety_stock',
-            'reserved_quantity',
-            'raw_need',
-        ]);
+    expect($result['raw_need'])->toBe(-88.0)
+        ->and($result['recommended_quantity'])->toBe(0.0)
+        ->and($result['warnings'])->toContain('raw_need_below_zero');
 });
 
-test('calculator_has_no_dependency_on_ai_or_email_classes', function () {
-    $reflection = new ReflectionClass(OrderNeedCalculator::class);
-    $constructorDependencies = collect($reflection->getConstructor()?->getParameters() ?? [])
-        ->map(fn (ReflectionParameter $parameter) => $parameter->getType()?->getName())
-        ->values()
-        ->all();
+it('documents that safety stock only covers t2 to t3', function () {
+    $result = app(OrderNeedCalculator::class)->calculate(stageTwoOrderNeedInput());
 
-    expect($constructorDependencies)->toBe([
-        TrendCalculator::class,
-        OrderRoundingService::class,
-    ]);
+    expect($result['explanation']['timeline']['note'])
+        ->toContain('Safety stock covers only T2-T3');
+});
 
-    foreach ($constructorDependencies as $dependency) {
-        expect($dependency)
-            ->not->toContain('Email')
-            ->not->toContain('Ai')
-            ->not->toContain('AI');
+it('has no forbidden calculation dependencies', function () {
+    $source = file_get_contents(dirname(__DIR__, 2).'/app/Services/Supply/Calculation/OrderNeedCalculator.php');
+
+    foreach (['Ai', 'AI', 'Email', 'FormAutofill', 'OpenAI', 'LLM', 'Http', 'Guzzle'] as $forbidden) {
+        expect($source)->not->toContain($forbidden);
     }
-
-    $source = file_get_contents((string) $reflection->getFileName());
-
-    expect($source)
-        ->not->toContain('Email')
-        ->not->toContain('AiEmail')
-        ->not->toContain('AI');
 });

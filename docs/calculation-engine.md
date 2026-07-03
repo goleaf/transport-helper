@@ -30,6 +30,52 @@ Raw_Need = Need_T1_T2 + Safety_Stock - Stock_T1 - inbound_T1_T3 + reserved_quant
 
 Final_Order = Raw_Need adjusted by MOQ, pack multiple, pallet quantity and transport rules.
 
+## Implementation
+
+Current Stage 2 implementation lives in `app/Services/Supply/Calculation`.
+
+Services:
+
+* `CalculationPeriodService`;
+* `TrendCalculator`;
+* `OrderRoundingService`;
+* `OrderNeedCalculator`;
+* `CalculationDataCollector`;
+* `OrderProposalGenerationService`.
+
+The calculator accepts associative arrays and returns associative arrays.
+It does not use DTO classes.
+It does not depend on email, AI, form autofill, HTTP clients or external services.
+
+`OrderProposalGenerationService` creates:
+
+* `calculation_runs`;
+* `order_proposals`;
+* `order_proposal_items`;
+* audit events for calculation run completion, proposal creation and item calculation.
+
+It does not create supplier orders.
+It does not send email.
+It does not apply AI output.
+
+## Formula Version
+
+Current deterministic formula version is `v1`.
+
+## Human Review Conditions
+
+The result is marked `needs_review` when:
+
+* last year sales are missing;
+* last year sales are zero without an approved manual fallback;
+* stock snapshot is missing;
+* supplier product rule is missing;
+* T0/T1/T2/T3 timeline is invalid;
+* reservation strategy is missing;
+* numeric input is invalid;
+* sales values are negative;
+* rounding cannot safely process raw need.
+
 ## Required Test Example
 
 Input:
@@ -48,6 +94,11 @@ Expected:
 
 * raw_need = 150;
 * recommended_quantity = 156.
+
+## Required Test Status
+
+Implemented in `tests/Unit/OrderNeedCalculatorTest.php`.
+The Stage 2 focused test run confirms `raw_need = 150` and `recommended_quantity = 156`.
 
 ## Edge Cases
 

@@ -47,3 +47,50 @@ Minimum roles:
 * private storage for attachments/exports;
 * backup plan required;
 * health check required.
+
+## AuditLogService
+
+Implemented service:
+
+* `app/Services/Audit/AuditLogService.php`
+
+Core methods:
+
+* `logCreated`;
+* `logUpdated`;
+* `logDeleted`;
+* `logStatusChanged`;
+* `logDecision`;
+* `logImport`;
+* `logExport`;
+* `logCalculationRun`;
+* `logOrderProposalCreated`;
+* `logOrderProposalItemCalculated`.
+
+Compatibility methods kept for later workflows:
+
+* `logEmailSent`;
+* `logEmailReceived`;
+* `logAiExtractionCreated`;
+* `logAiExtractionReviewed`;
+* `logFormAutofillCreated`;
+* `logFormAutofillFieldChanged`;
+* `logFormAutofillApplied`;
+* `logOrderQuantityAdjusted`;
+* `logCarrierSelected`.
+
+Stage 2 event names:
+
+* `product_created`;
+* `product_updated`;
+* `product_deleted`;
+* `order_proposal_status_changed`;
+* `calculation_run_created`;
+* `calculation_run_completed`;
+* `calculation_run_failed`;
+* `order_proposal_created`;
+* `order_proposal_item_calculated`;
+* workflow decision names such as `order_quantity_adjusted`.
+
+The service resolves `company_id` directly from the model when available and through nested relationships for proposal/order items.
+It also works in web requests, queue jobs and CLI contexts.

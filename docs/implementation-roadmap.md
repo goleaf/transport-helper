@@ -33,11 +33,24 @@ Result:
 
 ## Step 4. Audit Service And Calculation Engine
 
+Status: implemented in Stage 2.
+
 Result:
 
 * AuditLogService;
 * deterministic calculation;
 * 150 -> 156 test.
+
+Implementation:
+
+* centralized audit service added;
+* calculation services added under `app/Services/Supply/Calculation`;
+* proposal generation creates calculation run, proposal and proposal items;
+* focused audit/calculation tests added.
+
+Next recommended step:
+
+* CSV import system with import batches, validators, normalizers and dry-run.
 
 ## Step 5. Import System
 
