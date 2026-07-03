@@ -1,5 +1,6 @@
 <?php
 
+use App\Exceptions\NotConfiguredYetException;
 use App\Models\AuditLog;
 use App\Models\Company;
 use App\Models\ImportBatch;
@@ -236,3 +237,14 @@ it('product rules rollback skips unsafe updates', function () {
         ->and($result['skipped_count'])->toBe(1)
         ->and($result['skipped_reasons'])->toContain('unsafe_product_rule_rollback');
 });
+
+it('placeholder google sheets adapter throws not configured', function () {
+    $company = Company::factory()->create();
+
+    app(ImportBatchService::class)->run(
+        'sales_history',
+        'google_sheets',
+        [],
+        ['company_id' => $company->getKey()],
+    );
+})->throws(NotConfiguredYetException::class, 'Integration or adapter [google_sheets] is not configured yet.');

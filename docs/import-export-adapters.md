@@ -60,8 +60,11 @@ Supports:
 * semicolon delimiter;
 * headers;
 * normalized headers;
+* custom header maps;
 * UTF-8 BOM removal;
 * empty row skipping.
+
+Task 5 verifies these behaviors with focused adapter tests.
 
 ## Dry Run
 

@@ -2,25 +2,35 @@
 
 ## Task Title
 
-AuditLogService And Deterministic Calculation Engine
+CSV Import System With Batches, Rows, Validation And Dry Run
 
 ## Task Goal
 
-Create centralized AuditLogService and deterministic replenishment calculation engine for the Laravel Supply / Procurement Agent.
+Create adapter-based CSV import system for the Laravel Supply / Procurement Agent.
 
 This task implements:
-- audit log service;
-- calculation period validation;
-- trend calculation;
-- order rounding;
-- order need calculation;
-- calculation data collection from database;
-- order proposal generation foundation;
-- tests for audit and calculation;
-- required calculation example where raw_need = 150 and recommended_quantity = 156.
+- import contracts;
+- CSV adapter;
+- placeholder adapters;
+- normalizers;
+- validators;
+- persisters;
+- ImportBatchService;
+- dry-run;
+- duplicate checksum detection;
+- safe rollback;
+- import audit events;
+- tests;
+- documentation.
 
-The calculation engine must be deterministic PHP/Laravel logic.
-AI must not be used in calculation.
+The system must import:
+- sales history;
+- stock snapshots;
+- inbound orders;
+- reservations;
+- product rules.
+
+This task is the import layer only.
 
 ## Required Reading
 
@@ -35,9 +45,9 @@ AI must not be used in calculation.
 - docs/architecture.md
 - docs/domain-model.md
 - docs/workflow-map.md
+- docs/import-export-adapters.md
+- docs/audit-and-security.md
 - docs/status-machines.md
-- docs/decision-log.md
-- docs/calculation-engine.md
 - docs/core-database-implementation-notes.md
 
 ## Non-Negotiable Rules
@@ -47,12 +57,14 @@ AI must not be used in calculation.
 - Create docs/current-task-progress.md before implementation.
 - Do not create DTO.
 - Do not create app/Data.
-- Do not use AI in calculation.
 - Do not call real external services.
+- Do not call AI.
 - Do not call real email providers.
-- Do not change the formula from docs/calculation-engine.md.
-- Do not implement UI in this task.
-- Do not implement import/email/form/transport/logistics workflows in this task.
+- Do not call Google Sheets API.
+- Do not silently skip invalid rows.
+- Every source row must create ImportRow.
+- Dry-run must not persist domain records.
+- Unknown SKU must fail for sales/stock/inbound/reservations.
 - Do not commit secrets.
 - Do not claim success without checks.
 
@@ -60,96 +72,109 @@ AI must not be used in calculation.
 
 Create or update:
 
-- app/Services/Audit/AuditLogService.php
-- app/Services/Supply/Calculation/CalculationPeriodService.php
-- app/Services/Supply/Calculation/TrendCalculator.php
-- app/Services/Supply/Calculation/OrderRoundingService.php
-- app/Services/Supply/Calculation/OrderNeedCalculator.php
-- app/Services/Supply/Calculation/CalculationDataCollector.php
-- app/Services/Supply/Calculation/OrderProposalGenerationService.php
-- tests/Unit/AuditLogServiceTest.php
-- tests/Unit/TrendCalculatorTest.php
-- tests/Unit/OrderRoundingServiceTest.php
-- tests/Unit/OrderNeedCalculatorTest.php
-- tests/Unit/CalculationEngineNoAiDependencyTest.php
-- tests/Feature/CalculationDataCollectorTest.php
-- tests/Feature/OrderProposalGenerationServiceTest.php
-- docs/calculation-engine-implementation-notes.md
-- docs/calculation-engine.md
-- docs/audit-and-security.md
+- app/Contracts/Import/ImportAdapterInterface.php
+- app/Contracts/Import/ImportNormalizerInterface.php
+- app/Contracts/Import/ImportValidatorInterface.php
+- app/Contracts/Import/ImportPersisterInterface.php
+- app/Exceptions/NotConfiguredYetException.php
+- app/Services/Import/Adapters/CsvImportAdapter.php
+- app/Services/Import/Adapters/ManualJsonImportAdapter.php
+- app/Services/Import/Adapters/ExcelImportAdapter.php
+- app/Services/Import/Adapters/GoogleSheetsImportAdapter.php
+- app/Services/Import/Adapters/ApiImportAdapter.php
+- app/Services/Import/Adapters/EmailAttachmentImportAdapter.php
+- app/Services/Import/ImportValueNormalizer.php
+- app/Services/Import/Normalizers/SalesHistoryNormalizer.php
+- app/Services/Import/Normalizers/StockSnapshotNormalizer.php
+- app/Services/Import/Normalizers/InboundOrderNormalizer.php
+- app/Services/Import/Normalizers/ReservationNormalizer.php
+- app/Services/Import/Normalizers/ProductRuleNormalizer.php
+- app/Services/Import/Validators/SalesHistoryValidator.php
+- app/Services/Import/Validators/StockSnapshotValidator.php
+- app/Services/Import/Validators/InboundOrderValidator.php
+- app/Services/Import/Validators/ReservationValidator.php
+- app/Services/Import/Validators/ProductRuleValidator.php
+- app/Services/Import/Persisters/SalesHistoryPersister.php
+- app/Services/Import/Persisters/StockSnapshotPersister.php
+- app/Services/Import/Persisters/InboundOrderPersister.php
+- app/Services/Import/Persisters/ReservationPersister.php
+- app/Services/Import/Persisters/ProductRulePersister.php
+- app/Services/Import/ImportBatchService.php
+- app/Http/Requests/Supply/StoreImportBatchRequest.php if web routes exist
+- app/Http/Controllers/Supply/ImportController.php if web routes exist
+- app/Http/Controllers/Supply/ImportRollbackController.php if web routes exist
+- resources/views/supply/imports/* if Blade exists
+- routes/web.php if safe
+- tests/Unit/CsvImportAdapterTest.php
+- tests/Unit/ImportValueNormalizerTest.php
+- tests/Unit/*ImportNormalizerValidatorTest.php
+- tests/Feature/ImportBatchServiceTest.php
+- tests/Feature/ImportControllerTest.php if UI/routes created
+- tests/Unit/NoDtoRuleTest.php update
+- docs/import-system-implementation-notes.md
+- docs/import-export-adapters.md
+- docs/workflow-map.md
 - docs/implementation-roadmap.md
-
-Optional events:
-
-- app/Events/CalculationRunCompleted.php
-- app/Events/OrderProposalCreated.php
 
 ## Out Of Scope
 
 Do not implement:
-- CSV import system;
-- supplier order export;
-- supplier email sending;
-- inbound email ingestion;
-- AI email analysis;
+- calculation services;
+- supplier order workflow;
+- email provider real integrations;
+- AI analyzer;
 - email form autofill;
 - supplier confirmation application;
-- carrier quote scoring;
-- logistics receiving;
-- dashboards;
-- UI routes/controllers.
+- transport scoring;
+- logistics services;
+- Google Sheets real API;
+- Excel parser unless dependency already exists and safe.
 
 ## Required Implementation
 
-Implement centralized audit logging and deterministic calculation services.
+Implement CSV import for:
+- sales_history;
+- stock_snapshot;
+- inbound_orders;
+- reservations;
+- product_rules.
 
-The calculation formula is:
-
-Trend = current_year_sales_for_trend / last_year_sales_for_trend
-
-Need_T0_T1 = LY(T0-T1) * Trend
-
-Stock_T1 = free_stock + inbound_until_T1 - Need_T0_T1
-
-Need_T1_T2 = LY(T1-T2) * Trend
-
-Safety_Stock = LY(T2-T3) * Trend
-
-Raw_Need = Need_T1_T2 + Safety_Stock - Stock_T1 - inbound_T1_T3 + reserved_quantity
-
-Final_Order = Raw_Need adjusted by MOQ, pack multiple, pallet quantity and transport rules.
-
-Required test:
-- free_stock = 70
-- trend = 1.20
-- need_t0_t1 = 48
-- stock_t1 = 22
-- need_t1_t2 = 120
-- safety_stock = 72
-- inbound_t1_t3 = 20
-- raw_need = 150
-- pack_multiple = 12
-- recommended_quantity = 156
+Must support:
+- import_batches;
+- import_rows;
+- raw_json;
+- normalized_json;
+- validation errors;
+- related model link;
+- dry-run;
+- duplicate checksum detection;
+- safe rollback for safe record types;
+- audit events.
 
 ## Required Tests
 
-Create or update:
-- AuditLogServiceTest
-- TrendCalculatorTest
-- OrderRoundingServiceTest
-- OrderNeedCalculatorTest
-- CalculationDataCollectorTest
-- OrderProposalGenerationServiceTest
-- CalculationEngineNoAiDependencyTest
+Create tests for:
+- CSV adapter;
+- value normalizer;
+- normalizers;
+- validators;
+- persisters through ImportBatchService;
+- dry-run;
+- duplicate checksum blocking;
+- rollback;
+- invalid SKU rows;
+- product rules update;
+- inbound order creation;
+- no DTO.
 
 ## Required Documentation
 
 Create:
-- docs/calculation-engine-implementation-notes.md
+- docs/import-system-implementation-notes.md
 
 Update:
-- docs/calculation-engine.md
-- docs/audit-and-security.md
+- docs/import-export-adapters.md
+- docs/workflow-map.md
 - docs/implementation-roadmap.md
 
 ## Acceptance Criteria
@@ -159,34 +184,42 @@ Update:
 - [ ] docs/current-task.md read from start to end.
 - [ ] docs/current-task-read-confirmation.md created.
 - [ ] docs/current-task-progress.md created.
-- [ ] AuditLogService created.
-- [ ] AuditLogService works without web request.
-- [ ] AuditLogService resolves company_id for direct and nested models.
-- [ ] CalculationPeriodService created.
-- [ ] TrendCalculator created.
-- [ ] OrderRoundingService created.
-- [ ] OrderNeedCalculator created.
-- [ ] CalculationDataCollector created.
-- [ ] OrderProposalGenerationService created.
-- [ ] Calculation output includes formula_version.
-- [ ] Calculation output includes explanation array.
-- [ ] Calculation output includes formula steps.
-- [ ] Calculation output includes rounding steps.
-- [ ] Required 150 -> 156 test passes.
-- [ ] Negative raw need returns zero unless strategic minimum rule.
-- [ ] MOQ rule tested.
-- [ ] Pack multiple rule tested.
-- [ ] Pallet show_only/enforce rule tested.
-- [ ] Missing last year sales requires review.
-- [ ] Invalid T0/T1/T2/T3 timeline requires review.
-- [ ] Reservation strategy handled.
-- [ ] Safety stock note says T2-T3 only.
-- [ ] Calculation engine has no AI/email/form autofill dependency.
-- [ ] Order proposal generation creates calculation_run, order_proposal and items.
-- [ ] Order proposal generation writes audit logs.
-- [ ] docs/calculation-engine-implementation-notes.md created.
-- [ ] docs/calculation-engine.md updated.
-- [ ] docs/audit-and-security.md updated.
+- [ ] Import contracts created.
+- [ ] NotConfiguredYetException created or reused.
+- [ ] CsvImportAdapter created.
+- [ ] ManualJsonImportAdapter created.
+- [ ] Placeholder adapters created.
+- [ ] ImportValueNormalizer created.
+- [ ] SalesHistoryNormalizer created.
+- [ ] StockSnapshotNormalizer created.
+- [ ] InboundOrderNormalizer created.
+- [ ] ReservationNormalizer created.
+- [ ] ProductRuleNormalizer created.
+- [ ] SalesHistoryValidator created.
+- [ ] StockSnapshotValidator created.
+- [ ] InboundOrderValidator created.
+- [ ] ReservationValidator created.
+- [ ] ProductRuleValidator created.
+- [ ] SalesHistoryPersister created.
+- [ ] StockSnapshotPersister created.
+- [ ] InboundOrderPersister created.
+- [ ] ReservationPersister created.
+- [ ] ProductRulePersister created.
+- [ ] ImportBatchService created.
+- [ ] Dry-run implemented.
+- [ ] Duplicate checksum detection implemented.
+- [ ] Safe rollback implemented.
+- [ ] Import audit events written.
+- [ ] Optional import UI/routes created if safe.
+- [ ] CSV adapter tests created.
+- [ ] Value normalizer tests created.
+- [ ] Normalizer/validator tests created.
+- [ ] ImportBatchService tests created.
+- [ ] Import UI tests created or skipped with reason.
+- [ ] No DTO test updated.
+- [ ] docs/import-system-implementation-notes.md created.
+- [ ] docs/import-export-adapters.md updated.
+- [ ] docs/workflow-map.md updated.
 - [ ] docs/implementation-roadmap.md updated.
 - [ ] php artisan migrate:fresh --seed passed or blocker documented.
 - [ ] ./scripts/check-no-dto.sh passed.
@@ -220,4 +253,4 @@ npm run build
 
 ## Commit Message
 
-Add audit service and deterministic calculation engine
+Add CSV import system with batches and validation

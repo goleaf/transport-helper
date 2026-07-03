@@ -2,99 +2,144 @@
 
 ## Files Read
 
-* AGENTS.md
-* .codex/skills/00-global-rules.md
-* .codex/skills/01-task-execution-loop.md
-* .codex/skills/02-no-dto-rule.md
-* .codex/skills/03-no-secrets-rule.md
-* .codex/skills/04-testing-and-checks.md
-* .codex/skills/05-git-commit-push.md
-* .codex/skills/06-blockers-and-not-complete.md
-* docs/current-task.md
-* docs/architecture.md
-* docs/domain-model.md
-* docs/workflow-map.md
-* docs/status-machines.md
-* docs/decision-log.md
-* docs/calculation-engine.md
-* docs/core-database-implementation-notes.md
+- AGENTS.md
+- .codex/skills/00-global-rules.md
+- .codex/skills/01-task-execution-loop.md
+- .codex/skills/02-no-dto-rule.md
+- .codex/skills/03-no-secrets-rule.md
+- .codex/skills/04-testing-and-checks.md
+- .codex/skills/05-git-commit-push.md
+- .codex/skills/06-blockers-and-not-complete.md
+- docs/current-task.md
+- docs/architecture.md
+- docs/domain-model.md
+- docs/workflow-map.md
+- docs/import-export-adapters.md
+- docs/audit-and-security.md
+- docs/status-machines.md
+- docs/core-database-implementation-notes.md
+- docs/calculation-engine-implementation-notes.md
 
 ## Headings Found In Current Task
 
-* Current Task
-* Task Title
-* Task Goal
-* Required Reading
-* Non-Negotiable Rules
-* Scope
-* Out Of Scope
-* Required Implementation
-* Required Tests
-* Required Documentation
-* Acceptance Criteria
-* Required Commands
-* Commit Message
+1. Task Title
+2. Task Goal
+3. Required Reading
+4. Non-Negotiable Rules
+5. Scope
+6. Out Of Scope
+7. Required Implementation
+8. Required Tests
+9. Required Documentation
+10. Acceptance Criteria
+11. Required Commands
+12. Commit Message
 
 ## Understanding
 
-* Task Title: This task is AuditLogService And Deterministic Calculation Engine.
-* Task Goal: Implement or verify centralized audit logging and deterministic replenishment calculation with the required 150 -> 156 example.
-* Required Reading: Project rules, strict workflow files, architecture docs, domain docs and calculation docs must be read first.
-* Non-Negotiable Rules: No DTO, no app/Data, no AI/external/email calls, no formula changes, no UI and no fake success.
-* Scope: AuditLogService, calculation services, order proposal generation foundation, related tests and docs are in scope.
-* Out Of Scope: CSV import, supplier email, inbound email, AI analyzer, form autofill, confirmation, transport, logistics receiving and UI workflows are out of scope.
-* Required Implementation: Calculation must stay deterministic PHP/Laravel code using the documented trend, need, stock, safety, raw need and rounding formula.
-* Required Tests: Audit, trend, rounding, need calculation, data collector, proposal generation and no-AI dependency tests are required.
-* Required Documentation: Calculation implementation notes must exist, and calculation/audit/roadmap docs must be updated.
-* Acceptance Criteria: All listed checks must pass or a blocker must be documented.
-* Required Commands: Run guard scripts, migrate/seed, full tests and optional formatter/build.
-* Commit Message: The required commit message is Add audit service and deterministic calculation engine.
+### Task Title
+
+The task is the CSV import system with batches, rows, validation and dry-run.
+
+### Task Goal
+
+Build the adapter-based import layer for sales history, stock snapshots, inbound orders, reservations and product rules.
+The work must include contracts, adapters, normalizers, validators, persisters, batch orchestration, tests and docs.
+
+### Required Reading
+
+Project rules, task workflow skills, architecture docs, domain docs, workflow map, import docs, audit docs, statuses and database notes must be read before implementation.
+
+### Non-Negotiable Rules
+
+No DTO, no app/Data, no real external services, no AI, no Google Sheets API and no secrets.
+Every source row must create an ImportRow, dry-run must not persist domain records and unknown SKUs must fail for transactional import types.
+
+### Scope
+
+The scope covers import contracts, adapters, normalizers, validators, persisters, ImportBatchService, optional Blade routes/controllers/views, tests and documentation.
+
+### Out Of Scope
+
+Calculation changes, supplier order workflow, real email/providers, AI, form autofill, supplier confirmation, transport scoring, logistics services and real external APIs are excluded.
+
+### Required Implementation
+
+Implement CSV import for the five core import types with raw/normalized row storage, validation errors, related model links, dry-run, duplicate checksum detection, rollback and audit events.
+
+### Required Tests
+
+Tests must cover CSV reading, value normalization, row normalization/validation, ImportBatchService persistence, dry-run, duplicates, rollback, invalid SKUs, product rules, inbound orders and the no-DTO rule.
+
+### Required Documentation
+
+Create or update the import system notes, import/export adapters document, workflow map and implementation roadmap.
+
+### Acceptance Criteria
+
+Acceptance requires all listed files/features/tests/docs/checks to pass, with no DTO/secrets, reviewed git status, commit and push attempt.
+
+### Required Commands
+
+Run guard scripts, migrate fresh with seed, full test suite, Pint if available and npm build if applicable.
+
+### Commit Message
+
+Use `Add CSV import system with batches and validation`.
 
 ## Acceptance Criteria Copied
 
-* [ ] AGENTS.md read.
-* [ ] docs/current-task.md created.
-* [ ] docs/current-task.md read from start to end.
-* [ ] docs/current-task-read-confirmation.md created.
-* [ ] docs/current-task-progress.md created.
-* [ ] AuditLogService created.
-* [ ] AuditLogService works without web request.
-* [ ] AuditLogService resolves company_id for direct and nested models.
-* [ ] CalculationPeriodService created.
-* [ ] TrendCalculator created.
-* [ ] OrderRoundingService created.
-* [ ] OrderNeedCalculator created.
-* [ ] CalculationDataCollector created.
-* [ ] OrderProposalGenerationService created.
-* [ ] Calculation output includes formula_version.
-* [ ] Calculation output includes explanation array.
-* [ ] Calculation output includes formula steps.
-* [ ] Calculation output includes rounding steps.
-* [ ] Required 150 -> 156 test passes.
-* [ ] Negative raw need returns zero unless strategic minimum rule.
-* [ ] MOQ rule tested.
-* [ ] Pack multiple rule tested.
-* [ ] Pallet show_only/enforce rule tested.
-* [ ] Missing last year sales requires review.
-* [ ] Invalid T0/T1/T2/T3 timeline requires review.
-* [ ] Reservation strategy handled.
-* [ ] Safety stock note says T2-T3 only.
-* [ ] Calculation engine has no AI/email/form autofill dependency.
-* [ ] Order proposal generation creates calculation_run, order_proposal and items.
-* [ ] Order proposal generation writes audit logs.
-* [ ] docs/calculation-engine-implementation-notes.md created.
-* [ ] docs/calculation-engine.md updated.
-* [ ] docs/audit-and-security.md updated.
-* [ ] docs/implementation-roadmap.md updated.
-* [ ] php artisan migrate:fresh --seed passed or blocker documented.
-* [ ] ./scripts/check-no-dto.sh passed.
-* [ ] ./scripts/check-no-secrets.sh passed.
-* [ ] ./scripts/check-project-docs.sh passed.
-* [ ] php artisan test passed or blocker documented.
-* [ ] Formatter passed if available.
-* [ ] npm build passed if applicable.
-* [ ] No secrets committed.
-* [ ] No DTO created.
-* [ ] git status reviewed.
-* [ ] Commit created.
-* [ ] Push attempted.
+- [ ] AGENTS.md read.
+- [ ] docs/current-task.md created.
+- [ ] docs/current-task.md read from start to end.
+- [ ] docs/current-task-read-confirmation.md created.
+- [ ] docs/current-task-progress.md created.
+- [ ] Import contracts created.
+- [ ] NotConfiguredYetException created or reused.
+- [ ] CsvImportAdapter created.
+- [ ] ManualJsonImportAdapter created.
+- [ ] Placeholder adapters created.
+- [ ] ImportValueNormalizer created.
+- [ ] SalesHistoryNormalizer created.
+- [ ] StockSnapshotNormalizer created.
+- [ ] InboundOrderNormalizer created.
+- [ ] ReservationNormalizer created.
+- [ ] ProductRuleNormalizer created.
+- [ ] SalesHistoryValidator created.
+- [ ] StockSnapshotValidator created.
+- [ ] InboundOrderValidator created.
+- [ ] ReservationValidator created.
+- [ ] ProductRuleValidator created.
+- [ ] SalesHistoryPersister created.
+- [ ] StockSnapshotPersister created.
+- [ ] InboundOrderPersister created.
+- [ ] ReservationPersister created.
+- [ ] ProductRulePersister created.
+- [ ] ImportBatchService created.
+- [ ] Dry-run implemented.
+- [ ] Duplicate checksum detection implemented.
+- [ ] Safe rollback implemented.
+- [ ] Import audit events written.
+- [ ] Optional import UI/routes created if safe.
+- [ ] CSV adapter tests created.
+- [ ] Value normalizer tests created.
+- [ ] Normalizer/validator tests created.
+- [ ] ImportBatchService tests created.
+- [ ] Import UI tests created or skipped with reason.
+- [ ] No DTO test updated.
+- [ ] docs/import-system-implementation-notes.md created.
+- [ ] docs/import-export-adapters.md updated.
+- [ ] docs/workflow-map.md updated.
+- [ ] docs/implementation-roadmap.md updated.
+- [ ] php artisan migrate:fresh --seed passed or blocker documented.
+- [ ] ./scripts/check-no-dto.sh passed.
+- [ ] ./scripts/check-no-secrets.sh passed.
+- [ ] ./scripts/check-project-docs.sh passed.
+- [ ] php artisan test passed or blocker documented.
+- [ ] Formatter passed if available.
+- [ ] npm build passed if applicable.
+- [ ] No secrets committed.
+- [ ] No DTO created.
+- [ ] git status reviewed.
+- [ ] Commit created.
+- [ ] Push attempted.

@@ -3,11 +3,12 @@
 ## Existing State
 
 The repository already had ImportBatch and ImportRow models, a simple CSV workflow, Blade import screens, and AuditLogService.
-The previous import implementation mixed adapter reading, validation, persistence, status mapping and audit writes in one service and used legacy row statuses.
+Earlier import work mixed adapter reading, validation, persistence, status mapping and audit writes in one service and used legacy row statuses.
+Task 5 verifies the current adapter-based import system and adds missing test coverage for header maps, localized value normalization and placeholder adapter behavior.
 
 ## Import Architecture
 
-Stage 3 adds adapter-based import contracts:
+Task 5 uses adapter-based import contracts:
 
 * ImportAdapterInterface;
 * ImportNormalizerInterface;
@@ -97,9 +98,12 @@ StoreImportBatchRequest checks import_data permission when an authenticated user
 Added tests for:
 
 * CSV adapter;
+* CSV header maps;
 * value normalization;
+* localized date and boolean values;
 * normalizers and validators;
 * ImportBatchService lifecycle;
+* placeholder adapter failure;
 * import routes and UI;
 * safe rollback and unsafe product rule rollback.
 

@@ -57,3 +57,20 @@ it('removes utf8 bom from first header', function () {
 it('throws for missing file', function () {
     (new CsvImportAdapter)->read(['file_path' => '/missing/import.csv']);
 })->throws(RuntimeException::class);
+
+it('applies header map', function () {
+    $path = stage3CsvAdapterFile("Product Code,Document Date,Sales Qty\nSKU-1001,2026-07-01,12\n");
+
+    $rows = (new CsvImportAdapter)->read([
+        'file_path' => $path,
+        'header_map' => [
+            'Product Code' => 'sku',
+            'Document Date' => 'sales_date',
+            'Sales Qty' => 'quantity',
+        ],
+    ]);
+
+    expect($rows[0])->toHaveKeys(['sku', 'sales_date', 'quantity'])
+        ->and($rows[0]['sku'])->toBe('SKU-1001')
+        ->and($rows[0]['quantity'])->toBe('12');
+});
