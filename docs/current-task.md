@@ -2,36 +2,35 @@
 
 ## Task Title
 
-UI/UX Design System, Navigation, Dashboard And Guided Workflow
+Analytics And Management Reporting
 
 ## Task Goal
 
-Create a consistent UI/UX layer for the Laravel Supply / Procurement Agent.
+Create read-only analytics and management reporting for the Laravel Supply / Procurement Agent.
 
 This task implements:
-- supply layout;
-- design system;
-- sidebar navigation;
-- topbar;
-- environment badges;
-- status badges;
-- dashboard;
-- action queue;
-- reusable components;
-- workflow progress;
-- T0/T1/T2/T3 timeline;
-- formula explanation;
-- AI source evidence panels;
-- form autofill review UI polish;
-- transport comparison UI polish;
-- logistics timeline UI polish;
-- notification center polish;
-- pilot/integration/health UI polish;
-- accessibility improvements;
-- localization structure;
-- UI tests and docs.
+- management analytics dashboard;
+- supplier performance report;
+- forecast accuracy report;
+- stockout risk report;
+- order proposal quality report;
+- supplier confirmation mismatch report;
+- transport performance report;
+- logistics performance report;
+- receiving accuracy report;
+- data quality report;
+- audit KPI report;
+- operator efficiency report;
+- import quality report;
+- email AI review quality report;
+- form autofill quality report;
+- saved reports;
+- report runs;
+- report exports;
+- analytics commands;
+- tests and documentation.
 
-The interface must be workflow-first, human-review-first, audit-first and safe by default.
+Analytics is read-only for business records.
 
 ## Required Reading
 
@@ -49,6 +48,7 @@ The interface must be workflow-first, human-review-first, audit-first and safe b
 - docs/status-machines.md
 - docs/decision-log.md
 - docs/calculation-engine.md
+- docs/import-export-adapters.md
 - docs/order-proposal-workflow.md
 - docs/supplier-order-email-workflow.md
 - docs/inbound-email-ai-workflow.md
@@ -56,10 +56,8 @@ The interface must be workflow-first, human-review-first, audit-first and safe b
 - docs/supplier-confirmation-workflow.md
 - docs/transport-workflow.md
 - docs/logistics-workflow.md
-- docs/integrations/overview.md
-- docs/pilot/overview.md
-- docs/production-readiness.md
 - docs/audit-and-security.md
+- docs/production-readiness.md
 
 ## Non-Negotiable Rules
 
@@ -68,18 +66,25 @@ The interface must be workflow-first, human-review-first, audit-first and safe b
 - Create docs/current-task-progress.md before implementation.
 - Do not create DTO.
 - Do not create app/Data.
-- Do not change deterministic calculation formula.
-- Do not change business services unless required only for display and documented.
+- Do not mutate business records from analytics.
 - Do not call AI.
 - Do not call OpenAI.
 - Do not call external APIs.
 - Do not call real email providers.
-- Do not send supplier email from UI without existing approval workflow.
-- Do not select carrier automatically.
-- Do not apply AI extraction automatically.
-- Do not apply form autofill automatically.
-- Do not expose secrets or encrypted_config.
-- Do not show dangerous action links to unauthorized users.
+- Do not call carrier APIs.
+- Do not call Google Sheets.
+- Do not approve proposals.
+- Do not send emails.
+- Do not apply AI extraction.
+- Do not apply form autofill.
+- Do not apply supplier confirmation.
+- Do not select carrier.
+- Do not update logistics status.
+- Do not record receiving.
+- Do not change calculation formula.
+- Do not expose secrets.
+- Do not export full email bodies by default.
+- Do not commit generated exports.
 - Do not commit secrets.
 - Do not claim success without checks.
 
@@ -87,135 +92,165 @@ The interface must be workflow-first, human-review-first, audit-first and safe b
 
 Create or update:
 
-- resources/views/layouts/supply.blade.php
-- resources/views/layouts/partials/supply-sidebar.blade.php
-- resources/views/layouts/partials/supply-topbar.blade.php
-- resources/views/components/supply/status-badge.blade.php
-- resources/views/components/supply/risk-badge.blade.php
-- resources/views/components/supply/ai-confidence-badge.blade.php
-- resources/views/components/supply/human-review-banner.blade.php
-- resources/views/components/supply/kpi-card.blade.php
-- resources/views/components/supply/action-card.blade.php
-- resources/views/components/supply/page-header.blade.php
-- resources/views/components/supply/filter-panel.blade.php
-- resources/views/components/supply/empty-state.blade.php
-- resources/views/components/supply/audit-timeline.blade.php
-- resources/views/components/supply/source-evidence.blade.php
-- resources/views/components/supply/t0-t3-timeline.blade.php
-- resources/views/components/supply/formula-explanation.blade.php
-- resources/views/components/supply/workflow-progress.blade.php
-- resources/views/components/supply/decision-panel.blade.php
-- resources/views/components/supply/warning-list.blade.php
-- resources/views/components/supply/logistics-timeline.blade.php
-- resources/views/components/supply/next-action-card.blade.php
-- resources/css/supply.css if Tailwind is not available or if project needs custom CSS
-- tailwind.config.* update if Tailwind exists and project uses it
-- app/Services/Supply/UI/SupplyDashboardService.php
-- app/Services/Supply/UI/SupplyNavigationService.php
-- app/Services/Supply/UI/SupplyStatusPresenter.php
-- app/Services/Supply/UI/SupplyActionQueueService.php
-- app/Services/Supply/UI/SupplyEnvironmentBadgeService.php
-- app/Http/Controllers/Supply/SupplyDashboardController.php
+- database/migrations/* for saved_reports/report_runs/report_snapshots if missing
+- app/Enums/ReportType.php
+- app/Enums/ReportRunStatus.php
+- app/Models/SavedReport.php
+- app/Models/ReportRun.php
+- app/Models/ReportSnapshot.php optional
+- app/Services/Supply/Analytics/KpiDefinitionService.php
+- app/Services/Supply/Analytics/AnalyticsFilterService.php
+- app/Services/Supply/Analytics/ManagementDashboardAnalyticsService.php
+- app/Services/Supply/Analytics/SupplierPerformanceReportService.php
+- app/Services/Supply/Analytics/ForecastAccuracyReportService.php
+- app/Services/Supply/Analytics/StockoutRiskReportService.php
+- app/Services/Supply/Analytics/OrderProposalQualityReportService.php
+- app/Services/Supply/Analytics/SupplierConfirmationMismatchReportService.php
+- app/Services/Supply/Analytics/TransportPerformanceReportService.php
+- app/Services/Supply/Analytics/LogisticsPerformanceReportService.php
+- app/Services/Supply/Analytics/ReceivingAccuracyReportService.php
+- app/Services/Supply/Analytics/DataQualityReportService.php
+- app/Services/Supply/Analytics/AuditKpiReportService.php
+- app/Services/Supply/Analytics/OperatorEfficiencyReportService.php
+- app/Services/Supply/Analytics/ImportQualityReportService.php
+- app/Services/Supply/Analytics/EmailAiReviewQualityReportService.php
+- app/Services/Supply/Analytics/FormAutofillQualityReportService.php
+- app/Services/Supply/Analytics/SavedReportService.php
+- app/Services/Supply/Analytics/ReportRunService.php
+- app/Services/Supply/Analytics/AnalyticsExportService.php
+- app/Http/Requests/Supply/AnalyticsReportRequest.php
+- app/Http/Requests/Supply/StoreSavedReportRequest.php
+- app/Http/Requests/Supply/UpdateSavedReportRequest.php
+- app/Http/Requests/Supply/ExportAnalyticsReportRequest.php
+- app/Policies/SavedReportPolicy.php
+- app/Policies/ReportRunPolicy.php
+- app/Policies/AnalyticsPolicy.php optional
+- app/Http/Controllers/Supply/AnalyticsDashboardController.php
+- app/Http/Controllers/Supply/AnalyticsReportController.php
+- app/Http/Controllers/Supply/AnalyticsExportController.php
+- app/Http/Controllers/Supply/SavedReportController.php
+- app/Http/Controllers/Supply/ReportRunController.php
+- app/Console/Commands/AnalyticsReportCommand.php
+- app/Console/Commands/AnalyticsExportCommand.php
+- app/Console/Commands/AnalyticsSnapshotCommand.php optional
 - routes/web.php
-- resources/views/supply/dashboard.blade.php
-- resources/views/supply/proposals/* update
-- resources/views/supply/supplier-orders/* update
-- resources/views/supply/emails/* update
-- resources/views/supply/ai-extractions/* update
-- resources/views/supply/form-autofill-runs/* update
-- resources/views/supply/supplier-confirmations/* update
-- resources/views/supply/transport/quotes/* update
-- resources/views/supply/logistics/* update
-- resources/views/supply/notifications/* update
-- resources/views/supply/health/* update
-- resources/views/supply/integrations/* update
-- resources/views/supply/pilots/* update
-- resources/lang/en/supply.php
-- resources/lang/lt/supply.php
-- resources/lang/ru/supply.php
-- tests/Feature/UI/DesignSystemComponentsTest.php
-- tests/Feature/UI/SupplyDashboardUiTest.php
-- tests/Feature/UI/NavigationUiTest.php
-- tests/Feature/UI/OrderProposalUiTest.php
-- tests/Feature/UI/EmailAiUiTest.php
-- tests/Feature/UI/FormAutofillUiTest.php
-- tests/Feature/UI/TransportUiTest.php
-- tests/Feature/UI/LogisticsUiTest.php
-- tests/Feature/UI/HealthPilotIntegrationUiSmokeTest.php
-- tests/Unit/UI/UiNoDtoBoundaryTest.php
+- routes/console.php or app/Console/Kernel.php
+- resources/views/supply/analytics/dashboard.blade.php
+- resources/views/supply/analytics/report.blade.php
+- resources/views/supply/analytics/saved-reports/index.blade.php
+- resources/views/supply/analytics/report-runs/index.blade.php
+- resources/views/supply/analytics/report-runs/show.blade.php
+- resources/views/supply/analytics/partials/report-filters.blade.php
+- resources/views/supply/analytics/partials/kpi-card.blade.php
+- resources/views/supply/analytics/partials/report-table.blade.php
+- resources/views/supply/analytics/partials/warnings.blade.php
+- resources/views/supply/analytics/partials/export-panel.blade.php
+- resources/views/supply/analytics/partials/saved-report-panel.blade.php
+- resources/views/supply/analytics/partials/simple-bar-chart.blade.php
+- resources/views/supply/analytics/partials/risk-level-badge.blade.php
+- config/supply.php update if needed
+- tests/Unit/Analytics/KpiDefinitionServiceTest.php
+- tests/Unit/Analytics/AnalyticsFilterServiceTest.php
+- tests/Feature/Analytics/SupplierPerformanceReportServiceTest.php
+- tests/Feature/Analytics/ForecastAccuracyReportServiceTest.php
+- tests/Feature/Analytics/StockoutRiskReportServiceTest.php
+- tests/Feature/Analytics/OrderProposalQualityReportServiceTest.php
+- tests/Feature/Analytics/SupplierConfirmationMismatchReportServiceTest.php
+- tests/Feature/Analytics/TransportPerformanceReportServiceTest.php
+- tests/Feature/Analytics/LogisticsPerformanceReportServiceTest.php
+- tests/Feature/Analytics/ReceivingAccuracyReportServiceTest.php
+- tests/Feature/Analytics/DataQualityReportServiceTest.php
+- tests/Feature/Analytics/AuditKpiReportServiceTest.php
+- tests/Feature/Analytics/AnalyticsExportServiceTest.php
+- tests/Feature/Analytics/SavedReportServiceTest.php
+- tests/Feature/Analytics/AnalyticsControllerTest.php
+- tests/Feature/Analytics/AnalyticsCommandTest.php
+- tests/Unit/Analytics/AnalyticsBoundaryTest.php
 - tests/Unit/NoDtoRuleTest.php update
-- docs/ui-ux/design-system.md
-- docs/ui-ux/navigation.md
-- docs/ui-ux/components.md
-- docs/ui-ux/workflow-screens.md
-- docs/ui-ux/microcopy.md
-- docs/ui-ux/ui-ux-implementation-notes.md
+- docs/analytics/overview.md
+- docs/analytics/kpi-definitions.md
+- docs/analytics/supplier-performance.md
+- docs/analytics/forecast-accuracy.md
+- docs/analytics/stockout-risk.md
+- docs/analytics/transport-performance.md
+- docs/analytics/logistics-performance.md
+- docs/analytics/data-quality.md
+- docs/analytics/audit-kpis.md
+- docs/analytics/analytics-implementation-notes.md
 - docs/workflow-map.md update
 - docs/implementation-roadmap.md update
+- docs/production-readiness.md update
 - README.md update
 
 ## Out Of Scope
 
 Do not implement:
+- AI provider integration;
+- real external API integration;
+- BI tool integration;
+- Google Sheets real sync;
+- scheduled email reports;
+- automatic business actions;
 - new business modules;
-- new calculation logic;
-- new import logic;
-- new AI provider;
-- real external APIs;
-- real email provider;
-- real Google Sheets;
-- real carrier APIs;
-- analytics module;
-- operator command palette / saved views / keyboard shortcuts. These are next task.
+- formula changes;
+- UI/UX design system stage;
+- operator command palette/saved table views stage.
 
 ## Required Implementation
 
-Implement UI/UX design system and guided workflow.
+Implement read-only analytics.
 
-The UI must:
-- be workflow-first;
-- show current status;
-- show next action;
-- show human review clearly;
-- show audit links/history where available;
-- show AI suggestions as suggestions, not final truth;
-- show extracted/normalized/final values separately;
-- show formula explanation clearly;
-- show T0/T1/T2/T3 timeline;
-- show transport recommendation as non-automatic;
-- show logistics timeline;
-- show disabled actions with reason;
-- hide unauthorized dangerous links;
-- show local mode / external AI off / real integrations off environment badges.
+The reports must:
+- support filters;
+- show summary KPI cards or simple values;
+- show warnings when data is incomplete;
+- show formula/definition explanation;
+- support CSV/JSON export;
+- respect permissions;
+- avoid exposing secrets;
+- avoid exporting full email bodies;
+- write audit logs for report runs and exports.
 
 ## Required Tests
 
 Create or update:
-- DesignSystemComponentsTest
-- SupplyDashboardUiTest
-- NavigationUiTest
-- OrderProposalUiTest
-- EmailAiUiTest
-- FormAutofillUiTest
-- TransportUiTest
-- LogisticsUiTest
-- HealthPilotIntegrationUiSmokeTest
-- UiNoDtoBoundaryTest
+- KpiDefinitionServiceTest
+- AnalyticsFilterServiceTest
+- SupplierPerformanceReportServiceTest
+- ForecastAccuracyReportServiceTest
+- StockoutRiskReportServiceTest
+- OrderProposalQualityReportServiceTest
+- SupplierConfirmationMismatchReportServiceTest
+- TransportPerformanceReportServiceTest
+- LogisticsPerformanceReportServiceTest
+- ReceivingAccuracyReportServiceTest
+- DataQualityReportServiceTest
+- AuditKpiReportServiceTest
+- AnalyticsExportServiceTest
+- SavedReportServiceTest
+- AnalyticsControllerTest
+- AnalyticsCommandTest
+- AnalyticsBoundaryTest
 - NoDtoRuleTest
 
 ## Required Documentation
 
 Create:
-- docs/ui-ux/design-system.md
-- docs/ui-ux/navigation.md
-- docs/ui-ux/components.md
-- docs/ui-ux/workflow-screens.md
-- docs/ui-ux/microcopy.md
-- docs/ui-ux/ui-ux-implementation-notes.md
+- docs/analytics/overview.md
+- docs/analytics/kpi-definitions.md
+- docs/analytics/supplier-performance.md
+- docs/analytics/forecast-accuracy.md
+- docs/analytics/stockout-risk.md
+- docs/analytics/transport-performance.md
+- docs/analytics/logistics-performance.md
+- docs/analytics/data-quality.md
+- docs/analytics/audit-kpis.md
+- docs/analytics/analytics-implementation-notes.md
 
 Update:
 - docs/workflow-map.md
 - docs/implementation-roadmap.md
+- docs/production-readiness.md
 - README.md
 
 ## Acceptance Criteria
@@ -225,73 +260,79 @@ Update:
 - [ ] docs/current-task.md read from start to end.
 - [ ] docs/current-task-read-confirmation.md created.
 - [ ] docs/current-task-progress.md created.
-- [ ] Current frontend stack inspected and documented.
-- [ ] Supply layout created or existing layout safely extended.
-- [ ] Sidebar navigation created.
-- [ ] Topbar created.
-- [ ] Environment badges implemented.
-- [ ] Design system CSS/Tailwind config implemented.
-- [ ] Status badge component created.
-- [ ] AI confidence badge created.
-- [ ] Human review banner created.
-- [ ] KPI card component created.
-- [ ] Action card component created.
-- [ ] Page header component created.
-- [ ] Empty state component created.
-- [ ] Audit timeline component created.
-- [ ] Source evidence component created.
-- [ ] T0/T1/T2/T3 timeline component created.
-- [ ] Formula explanation component created.
-- [ ] Workflow progress component created.
-- [ ] Decision panel component created.
-- [ ] Warning list component created.
-- [ ] Logistics timeline component created.
-- [ ] Next action card component created.
-- [ ] SupplyDashboardService created.
-- [ ] SupplyNavigationService created.
-- [ ] SupplyStatusPresenter created.
-- [ ] SupplyActionQueueService created.
-- [ ] SupplyEnvironmentBadgeService created.
-- [ ] Supply dashboard controller/route/view created.
-- [ ] Dashboard shows KPI cards.
-- [ ] Dashboard shows action queue.
-- [ ] Dashboard shows environment badges.
-- [ ] Dashboard handles empty data safely.
-- [ ] Order proposal UI updated.
-- [ ] Proposal item detail shows T0/T1/T2/T3 timeline.
-- [ ] Proposal item detail shows formula explanation.
-- [ ] Supplier order UI updated with workflow progress/export/email/logistics panels.
-- [ ] Email UI updated with AI/form links and source context.
-- [ ] AI extraction UI shows confidence, source and no-apply warning.
-- [ ] Form autofill run UI shows extracted/normalized/final values.
-- [ ] Supplier confirmation UI shows discrepancies clearly.
-- [ ] Transport quote UI shows comparison and non-automatic selection warning.
-- [ ] Logistics UI shows timeline and receiving discrepancies.
-- [ ] Notifications UI polished.
-- [ ] Health UI polished.
-- [ ] Integration UI masks secrets.
-- [ ] Pilot UI shows readiness/dry-run/UAT panels.
-- [ ] Localization files created.
-- [ ] Accessibility basics implemented.
-- [ ] Disabled dangerous actions show reason.
-- [ ] Unauthorized users do not see dangerous links where permissions exist.
-- [ ] UI tests created.
-- [ ] Boundary test confirms UI layer does not call AI/external/email/carrier APIs.
+- [ ] Saved reports migration/model created if missing.
+- [ ] Report runs migration/model created if missing.
+- [ ] Report snapshots migration/model created or skipped with documented reason.
+- [ ] ReportType enum/constants created.
+- [ ] ReportRunStatus enum/constants created.
+- [ ] KpiDefinitionService created.
+- [ ] AnalyticsFilterService created.
+- [ ] ManagementDashboardAnalyticsService created.
+- [ ] SupplierPerformanceReportService created.
+- [ ] ForecastAccuracyReportService created.
+- [ ] StockoutRiskReportService created.
+- [ ] OrderProposalQualityReportService created.
+- [ ] SupplierConfirmationMismatchReportService created.
+- [ ] TransportPerformanceReportService created.
+- [ ] LogisticsPerformanceReportService created.
+- [ ] ReceivingAccuracyReportService created.
+- [ ] DataQualityReportService created.
+- [ ] AuditKpiReportService created.
+- [ ] OperatorEfficiencyReportService created.
+- [ ] ImportQualityReportService created.
+- [ ] EmailAiReviewQualityReportService created.
+- [ ] FormAutofillQualityReportService created.
+- [ ] SavedReportService created.
+- [ ] ReportRunService created.
+- [ ] AnalyticsExportService created.
+- [ ] Permissions/policies created.
+- [ ] FormRequests created.
+- [ ] Controllers created.
+- [ ] Routes created.
+- [ ] Views created with existing/simple layout.
+- [ ] Analytics commands created.
+- [ ] Supplier performance report implemented.
+- [ ] Forecast accuracy report implemented with insufficient data warning.
+- [ ] Stockout risk report implemented.
+- [ ] Order proposal quality report implemented.
+- [ ] Supplier confirmation mismatch report implemented.
+- [ ] Transport performance report implemented.
+- [ ] Logistics performance report implemented.
+- [ ] Receiving accuracy report implemented.
+- [ ] Data quality report implemented.
+- [ ] Audit KPI report implemented.
+- [ ] Operator efficiency report implemented.
+- [ ] Import quality report implemented.
+- [ ] Email AI review quality report implemented.
+- [ ] Form autofill quality report implemented.
+- [ ] Saved reports implemented.
+- [ ] Report runs implemented.
+- [ ] CSV export implemented.
+- [ ] JSON export implemented.
+- [ ] Exports do not include secrets or full email bodies.
+- [ ] Analytics audit events written.
+- [ ] Analytics is read-only for business records.
+- [ ] Boundary test confirms no AI/external/email/carrier calls.
+- [ ] Boundary test confirms no business mutation.
 - [ ] No DTO test updated.
-- [ ] docs/ui-ux/* created.
+- [ ] docs/analytics/* created.
 - [ ] docs/workflow-map.md updated.
 - [ ] docs/implementation-roadmap.md updated.
+- [ ] docs/production-readiness.md updated.
 - [ ] README.md updated.
 - [ ] php artisan migrate:fresh --seed passed or blocker documented.
-- [ ] php artisan test passed or blocker documented.
+- [ ] php artisan supply:analytics-report supplier_performance --format=json passed or blocker documented.
+- [ ] php artisan supply:analytics-report stockout_risk --format=json passed or blocker documented.
+- [ ] php artisan supply:analytics-report logistics_performance --format=json passed or blocker documented.
 - [ ] ./scripts/check-no-dto.sh passed.
 - [ ] ./scripts/check-no-secrets.sh passed.
 - [ ] ./scripts/check-project-docs.sh passed.
-- [ ] npm run build passed if applicable.
+- [ ] php artisan test passed or blocker documented.
 - [ ] Formatter passed if available.
+- [ ] npm build passed if applicable.
 - [ ] No secrets committed.
 - [ ] No DTO created.
-- [ ] No generated private files committed.
+- [ ] No generated report exports committed.
 - [ ] git status reviewed.
 - [ ] Commit created.
 - [ ] Push attempted.
@@ -302,12 +343,15 @@ Update:
 ./scripts/check-no-secrets.sh
 ./scripts/check-project-docs.sh
 php artisan migrate:fresh --seed
+php artisan supply:analytics-report supplier_performance --format=json
+php artisan supply:analytics-report stockout_risk --format=json
+php artisan supply:analytics-report logistics_performance --format=json
 php artisan test
 
 Optional:
-npm run build
 ./vendor/bin/pint
+npm run build
 
 ## Commit Message
 
-Add supply agent design system and guided workflow UI
+Add supply analytics and management reporting

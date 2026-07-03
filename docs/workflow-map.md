@@ -232,3 +232,16 @@ System:
 * warns that transport recommendation is not automatic carrier selection;
 * shows logistics and receiving dates in timeline form;
 * keeps dangerous links hidden from unauthorized users where permissions exist.
+
+## 14. Analytics And Management Reporting
+
+System:
+
+* reads workflow records without mutating business state;
+* stores saved reports and report runs separately from operational records;
+* reports supplier performance, forecast accuracy, stockout risk and order proposal quality;
+* reports supplier confirmation mismatches, transport performance, logistics performance and receiving accuracy;
+* reports data quality, audit KPIs, import quality, AI review quality and form autofill quality;
+* exports analytics to private CSV/JSON files without secrets or full email bodies;
+* audits report runs and exports;
+* does not call AI, email providers, carrier APIs, Google Sheets or external APIs.

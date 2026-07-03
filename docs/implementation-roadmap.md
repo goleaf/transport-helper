@@ -326,9 +326,21 @@ Implementation:
 
 ## Step 17. Analytics
 
+Status: implemented in Task 17.
+
 Result:
 
 * management reports;
 * supplier performance;
 * stockout risk;
 * transport/logistics KPIs.
+
+Implementation:
+
+* saved reports, report runs and report snapshots added;
+* KPI definitions and analytics filter normalization added;
+* management dashboard analytics and detailed report services added;
+* CSV/JSON private exports added;
+* analytics commands added;
+* simple Blade analytics pages added without depending on the skipped UI/UX design-system stage;
+* read-only boundary tests added for no AI, no external calls and no business mutation.

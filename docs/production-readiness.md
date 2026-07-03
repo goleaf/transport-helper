@@ -34,6 +34,8 @@ php artisan supply:backup-verify
 php artisan supply:ai-boundary-audit
 php artisan supply:production-readiness
 php artisan supply:pilot-onboarding-checklist --json
+php artisan supply:analytics-report supplier_performance --format=json
+php artisan supply:analytics-report stockout_risk --format=json
 php artisan test
 ./scripts/run-supply-checks.sh
 ```
@@ -47,6 +49,8 @@ php artisan test
 - Carrier is not selected without user.
 - Quantity adjustments require reason.
 - Receiving does not update confirmed_quantity.
+- Analytics is read-only for business records.
+- Analytics exports do not include secrets or full email bodies by default.
 - All critical actions are audited.
 
 ## Real Integration Readiness
@@ -72,3 +76,14 @@ Before using one real supplier live:
 - approve for live only after critical items pass.
 
 Live pilot approval does not activate integrations automatically.
+
+## Analytics Readiness
+
+Before relying on management reports:
+
+- confirm recent sales and stock imports exist;
+- review data quality report warnings;
+- review supplier confirmation mismatch report;
+- review logistics performance report;
+- verify analytics report/export audit logs are written;
+- verify private analytics export storage is backed up.

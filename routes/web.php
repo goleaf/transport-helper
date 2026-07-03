@@ -3,6 +3,9 @@
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Supply\AiEmailExtractionController;
 use App\Http\Controllers\Supply\AiEmailExtractionReviewController;
+use App\Http\Controllers\Supply\AnalyticsDashboardController;
+use App\Http\Controllers\Supply\AnalyticsExportController;
+use App\Http\Controllers\Supply\AnalyticsReportController;
 use App\Http\Controllers\Supply\AnalyzeInboundEmailController;
 use App\Http\Controllers\Supply\ApplyAiCarrierQuoteController;
 use App\Http\Controllers\Supply\ApplyAiSupplierConfirmationController;
@@ -58,6 +61,8 @@ use App\Http\Controllers\Supply\PilotReadinessController;
 use App\Http\Controllers\Supply\PilotReportController;
 use App\Http\Controllers\Supply\PilotSupplierController;
 use App\Http\Controllers\Supply\PilotUatChecklistController;
+use App\Http\Controllers\Supply\ReportRunController;
+use App\Http\Controllers\Supply\SavedReportController;
 use App\Http\Controllers\Supply\SupplierConfirmationController;
 use App\Http\Controllers\Supply\SupplierOrderController;
 use App\Http\Controllers\Supply\SupplierOrderEmailApprovalController;
@@ -117,6 +122,17 @@ Route::middleware(['web', 'auth'])
         Route::post('integrations/{connection}/test', [IntegrationTestController::class, 'store'])->name('integrations.test');
         Route::get('onboarding', [OnboardingChecklistController::class, 'index'])->name('onboarding.index');
 
+        Route::get('analytics', AnalyticsDashboardController::class)->name('analytics.dashboard');
+        Route::get('analytics/reports/{reportType}', [AnalyticsReportController::class, 'show'])->name('analytics.reports.show');
+        Route::post('analytics/reports/{reportType}/run', [AnalyticsReportController::class, 'run'])->name('analytics.reports.run');
+        Route::post('analytics/reports/{reportType}/export', [AnalyticsExportController::class, 'store'])->name('analytics.reports.export');
+        Route::get('analytics/saved-reports', [SavedReportController::class, 'index'])->name('analytics.saved-reports.index');
+        Route::post('analytics/saved-reports', [SavedReportController::class, 'store'])->name('analytics.saved-reports.store');
+        Route::patch('analytics/saved-reports/{report}', [SavedReportController::class, 'update'])->name('analytics.saved-reports.update');
+        Route::delete('analytics/saved-reports/{report}', [SavedReportController::class, 'destroy'])->name('analytics.saved-reports.delete');
+        Route::post('analytics/saved-reports/{report}/default', [SavedReportController::class, 'setDefault'])->name('analytics.saved-reports.default');
+        Route::get('analytics/report-runs', [ReportRunController::class, 'index'])->name('analytics.report-runs.index');
+        Route::get('analytics/report-runs/{run}', [ReportRunController::class, 'show'])->name('analytics.report-runs.show');
         Route::get('imports', [ImportController::class, 'index'])->name('imports.index');
         Route::get('imports/create', [ImportController::class, 'create'])->name('imports.create');
         Route::post('imports', [ImportController::class, 'store'])->name('imports.store');

@@ -267,3 +267,20 @@ Task 14 writes audit logs for:
 * `onboarding_checklist_run`.
 
 Secrets are not logged. Integration metadata stores provider, status, approval state, masked config summaries and dry-run results only.
+
+## Analytics Audit Events
+
+Task 17 writes audit logs for:
+
+* `analytics_report_run_started`;
+* `analytics_report_run_completed`;
+* `analytics_report_run_failed`;
+* `analytics_report_exported`;
+* `saved_report_created`;
+* `saved_report_updated`;
+* `saved_report_deleted`;
+* `saved_report_default_set`;
+* `report_snapshot_created`.
+
+Analytics metadata records report type, run status, warning count, export format and snapshot date.
+Secrets, encrypted config values and full email bodies are not stored in analytics audit metadata.

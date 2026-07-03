@@ -17,6 +17,7 @@
 - docs/status-machines.md
 - docs/decision-log.md
 - docs/calculation-engine.md
+- docs/import-export-adapters.md
 - docs/order-proposal-workflow.md
 - docs/supplier-order-email-workflow.md
 - docs/inbound-email-ai-workflow.md
@@ -24,14 +25,11 @@
 - docs/supplier-confirmation-workflow.md
 - docs/transport-workflow.md
 - docs/logistics-workflow.md
-- docs/integrations/overview.md
-- docs/pilot/overview.md
-- docs/production-readiness.md
 - docs/audit-and-security.md
+- docs/production-readiness.md
 
 ## Headings Found In Current Task
 
-- Current Task
 - Task Title
 - Task Goal
 - Required Reading
@@ -47,29 +45,29 @@
 
 ## Understanding
 
-Task Title: Implement the UI/UX design system, navigation, dashboard and guided workflow layer.
+Task Title: This task is the analytics and management reporting stage.
 
-Task Goal: Build a consistent operator UI that is workflow-first, human-review-first, audit-first and safe by default.
+Task Goal: Build read-only reporting over the existing Supply Agent workflow without mutating business records or changing formulas.
 
-Required Reading: Project rules and workflow docs define the boundaries for AI, email, carrier selection, logistics and approvals.
+Required Reading: The task depends on the full workflow, security, audit and production-readiness docs, plus Codex rules.
 
-Non-Negotiable Rules: The UI must not change formulas, bypass approvals, expose secrets, call external services or create DTOs.
+Non-Negotiable Rules: Analytics must not call AI, providers or external services, must not expose secrets, and must not advance workflow states.
 
-Scope: Create supply layout, topbar/sidebar, UI services, reusable components, dashboard, localization, UI tests and docs.
+Scope: The implementation includes report storage, report services, commands, policies, requests, routes, simple Blade views, tests and docs.
 
-Out Of Scope: No new business modules, calculation logic, external providers, analytics, command palette or saved views.
+Out Of Scope: This is not a BI integration, UI/UX design-system stage, real integration stage or operator command-palette stage.
 
-Required Implementation: Show statuses, next actions, human review, audit context, AI suggestions as non-final, formulas, timelines and safe environment badges.
+Required Implementation: Reports need filters, KPI definitions, warnings, CSV/JSON export, permissions and audit logs.
 
-Required Tests: Add UI feature/unit tests for components, dashboard/navigation, key workflow screens and no-DTO/no-external-call boundaries.
+Required Tests: Unit, feature, controller, command, export, saved-report and boundary tests must cover the analytics layer.
 
-Required Documentation: Create docs/ui-ux files and update workflow map, roadmap and README.
+Required Documentation: Create analytics docs and update workflow, roadmap, production readiness and README references.
 
-Acceptance Criteria: Complete the UI checklist, run required commands, document blockers and commit/push.
+Acceptance Criteria: The checklist defines implementation artifacts, checks, commands, commit and push requirements.
 
-Required Commands: Run no-DTO, no-secrets, docs checks, migrate/fresh seed, test, and optional build/Pint.
+Required Commands: No-DTO, no-secrets, docs checks, migrations, focused analytics commands and full tests must be run or documented.
 
-Commit Message: Add supply agent design system and guided workflow UI.
+Commit Message: The required commit message is `Add supply analytics and management reporting`.
 
 ## Acceptance Criteria Copied
 
@@ -78,73 +76,79 @@ Commit Message: Add supply agent design system and guided workflow UI.
 - [ ] docs/current-task.md read from start to end.
 - [ ] docs/current-task-read-confirmation.md created.
 - [ ] docs/current-task-progress.md created.
-- [ ] Current frontend stack inspected and documented.
-- [ ] Supply layout created or existing layout safely extended.
-- [ ] Sidebar navigation created.
-- [ ] Topbar created.
-- [ ] Environment badges implemented.
-- [ ] Design system CSS/Tailwind config implemented.
-- [ ] Status badge component created.
-- [ ] AI confidence badge created.
-- [ ] Human review banner created.
-- [ ] KPI card component created.
-- [ ] Action card component created.
-- [ ] Page header component created.
-- [ ] Empty state component created.
-- [ ] Audit timeline component created.
-- [ ] Source evidence component created.
-- [ ] T0/T1/T2/T3 timeline component created.
-- [ ] Formula explanation component created.
-- [ ] Workflow progress component created.
-- [ ] Decision panel component created.
-- [ ] Warning list component created.
-- [ ] Logistics timeline component created.
-- [ ] Next action card component created.
-- [ ] SupplyDashboardService created.
-- [ ] SupplyNavigationService created.
-- [ ] SupplyStatusPresenter created.
-- [ ] SupplyActionQueueService created.
-- [ ] SupplyEnvironmentBadgeService created.
-- [ ] Supply dashboard controller/route/view created.
-- [ ] Dashboard shows KPI cards.
-- [ ] Dashboard shows action queue.
-- [ ] Dashboard shows environment badges.
-- [ ] Dashboard handles empty data safely.
-- [ ] Order proposal UI updated.
-- [ ] Proposal item detail shows T0/T1/T2/T3 timeline.
-- [ ] Proposal item detail shows formula explanation.
-- [ ] Supplier order UI updated with workflow progress/export/email/logistics panels.
-- [ ] Email UI updated with AI/form links and source context.
-- [ ] AI extraction UI shows confidence, source and no-apply warning.
-- [ ] Form autofill run UI shows extracted/normalized/final values.
-- [ ] Supplier confirmation UI shows discrepancies clearly.
-- [ ] Transport quote UI shows comparison and non-automatic selection warning.
-- [ ] Logistics UI shows timeline and receiving discrepancies.
-- [ ] Notifications UI polished.
-- [ ] Health UI polished.
-- [ ] Integration UI masks secrets.
-- [ ] Pilot UI shows readiness/dry-run/UAT panels.
-- [ ] Localization files created.
-- [ ] Accessibility basics implemented.
-- [ ] Disabled dangerous actions show reason.
-- [ ] Unauthorized users do not see dangerous links where permissions exist.
-- [ ] UI tests created.
-- [ ] Boundary test confirms UI layer does not call AI/external/email/carrier APIs.
+- [ ] Saved reports migration/model created if missing.
+- [ ] Report runs migration/model created if missing.
+- [ ] Report snapshots migration/model created or skipped with documented reason.
+- [ ] ReportType enum/constants created.
+- [ ] ReportRunStatus enum/constants created.
+- [ ] KpiDefinitionService created.
+- [ ] AnalyticsFilterService created.
+- [ ] ManagementDashboardAnalyticsService created.
+- [ ] SupplierPerformanceReportService created.
+- [ ] ForecastAccuracyReportService created.
+- [ ] StockoutRiskReportService created.
+- [ ] OrderProposalQualityReportService created.
+- [ ] SupplierConfirmationMismatchReportService created.
+- [ ] TransportPerformanceReportService created.
+- [ ] LogisticsPerformanceReportService created.
+- [ ] ReceivingAccuracyReportService created.
+- [ ] DataQualityReportService created.
+- [ ] AuditKpiReportService created.
+- [ ] OperatorEfficiencyReportService created.
+- [ ] ImportQualityReportService created.
+- [ ] EmailAiReviewQualityReportService created.
+- [ ] FormAutofillQualityReportService created.
+- [ ] SavedReportService created.
+- [ ] ReportRunService created.
+- [ ] AnalyticsExportService created.
+- [ ] Permissions/policies created.
+- [ ] FormRequests created.
+- [ ] Controllers created.
+- [ ] Routes created.
+- [ ] Views created with existing/simple layout.
+- [ ] Analytics commands created.
+- [ ] Supplier performance report implemented.
+- [ ] Forecast accuracy report implemented with insufficient data warning.
+- [ ] Stockout risk report implemented.
+- [ ] Order proposal quality report implemented.
+- [ ] Supplier confirmation mismatch report implemented.
+- [ ] Transport performance report implemented.
+- [ ] Logistics performance report implemented.
+- [ ] Receiving accuracy report implemented.
+- [ ] Data quality report implemented.
+- [ ] Audit KPI report implemented.
+- [ ] Operator efficiency report implemented.
+- [ ] Import quality report implemented.
+- [ ] Email AI review quality report implemented.
+- [ ] Form autofill quality report implemented.
+- [ ] Saved reports implemented.
+- [ ] Report runs implemented.
+- [ ] CSV export implemented.
+- [ ] JSON export implemented.
+- [ ] Exports do not include secrets or full email bodies.
+- [ ] Analytics audit events written.
+- [ ] Analytics is read-only for business records.
+- [ ] Boundary test confirms no AI/external/email/carrier calls.
+- [ ] Boundary test confirms no business mutation.
 - [ ] No DTO test updated.
-- [ ] docs/ui-ux/* created.
+- [ ] docs/analytics/* created.
 - [ ] docs/workflow-map.md updated.
 - [ ] docs/implementation-roadmap.md updated.
+- [ ] docs/production-readiness.md updated.
 - [ ] README.md updated.
 - [ ] php artisan migrate:fresh --seed passed or blocker documented.
-- [ ] php artisan test passed or blocker documented.
+- [ ] php artisan supply:analytics-report supplier_performance --format=json passed or blocker documented.
+- [ ] php artisan supply:analytics-report stockout_risk --format=json passed or blocker documented.
+- [ ] php artisan supply:analytics-report logistics_performance --format=json passed or blocker documented.
 - [ ] ./scripts/check-no-dto.sh passed.
 - [ ] ./scripts/check-no-secrets.sh passed.
 - [ ] ./scripts/check-project-docs.sh passed.
-- [ ] npm run build passed if applicable.
+- [ ] php artisan test passed or blocker documented.
 - [ ] Formatter passed if available.
+- [ ] npm build passed if applicable.
 - [ ] No secrets committed.
 - [ ] No DTO created.
-- [ ] No generated private files committed.
+- [ ] No generated report exports committed.
 - [ ] git status reviewed.
 - [ ] Commit created.
 - [ ] Push attempted.

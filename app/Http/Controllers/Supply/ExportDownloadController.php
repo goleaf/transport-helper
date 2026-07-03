@@ -16,6 +16,8 @@ class ExportDownloadController extends Controller
 
         abort_unless(Storage::exists($exportFile->stored_path), 404);
 
-        return Storage::download($exportFile->stored_path, $exportFile->filename);
+        return Storage::download($exportFile->stored_path, $exportFile->filename, [
+            'Content-Type' => $exportFile->mime_type ?: 'application/octet-stream',
+        ]);
     }
 }
