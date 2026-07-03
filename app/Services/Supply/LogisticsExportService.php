@@ -2,10 +2,12 @@
 
 namespace App\Services\Supply;
 
+use App\Models\Company;
 use App\Models\ExportFile;
 use App\Models\LogisticsRecord;
 use App\Models\User;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\ValidationException;
 
 class LogisticsExportService
 {
@@ -91,9 +93,10 @@ class LogisticsExportService
         $filename = 'logistics-export-'.now()->format('YmdHis').'.csv';
         $path = 'exports/logistics/'.$filename;
         Storage::put($path, $content);
+        $companyId = $this->companyIdForExport($filters, $records->first());
 
         $export = ExportFile::query()->create([
-            'company_id' => $filters['company_id'] ?? $records->first()?->company_id ?? 1,
+            'company_id' => $companyId,
             'export_type' => 'logistics_csv',
             'related_model_type' => null,
             'related_model_id' => null,
@@ -111,5 +114,24 @@ class LogisticsExportService
             'content' => $content,
             'row_count' => $records->count(),
         ];
+    }
+
+    /**
+     * @param  array<string, mixed>  $filters
+     */
+    private function companyIdForExport(array $filters, ?LogisticsRecord $record): int
+    {
+        $companyId = $filters['company_id'] ?? $record?->company_id ?? Company::query()
+            ->select(['id'])
+            ->orderBy('id')
+            ->value('id');
+
+        if ($companyId === null) {
+            throw ValidationException::withMessages([
+                'company_id' => 'A company is required before logistics can be exported.',
+            ]);
+        }
+
+        return (int) $companyId;
     }
 }

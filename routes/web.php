@@ -13,6 +13,9 @@ use App\Http\Controllers\Supply\FormAutofillRunController;
 use App\Http\Controllers\Supply\FormTemplateController;
 use App\Http\Controllers\Supply\FormTemplateFieldController;
 use App\Http\Controllers\Supply\ImportBatchController;
+use App\Http\Controllers\Supply\LogisticsController;
+use App\Http\Controllers\Supply\LogisticsExportController;
+use App\Http\Controllers\Supply\LogisticsGoogleSheetsSyncController;
 use App\Http\Controllers\Supply\ManualCarrierQuoteController;
 use App\Http\Controllers\Supply\OrderProposalController;
 use App\Http\Controllers\Supply\OrderProposalItemDecisionController;
@@ -81,4 +84,10 @@ Route::middleware(['web'])
         Route::post('transport/quotes/manual', [ManualCarrierQuoteController::class, 'store'])->name('transport.quotes.manual');
         Route::post('transport/quotes/{quote}/select', [CarrierQuoteDecisionController::class, 'select'])->name('transport.quotes.select');
         Route::post('transport/quotes/{quote}/reject', [CarrierQuoteDecisionController::class, 'reject'])->name('transport.quotes.reject');
+
+        Route::get('logistics', [LogisticsController::class, 'index'])->name('logistics.index');
+        Route::get('logistics/{record}', [LogisticsController::class, 'show'])->name('logistics.show');
+        Route::post('logistics/{record}/update-status', [LogisticsController::class, 'updateStatus'])->name('logistics.update-status');
+        Route::post('logistics/export', [LogisticsExportController::class, 'store'])->name('logistics.export');
+        Route::post('logistics/sync/google-sheets', [LogisticsGoogleSheetsSyncController::class, 'store'])->name('logistics.sync.google-sheets');
     });

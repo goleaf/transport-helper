@@ -3,7 +3,6 @@
 namespace App\Services\Supply;
 
 use App\Enums\FormAutofillRunStatus;
-use App\Enums\LogisticsStatus;
 use App\Enums\SupplierConfirmationStatus;
 use App\Enums\SupplierOrderStatus;
 use App\Jobs\RecalculateSupplyRiskJob;
@@ -15,6 +14,7 @@ use App\Models\LogisticsRecord;
 use App\Models\SupplierConfirmation;
 use App\Models\SupplierOrder;
 use App\Models\SupplierOrderItem;
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -23,6 +23,10 @@ use Throwable;
 
 class SupplierConfirmationApplicationService
 {
+    public function __construct(
+        private readonly LogisticsRecordService $logisticsRecordService,
+    ) {}
+
     /**
      * @param  array<string, mixed>  $input
      * @return array<string, mixed>
@@ -107,7 +111,11 @@ class SupplierConfirmationApplicationService
             ])->save();
 
             $inboundOrders = $this->updateInboundOrders($supplierOrder, $matched, $dates, $status);
-            $logisticsRecord = $this->updateLogisticsRecord($supplierOrder, $dates, $status);
+            $logisticsResult = $this->logisticsRecordService->updateFromSupplierConfirmation(
+                $confirmation->load('items'),
+                $this->appliedByUser($input),
+            );
+            $logisticsRecord = $logisticsResult['record'];
             $riskReasons = array_values(array_unique(array_merge($riskReasons, $this->riskReasonsFromDiscrepancies($discrepancies))));
 
             $this->writeAuditLog($supplierOrder, $confirmation, (int) ($input['applied_by_user_id'] ?? 0), [
@@ -174,6 +182,22 @@ class SupplierConfirmationApplicationService
         $manualData = is_array($input['manual_confirmation_data'] ?? null) ? $input['manual_confirmation_data'] : [];
 
         return array_replace_recursive($source['ai_values'], $source['form_values'], $manualData);
+    }
+
+    /**
+     * @param  array<string, mixed>  $input
+     */
+    private function appliedByUser(array $input): ?User
+    {
+        $userId = (int) ($input['applied_by_user_id'] ?? 0);
+
+        if ($userId <= 0) {
+            return null;
+        }
+
+        return User::query()
+            ->select(['id', 'name', 'email', 'password', 'role'])
+            ->find($userId);
     }
 
     /**
@@ -538,31 +562,6 @@ class SupplierConfirmationApplicationService
         }
 
         return $inboundOrders;
-    }
-
-    /**
-     * @param  array<string, ?string>  $dates
-     */
-    private function updateLogisticsRecord(SupplierOrder $supplierOrder, array $dates, SupplierOrderStatus $status): LogisticsRecord
-    {
-        $record = LogisticsRecord::query()->firstOrCreate([
-            'company_id' => $supplierOrder->company_id,
-            'supplier_order_id' => $supplierOrder->id,
-        ], [
-            'supplier_id' => $supplierOrder->supplier_id,
-            'order_date' => $supplierOrder->order_date,
-            'status' => LogisticsStatus::Planned,
-        ]);
-
-        $record->forceFill([
-            'confirmation_date' => $dates['confirmation_date'] ?? $record->confirmation_date,
-            'ready_date' => $dates['ready_date'] ?? $record->ready_date,
-            'pickup_date' => $dates['shipping_date'] ?? $record->pickup_date,
-            'delivery_date' => $dates['expected_arrival_date'] ?? $record->delivery_date,
-            'status' => $status === SupplierOrderStatus::NeedsReview ? LogisticsStatus::NeedsReview : LogisticsStatus::Confirmed,
-        ])->save();
-
-        return $record;
     }
 
     /**

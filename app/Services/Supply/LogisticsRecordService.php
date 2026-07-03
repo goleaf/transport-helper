@@ -3,6 +3,7 @@
 namespace App\Services\Supply;
 
 use App\Enums\LogisticsStatus;
+use App\Enums\SupplierConfirmationStatus;
 use App\Models\AuditLog;
 use App\Models\CarrierQuote;
 use App\Models\LogisticsRecord;
@@ -56,7 +57,7 @@ class LogisticsRecordService
         return DB::transaction(function () use ($confirmation, $user): array {
             $confirmation->loadMissing(['supplierOrder.supplier', 'items']);
             $supplierOrder = $confirmation->supplierOrder;
-            $record = $this->ensureForSupplierOrder($supplierOrder, $user);
+            $record = $this->ensureForSupplierOrder($supplierOrder);
             $oldValues = $record->only(['confirmation_date', 'ready_date', 'pickup_date', 'delivery_date', 'status']);
             $notifications = [LogisticsNotificationService::SupplierConfirmationReceived];
 
@@ -68,7 +69,7 @@ class LogisticsRecordService
                 $notifications[] = LogisticsNotificationService::DateDelay;
             }
 
-            if ($confirmation->items->contains(fn ($item): bool => abs((float) $item->discrepancy_quantity) > 0.0001 || $item->status !== 'confirmed')) {
+            if ($this->hasQuantityMismatch($confirmation)) {
                 $notifications[] = LogisticsNotificationService::QuantityMismatch;
             }
 
@@ -77,7 +78,7 @@ class LogisticsRecordService
                 'ready_date' => $confirmation->ready_date ?? $record->ready_date,
                 'pickup_date' => $confirmation->shipping_date ?? $record->pickup_date,
                 'delivery_date' => $confirmation->expected_arrival_date ?? $record->delivery_date,
-                'status' => $confirmation->ready_date === null ? LogisticsStatus::WaitingForReadyDate : LogisticsStatus::Confirmed,
+                'status' => $this->statusForConfirmation($confirmation),
             ])->save();
 
             $this->writeAuditLog('logistics_record.updated_from_supplier_confirmation', $record, $user, $oldValues, $record->only(['confirmation_date', 'ready_date', 'pickup_date', 'delivery_date', 'status']));
@@ -101,7 +102,7 @@ class LogisticsRecordService
     {
         return DB::transaction(function () use ($quote, $user): array {
             $quote->loadMissing('supplierOrder');
-            $record = $this->ensureForSupplierOrder($quote->supplierOrder, $user);
+            $record = $this->ensureForSupplierOrder($quote->supplierOrder);
             $oldValues = $record->only(['carrier_id', 'pickup_date', 'delivery_date', 'transport_price', 'currency', 'status']);
 
             $record->forceFill([
@@ -162,6 +163,40 @@ class LogisticsRecordService
         }
 
         return Carbon::parse((string) $newDate)->gt(Carbon::parse((string) $oldDate));
+    }
+
+    private function hasQuantityMismatch(SupplierConfirmation $confirmation): bool
+    {
+        if (in_array($confirmation->status, [
+            SupplierConfirmationStatus::PartiallyConfirmed,
+            SupplierConfirmationStatus::QuantityMismatch,
+            SupplierConfirmationStatus::NeedsReview,
+        ], true)) {
+            return true;
+        }
+
+        return $confirmation->items->contains(
+            fn ($item): bool => abs((float) $item->discrepancy_quantity) > 0.0001
+                || ! in_array((string) $item->status, ['confirmed', 'matched'], true)
+        );
+    }
+
+    private function statusForConfirmation(SupplierConfirmation $confirmation): LogisticsStatus
+    {
+        if ($confirmation->ready_date === null) {
+            return LogisticsStatus::WaitingForReadyDate;
+        }
+
+        if (in_array($confirmation->status, [
+            SupplierConfirmationStatus::NeedsReview,
+            SupplierConfirmationStatus::QuantityMismatch,
+            SupplierConfirmationStatus::DateMismatch,
+            SupplierConfirmationStatus::Rejected,
+        ], true)) {
+            return LogisticsStatus::NeedsReview;
+        }
+
+        return LogisticsStatus::Confirmed;
     }
 
     /**
