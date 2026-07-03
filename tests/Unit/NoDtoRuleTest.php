@@ -106,6 +106,16 @@ it('analytics services do not introduce dto style data objects', function () {
     expect($files->filter(fn (string $file): bool => str_contains($file, 'DTO') || str_contains($file, 'Dto'))->values()->all())->toBe([]);
 });
 
+it('forecasting services do not introduce dto style data objects', function () {
+    $path = dirname(__DIR__, 2).'/app/Services/Supply/Forecasting';
+
+    $files = collect(new RecursiveIteratorIterator(new RecursiveDirectoryIterator($path)))
+        ->filter(fn (SplFileInfo $file): bool => $file->isFile())
+        ->map(fn (SplFileInfo $file): string => $file->getPathname());
+
+    expect($files->filter(fn (string $file): bool => str_contains($file, 'DTO') || str_contains($file, 'Dto'))->values()->all())->toBe([]);
+});
+
 it('incident services do not introduce dto style data objects', function () {
     $path = dirname(__DIR__, 2).'/app/Services/Supply/Incidents';
 

@@ -9,6 +9,19 @@ return [
         'supplier_orders_path' => 'exports/supplier-orders',
         'default_supplier_order_format' => 'excel_csv',
     ],
+    'forecasting' => [
+        'seasonality' => [
+            'min_factor' => env('SUPPLY_SEASONALITY_MIN_FACTOR', 0.50),
+            'max_factor' => env('SUPPLY_SEASONALITY_MAX_FACTOR', 2.00),
+            'minimum_history_months' => env('SUPPLY_SEASONALITY_MIN_HISTORY_MONTHS', 12),
+        ],
+        'outliers' => [
+            'default_multiplier' => env('SUPPLY_OUTLIER_MULTIPLIER', 3.0),
+        ],
+        'scenarios' => [
+            'allow_create_proposal_from_scenario' => env('SUPPLY_ALLOW_SCENARIO_TO_PROPOSAL', false),
+        ],
+    ],
     'email_ingestion' => [
         'default_provider' => env('SUPPLY_EMAIL_PROVIDER', 'manual'),
         'default_analyzer' => env('SUPPLY_EMAIL_ANALYZER', 'rule_based'),

@@ -16,21 +16,13 @@
 - docs/workflow-map.md
 - docs/status-machines.md
 - docs/decision-log.md
-- docs/import-export-adapters.md
 - docs/calculation-engine.md
 - docs/order-proposal-workflow.md
-- docs/supplier-order-email-workflow.md
-- docs/inbound-email-ai-workflow.md
-- docs/email-form-autofill.md
-- docs/supplier-confirmation-workflow.md
-- docs/transport-workflow.md
-- docs/logistics-workflow.md
-- docs/procurement/overview.md
-- docs/master-data/overview.md
+- docs/analytics/overview.md
+- docs/analytics/forecast-accuracy.md
+- docs/analytics/stockout-risk.md
 - docs/audit-and-security.md
 - docs/production-readiness.md
-
-Optional docs note: docs/procurement/overview.md and docs/master-data/overview.md do not exist in this checkout.
 
 ## Headings Found In Current Task
 
@@ -52,51 +44,51 @@ Optional docs note: docs/procurement/overview.md and docs/master-data/overview.m
 
 ### Task Title
 
-This task is the Exception And Incident Management stage for the Supply / Procurement Agent.
+The active task is Forecast And Replenishment Refinement.
 
 ### Task Goal
 
-The goal is to make workflow blockers operationally visible, owned, timed, escalated, resolved with notes, and reported with audit history.
+Build deterministic, auditable forecast refinement around the existing Laravel calculation engine without replacing the v1 formula. The work includes profiles, exclusions, seasonality, manual overrides, scenarios, comparison, exports, UI, commands, tests and docs.
 
 ### Required Reading
 
-The workflow, status, architecture, no-DTO, no-secrets, testing and deployment documents define the boundaries for implementation.
+The required project rules, workflow files and domain documents were read before implementation. Optional analytics and production docs were read where present.
 
 ### Non-Negotiable Rules
 
-Incidents must not perform business workflow actions, call AI/external/email/carrier providers, hide breaches, hard-delete records, expose secrets or bypass required resolution controls.
+No DTO/app/Data, no AI, no external API calls, no email/provider calls, no automatic approval, no supplier order creation from scenarios and no silent formula replacement are allowed.
 
 ### Scope
 
-The scope includes incident schema, models, enums, services, FormRequests, policies, controllers, simple Blade UI, commands, tests, config and documentation.
+The scope includes new forecasting models, enums, services, requests, policies, controllers, routes, Blade views, commands, tests, configuration and documentation.
 
 ### Out Of Scope
 
-External ticketing, Slack/Teams, real email notifications, automatic recovery/approval, AI RCA and external monitoring integrations are out of scope.
+External AI forecasting, ML providers, real integrations, autonomous replenishment, analytics redesign, UI/UX design system and command palette are outside this task.
 
 ### Required Implementation
 
-Users must be able to create, assign, triage, comment, RCA, add corrective actions, resolve/close, detect, monitor, escalate, report and export incidents.
+Users must be able to manage profiles, exclusions and trend overrides, run deterministic scenario simulations, compare scenarios, export scenario results and review audit logs.
 
 ### Required Tests
 
-Tests must cover resolvers, SLA, creation/deduplication, updates, assignment, escalation, RCA, corrective actions, detection, notifications, reports, exports, controllers, commands and boundaries.
+Service, feature, command, controller, boundary and no-DTO tests are required for forecasting behavior and safety boundaries.
 
 ### Required Documentation
 
-Incident overview, types, SLA/escalation, RCA, corrective actions, workflow blockers, reports and implementation notes must be created, with roadmap/security/status docs updated.
+Forecasting docs must be created and core calculation/workflow/readiness/README docs must be updated.
 
 ### Acceptance Criteria
 
-The checklist requires full implementation, checks, docs, no DTO/secrets/exports, commit and push attempt.
+The checklist defines the full delivery contract including code, UI, tests, docs, commands, checks, commit and push.
 
 ### Required Commands
 
-The required checks include no-DTO, no-secrets, project docs, migrate:fresh --seed, incident commands and php artisan test.
+The task requires no-DTO, no-secrets, docs, migration/seed, forecasting commands, full tests, formatter and build where applicable.
 
 ### Commit Message
 
-The required commit message is "Add exception and incident management workflow".
+The requested commit message is `Add deterministic forecast refinement and scenario simulation`.
 
 ## Acceptance Criteria Copied
 
@@ -105,69 +97,58 @@ The required commit message is "Add exception and incident management workflow".
 - [ ] docs/current-task.md read from start to end.
 - [ ] docs/current-task-read-confirmation.md created.
 - [ ] docs/current-task-progress.md created.
-- [ ] Incident migrations created if missing.
-- [ ] Incident models created.
-- [ ] Incident enums/constants created.
-- [ ] IncidentTypeResolver created.
-- [ ] IncidentSeverityResolver created.
-- [ ] IncidentSlaService created.
-- [ ] IncidentCreationService created.
-- [ ] IncidentUpdateService created.
-- [ ] IncidentAssignmentService created.
-- [ ] IncidentEscalationService created.
-- [ ] IncidentRootCauseService created.
-- [ ] IncidentCorrectiveActionService created.
-- [ ] IncidentWorkflowLinkService created.
-- [ ] IncidentAutoDetectionService created.
-- [ ] IncidentNotificationService created.
-- [ ] IncidentReportService created.
-- [ ] IncidentExportService created.
-- [ ] IncidentHealthIntegrationService created.
-- [ ] Manual incident creation implemented.
-- [ ] Incident assignment implemented.
-- [ ] Status transitions implemented.
-- [ ] Resolution note required before resolving.
-- [ ] Root cause required before closing critical incident.
-- [ ] Corrective action workflow implemented.
-- [ ] SLA policy implemented.
-- [ ] SLA breach detection implemented.
-- [ ] Escalation implemented.
-- [ ] Duplicate incident deduplication implemented.
-- [ ] Workflow object links implemented.
-- [ ] Auto-detection from failed imports implemented.
-- [ ] Auto-detection from calculation warnings implemented.
-- [ ] Auto-detection from AI extraction needs_review implemented.
-- [ ] Auto-detection from form autofill validation failures implemented.
-- [ ] Auto-detection from supplier confirmation mismatch implemented.
-- [ ] Auto-detection from carrier quote needs_review implemented.
-- [ ] Auto-detection from logistics delay implemented.
-- [ ] Auto-detection from receiving mismatch implemented.
-- [ ] Auto-detection from procurement gate blocked implemented if procurement exists.
-- [ ] Auto-detection from unknown SKU unresolved implemented if master data exists.
-- [ ] Notifications implemented or skipped with documented reason.
-- [ ] Incident reports implemented.
-- [ ] Incident export implemented.
+- [ ] Forecast/refinement/scenario migrations created if missing.
+- [ ] ReplenishmentProfile model created.
+- [ ] SalesExclusionRule model created.
+- [ ] TrendOverride model created.
+- [ ] CalculationScenario model created.
+- [ ] CalculationScenarioItem model created.
+- [ ] Forecasting enums/constants created.
+- [ ] SalesSeriesService created.
+- [ ] SalesExclusionService created.
+- [ ] SeasonalityFactorService created.
+- [ ] TrendOverrideService created.
+- [ ] ReplenishmentProfileService created.
+- [ ] ReplenishmentRuleResolver created.
+- [ ] RefinedCalculationInputBuilder created.
+- [ ] ScenarioSimulationService created.
+- [ ] ScenarioComparisonService created.
+- [ ] ScenarioExportService created.
+- [ ] Optional ScenarioProposalService created or skipped with documented reason.
+- [ ] Promotions can be excluded from trend.
+- [ ] Anomalies can be excluded from trend.
+- [ ] Sales exclusion rule requires reason.
+- [ ] Manual trend override requires reason.
+- [ ] Manual trend override requires approval before use.
+- [ ] Rejected trend override cannot be used.
+- [ ] Seasonality factor calculated deterministically.
+- [ ] Category-level safety rules resolved.
+- [ ] Product-level rules override category rules.
+- [ ] Supplier-specific rules override company defaults where appropriate.
+- [ ] Refined calculation input includes applied exclusions/rules/overrides in explanation.
+- [ ] Scenario simulation does not mutate order proposals.
+- [ ] Scenario simulation does not create supplier orders.
+- [ ] Scenario simulation writes CalculationScenario and CalculationScenarioItems.
+- [ ] Scenario comparison shows differences in recommended quantities.
+- [ ] Scenario export creates ExportFile.
+- [ ] FormRequests created.
+- [ ] Policies created.
+- [ ] Controllers/routes/views created with existing/simple layout.
 - [ ] Commands created.
-- [ ] UI/routes/controllers created.
-- [ ] Policies/FormRequests created.
 - [ ] Audit events written.
 - [ ] Tests created.
 - [ ] Boundary test confirms no AI/external/email/carrier calls.
-- [ ] Boundary test confirms incidents do not auto-resolve workflow actions.
-- [ ] Boundary test confirms no automatic approvals.
-- [ ] Boundary test confirms no hard delete.
+- [ ] Boundary test confirms no business mutation except scenario/report/export records.
 - [ ] No DTO test updated.
-- [ ] docs/incidents/* created.
+- [ ] docs/forecasting/* created.
+- [ ] docs/calculation-engine.md updated.
 - [ ] docs/workflow-map.md updated.
-- [ ] docs/status-machines.md updated.
-- [ ] docs/audit-and-security.md updated.
-- [ ] docs/production-readiness.md updated.
 - [ ] docs/implementation-roadmap.md updated.
+- [ ] docs/production-readiness.md updated.
 - [ ] README.md updated.
 - [ ] php artisan migrate:fresh --seed passed or blocker documented.
-- [ ] php artisan supply:detect-incidents --dry-run passed or blocker documented.
-- [ ] php artisan supply:monitor-incident-sla --dry-run passed or blocker documented.
-- [ ] php artisan supply:incident-report --json passed or blocker documented.
+- [ ] php artisan supply:run-scenario --help or equivalent command passed.
+- [ ] php artisan supply:forecast-refinement-audit passed or blocker documented.
 - [ ] ./scripts/check-no-dto.sh passed.
 - [ ] ./scripts/check-no-secrets.sh passed.
 - [ ] ./scripts/check-project-docs.sh passed.
@@ -176,9 +157,7 @@ The required commit message is "Add exception and incident management workflow".
 - [ ] npm build passed if applicable.
 - [ ] No secrets committed.
 - [ ] No DTO created.
-- [ ] No generated exports committed.
+- [ ] No generated scenario exports committed.
 - [ ] git status reviewed.
 - [ ] Commit created.
 - [ ] Push attempted.
-
-Do not start implementation until this file exists.

@@ -100,3 +100,16 @@ Before live operations:
 - run `php artisan supply:monitor-incident-sla --dry-run`;
 - run `php artisan supply:incident-health --json`;
 - confirm incident reports and exports do not expose secrets.
+
+## Forecast Refinement Readiness
+
+Before using refined scenario output for live procurement:
+
+- review active replenishment profiles;
+- review active sales exclusion rules and reasons;
+- review approved manual trend overrides;
+- review pending, stale, rejected and revoked overrides;
+- run `php artisan supply:forecast-refinement-audit`;
+- run at least one scenario and compare it with the baseline calculation;
+- verify scenario warnings before any proposal action;
+- confirm scenario exports are stored privately and not committed.

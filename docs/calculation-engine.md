@@ -119,3 +119,23 @@ The calculation namespace must not import or reference:
 * reservations must not be double-counted;
 * safety stock covers only T2-T3;
 * every result must include explanation.
+
+## Forecast Refinement Layer
+
+Forecast refinement does not replace the deterministic `v1` formula.
+
+The refinement layer prepares inputs before `OrderNeedCalculator` runs:
+
+* promotion and anomaly sales exclusions;
+* active manual sales exclusion rules;
+* deterministic seasonality factors;
+* approved manual trend overrides;
+* replenishment profile safety and strategy rules.
+
+Formula version naming:
+
+* `v1` remains the base formula;
+* `v1_refined` identifies refined input building;
+* `v1_scenario` identifies stored scenario simulation output.
+
+Scenario simulation must store base input, applied exclusions, applied profile/rules, seasonality, manual override, final calculator input and calculator output. It must not approve proposals, create supplier orders, send email, select carriers or update logistics.

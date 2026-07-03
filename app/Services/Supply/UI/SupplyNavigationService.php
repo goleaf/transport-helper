@@ -38,6 +38,7 @@ class SupplyNavigationService
                 'items' => [
                     ['label' => 'Dashboard', 'route' => 'supply.dashboard', 'active' => 'supply.dashboard*', 'description' => 'Supply overview and action queue.'],
                     ['label' => 'Calculations', 'route' => 'supply.calculations.index', 'active' => 'supply.calculations.*', 'description' => 'Deterministic calculation runs.'],
+                    ['label' => 'Forecasting', 'route' => 'supply.forecasting.scenarios.index', 'active' => 'supply.forecasting.*', 'description' => 'Deterministic refinement profiles, exclusions and scenarios.'],
                     ['label' => 'Order Proposals', 'route' => 'supply.proposals.index', 'active' => 'supply.proposals.*', 'description' => 'Review, approve and adjust proposed order quantities.'],
                     ['label' => 'Supplier Orders', 'route' => 'supply.supplier-orders.index', 'active' => 'supply.supplier-orders.*', 'description' => 'Supplier order exports and email workflow.'],
                 ],

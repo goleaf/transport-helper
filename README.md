@@ -102,6 +102,12 @@ Important docs:
 - `docs/analytics/overview.md`
 - `docs/analytics/kpi-definitions.md`
 - `docs/analytics/stockout-risk.md`
+- `docs/forecasting/overview.md`
+- `docs/forecasting/seasonality.md`
+- `docs/forecasting/anomaly-exclusion.md`
+- `docs/forecasting/trend-overrides.md`
+- `docs/forecasting/replenishment-profiles.md`
+- `docs/forecasting/scenario-simulation.md`
 - `docs/incidents/overview.md`
 - `docs/incidents/sla-and-escalation.md`
 - `docs/incidents/workflow-blockers.md`
@@ -123,6 +129,8 @@ php artisan supply:pilot-onboarding-checklist --json
 php artisan supply:analytics-report supplier_performance --format=json
 php artisan supply:analytics-report stockout_risk --format=json
 php artisan supply:analytics-report logistics_performance --format=json
+php artisan supply:run-scenario --help
+php artisan supply:forecast-refinement-audit
 php artisan supply:detect-incidents --dry-run
 php artisan supply:monitor-incident-sla --dry-run
 php artisan supply:incident-report --json
@@ -137,6 +145,7 @@ Core safety rules:
 - Human approval is required for critical actions.
 - Pilot mode stores real supplier samples privately and does not send real email, call external APIs, call external AI, or select carriers by default.
 - Analytics is read-only and may only create saved reports, report runs, report snapshots, private exports and audit logs.
+- Forecast refinement is deterministic and may only create scenario, export and audit records unless an explicit approved proposal workflow is added later.
 - Incident management tracks blockers but does not approve, send, apply, select carrier or update logistics automatically.
 - The UI shows AI, integration and real-email safety states explicitly and keeps dangerous workflow actions behind existing approvals.
 - DTOs are forbidden.

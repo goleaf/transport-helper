@@ -57,6 +57,26 @@ class Company extends Model
         return $this->hasMany(CalculationRun::class);
     }
 
+    public function replenishmentProfiles(): HasMany
+    {
+        return $this->hasMany(ReplenishmentProfile::class);
+    }
+
+    public function salesExclusionRules(): HasMany
+    {
+        return $this->hasMany(SalesExclusionRule::class);
+    }
+
+    public function trendOverrides(): HasMany
+    {
+        return $this->hasMany(TrendOverride::class);
+    }
+
+    public function calculationScenarios(): HasMany
+    {
+        return $this->hasMany(CalculationScenario::class);
+    }
+
     public function orderProposals(): HasMany
     {
         return $this->hasMany(OrderProposal::class);

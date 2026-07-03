@@ -11,6 +11,10 @@ use App\Http\Controllers\Supply\ApplyAiCarrierQuoteController;
 use App\Http\Controllers\Supply\ApplyAiSupplierConfirmationController;
 use App\Http\Controllers\Supply\ApplyFormAutofillCarrierQuoteController;
 use App\Http\Controllers\Supply\ApplyFormAutofillSupplierConfirmationController;
+use App\Http\Controllers\Supply\AppSettingController;
+use App\Http\Controllers\Supply\AuditLogController;
+use App\Http\Controllers\Supply\CalculationRunController;
+use App\Http\Controllers\Supply\CalculationScenarioController;
 use App\Http\Controllers\Supply\CarrierController;
 use App\Http\Controllers\Supply\CarrierQuoteController;
 use App\Http\Controllers\Supply\CarrierQuoteRejectionController;
@@ -21,6 +25,7 @@ use App\Http\Controllers\Supply\ConvertProposalToSupplierOrderController;
 use App\Http\Controllers\Supply\EmailFormAutofillController;
 use App\Http\Controllers\Supply\EmailMessageController;
 use App\Http\Controllers\Supply\ExportDownloadController;
+use App\Http\Controllers\Supply\ExportFileController;
 use App\Http\Controllers\Supply\FormAutofillApplyGateController;
 use App\Http\Controllers\Supply\FormAutofillExportController;
 use App\Http\Controllers\Supply\FormAutofillFieldReviewController;
@@ -33,6 +38,7 @@ use App\Http\Controllers\Supply\GoodsReceiptController;
 use App\Http\Controllers\Supply\HealthCheckController;
 use App\Http\Controllers\Supply\ImportController;
 use App\Http\Controllers\Supply\ImportRollbackController;
+use App\Http\Controllers\Supply\InboundOrderController;
 use App\Http\Controllers\Supply\IncidentAssignmentController;
 use App\Http\Controllers\Supply\IncidentCommentController;
 use App\Http\Controllers\Supply\IncidentCorrectiveActionController;
@@ -42,7 +48,6 @@ use App\Http\Controllers\Supply\IncidentReportController;
 use App\Http\Controllers\Supply\IncidentRootCauseController;
 use App\Http\Controllers\Supply\IncidentSlaPolicyController;
 use App\Http\Controllers\Supply\IncidentStatusController;
-use App\Http\Controllers\Supply\OperationalIncidentController;
 use App\Http\Controllers\Supply\IntegrationApprovalController;
 use App\Http\Controllers\Supply\IntegrationConnectionController;
 use App\Http\Controllers\Supply\IntegrationTestController;
@@ -60,6 +65,7 @@ use App\Http\Controllers\Supply\ManufacturerFormTemplateController;
 use App\Http\Controllers\Supply\NotificationCenterController;
 use App\Http\Controllers\Supply\NotificationReadController;
 use App\Http\Controllers\Supply\OnboardingChecklistController;
+use App\Http\Controllers\Supply\OperationalIncidentController;
 use App\Http\Controllers\Supply\OrderProposalApprovalController;
 use App\Http\Controllers\Supply\OrderProposalController;
 use App\Http\Controllers\Supply\OrderProposalItemDecisionController;
@@ -71,9 +77,18 @@ use App\Http\Controllers\Supply\PilotReadinessController;
 use App\Http\Controllers\Supply\PilotReportController;
 use App\Http\Controllers\Supply\PilotSupplierController;
 use App\Http\Controllers\Supply\PilotUatChecklistController;
+use App\Http\Controllers\Supply\ReplenishmentProfileController;
 use App\Http\Controllers\Supply\ReportRunController;
+use App\Http\Controllers\Supply\ReservationController;
+use App\Http\Controllers\Supply\SalesExclusionRuleController;
+use App\Http\Controllers\Supply\SalesHistoryController;
 use App\Http\Controllers\Supply\SavedReportController;
+use App\Http\Controllers\Supply\ScenarioComparisonController;
+use App\Http\Controllers\Supply\ScenarioExportController;
+use App\Http\Controllers\Supply\ScenarioSimulationController;
+use App\Http\Controllers\Supply\StockSnapshotController;
 use App\Http\Controllers\Supply\SupplierConfirmationController;
+use App\Http\Controllers\Supply\SupplierController;
 use App\Http\Controllers\Supply\SupplierOrderController;
 use App\Http\Controllers\Supply\SupplierOrderEmailApprovalController;
 use App\Http\Controllers\Supply\SupplierOrderEmailDraftController;
@@ -81,6 +96,8 @@ use App\Http\Controllers\Supply\SupplierOrderExportController;
 use App\Http\Controllers\Supply\SupplierOrderSendController;
 use App\Http\Controllers\Supply\SupplyDashboardController;
 use App\Http\Controllers\Supply\SupplySectionController;
+use App\Http\Controllers\Supply\TrendOverrideApprovalController;
+use App\Http\Controllers\Supply\TrendOverrideController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -106,17 +123,14 @@ Route::middleware(['web', 'auth'])
         Route::get('/', SupplyDashboardController::class)->name('dashboard');
         Route::get('dashboard', SupplyDashboardController::class)->name('dashboard.show');
         Route::get('products', [SupplySectionController::class, 'show'])->defaults('section', 'products')->name('products.index');
-        Route::get('suppliers', [SupplySectionController::class, 'show'])->defaults('section', 'suppliers')->name('suppliers.index');
-        Route::get('stock', [SupplySectionController::class, 'show'])->defaults('section', 'stock')->name('stock.index');
-        Route::get('sales-history', [SupplySectionController::class, 'show'])->defaults('section', 'sales-history')->name('sales-history.index');
-        Route::get('inbound-orders', [SupplySectionController::class, 'show'])->defaults('section', 'inbound-orders')->name('inbound-orders.index');
-        Route::get('reservations', [SupplySectionController::class, 'show'])->defaults('section', 'reservations')->name('reservations.index');
-        Route::get('calculations', [SupplySectionController::class, 'show'])->defaults('section', 'calculations')->name('calculations.index');
         Route::get('form-autofill-runs', [FormAutofillRunController::class, 'index'])->name('form-autofill-runs.index');
         Route::get('supplier-confirmations', [SupplierConfirmationController::class, 'index'])->name('supplier-confirmations.index');
-        Route::get('exports', [SupplySectionController::class, 'show'])->defaults('section', 'exports')->name('exports.index');
-        Route::get('audit-logs', [SupplySectionController::class, 'show'])->defaults('section', 'audit-logs')->name('audit-logs.index');
-        Route::get('settings', [SupplySectionController::class, 'show'])->defaults('section', 'settings')->name('settings.index');
+        Route::get('exports', [ExportFileController::class, 'index'])->name('exports.index');
+        Route::get('exports/{exportFile}', [ExportFileController::class, 'show'])->name('exports.show');
+        Route::get('audit-logs', [AuditLogController::class, 'index'])->name('audit-logs.index');
+        Route::get('audit-logs/{auditLog}', [AuditLogController::class, 'show'])->name('audit-logs.show');
+        Route::get('settings', [AppSettingController::class, 'index'])->name('settings.index');
+        Route::get('settings/{appSetting}', [AppSettingController::class, 'show'])->name('settings.show');
         Route::get('integrations', [IntegrationConnectionController::class, 'index'])->name('integrations.index');
         Route::get('integrations/create', [IntegrationConnectionController::class, 'create'])->name('integrations.create');
         Route::post('integrations', [IntegrationConnectionController::class, 'store'])->name('integrations.store');
@@ -143,6 +157,38 @@ Route::middleware(['web', 'auth'])
         Route::post('analytics/saved-reports/{report}/default', [SavedReportController::class, 'setDefault'])->name('analytics.saved-reports.default');
         Route::get('analytics/report-runs', [ReportRunController::class, 'index'])->name('analytics.report-runs.index');
         Route::get('analytics/report-runs/{run}', [ReportRunController::class, 'show'])->name('analytics.report-runs.show');
+
+        Route::get('forecasting/profiles', [ReplenishmentProfileController::class, 'index'])->name('forecasting.profiles.index');
+        Route::get('forecasting/profiles/create', [ReplenishmentProfileController::class, 'create'])->name('forecasting.profiles.create');
+        Route::post('forecasting/profiles', [ReplenishmentProfileController::class, 'store'])->name('forecasting.profiles.store');
+        Route::get('forecasting/profiles/{profile}', [ReplenishmentProfileController::class, 'show'])->name('forecasting.profiles.show');
+        Route::get('forecasting/profiles/{profile}/edit', [ReplenishmentProfileController::class, 'edit'])->name('forecasting.profiles.edit');
+        Route::match(['put', 'patch'], 'forecasting/profiles/{profile}', [ReplenishmentProfileController::class, 'update'])->name('forecasting.profiles.update');
+        Route::delete('forecasting/profiles/{profile}', [ReplenishmentProfileController::class, 'destroy'])->name('forecasting.profiles.archive');
+
+        Route::get('forecasting/exclusions', [SalesExclusionRuleController::class, 'index'])->name('forecasting.exclusions.index');
+        Route::get('forecasting/exclusions/create', [SalesExclusionRuleController::class, 'create'])->name('forecasting.exclusions.create');
+        Route::post('forecasting/exclusions', [SalesExclusionRuleController::class, 'store'])->name('forecasting.exclusions.store');
+        Route::get('forecasting/exclusions/{rule}', [SalesExclusionRuleController::class, 'show'])->name('forecasting.exclusions.show');
+        Route::get('forecasting/exclusions/{rule}/edit', [SalesExclusionRuleController::class, 'edit'])->name('forecasting.exclusions.edit');
+        Route::match(['put', 'patch'], 'forecasting/exclusions/{rule}', [SalesExclusionRuleController::class, 'update'])->name('forecasting.exclusions.update');
+
+        Route::get('forecasting/overrides', [TrendOverrideController::class, 'index'])->name('forecasting.overrides.index');
+        Route::get('forecasting/overrides/create', [TrendOverrideController::class, 'create'])->name('forecasting.overrides.create');
+        Route::post('forecasting/overrides', [TrendOverrideController::class, 'store'])->name('forecasting.overrides.store');
+        Route::get('forecasting/overrides/{override}', [TrendOverrideController::class, 'show'])->name('forecasting.overrides.show');
+        Route::post('forecasting/overrides/{override}/submit', [TrendOverrideController::class, 'submit'])->name('forecasting.overrides.submit');
+        Route::post('forecasting/overrides/{override}/approve', [TrendOverrideApprovalController::class, 'approve'])->name('forecasting.overrides.approve');
+        Route::post('forecasting/overrides/{override}/reject', [TrendOverrideApprovalController::class, 'reject'])->name('forecasting.overrides.reject');
+        Route::post('forecasting/overrides/{override}/revoke', [TrendOverrideApprovalController::class, 'revoke'])->name('forecasting.overrides.revoke');
+
+        Route::get('forecasting/scenarios', [CalculationScenarioController::class, 'index'])->name('forecasting.scenarios.index');
+        Route::get('forecasting/scenarios/create', [CalculationScenarioController::class, 'create'])->name('forecasting.scenarios.create');
+        Route::post('forecasting/scenarios/simulate', [ScenarioSimulationController::class, 'store'])->name('forecasting.scenarios.simulate');
+        Route::post('forecasting/scenarios/compare', [ScenarioComparisonController::class, 'store'])->name('forecasting.scenarios.compare');
+        Route::get('forecasting/scenarios/{scenario}', [CalculationScenarioController::class, 'show'])->name('forecasting.scenarios.show');
+        Route::post('forecasting/scenarios/{scenario}/export', [ScenarioExportController::class, 'store'])->name('forecasting.scenarios.export');
+
         Route::get('incidents', [OperationalIncidentController::class, 'index'])->name('incidents.index');
         Route::get('incidents/create', [OperationalIncidentController::class, 'create'])->name('incidents.create');
         Route::post('incidents', [OperationalIncidentController::class, 'store'])->name('incidents.store');
@@ -163,6 +209,7 @@ Route::middleware(['web', 'auth'])
         Route::patch('incidents/{incident}/corrective-actions/{action}', [IncidentCorrectiveActionController::class, 'update'])->name('incidents.corrective-actions.update');
         Route::post('incidents/{incident}/corrective-actions/{action}/done', [IncidentCorrectiveActionController::class, 'done'])->name('incidents.corrective-actions.done');
         Route::post('incidents/{incident}/corrective-actions/{action}/verify', [IncidentCorrectiveActionController::class, 'verify'])->name('incidents.corrective-actions.verify');
+
         Route::get('imports', [ImportController::class, 'index'])->name('imports.index');
         Route::get('imports/create', [ImportController::class, 'create'])->name('imports.create');
         Route::post('imports', [ImportController::class, 'store'])->name('imports.store');
@@ -215,6 +262,54 @@ Route::middleware(['web', 'auth'])
         Route::post('forms/templates/{template}/manufacturer-file', [ManufacturerFormTemplateController::class, 'upload'])->name('forms.templates.manufacturer-file.upload');
         Route::post('forms/templates/{template}/mapping', [ManufacturerFormMappingController::class, 'store'])->name('forms.templates.mapping.store');
         Route::post('forms/templates/{template}/preview', [ManufacturerFormPreviewController::class, 'store'])->name('forms.templates.preview');
+
+        Route::get('suppliers', [SupplierController::class, 'index'])->name('suppliers.index');
+        Route::get('suppliers/create', [SupplierController::class, 'create'])->name('suppliers.create');
+        Route::post('suppliers', [SupplierController::class, 'store'])->name('suppliers.store');
+        Route::get('suppliers/{supplier}', [SupplierController::class, 'show'])->name('suppliers.show');
+        Route::get('suppliers/{supplier}/edit', [SupplierController::class, 'edit'])->name('suppliers.edit');
+        Route::match(['put', 'patch'], 'suppliers/{supplier}', [SupplierController::class, 'update'])->name('suppliers.update');
+        Route::delete('suppliers/{supplier}', [SupplierController::class, 'destroy'])->name('suppliers.destroy');
+
+        Route::get('inbound-orders', [InboundOrderController::class, 'index'])->name('inbound-orders.index');
+        Route::get('inbound-orders/create', [InboundOrderController::class, 'create'])->name('inbound-orders.create');
+        Route::post('inbound-orders', [InboundOrderController::class, 'store'])->name('inbound-orders.store');
+        Route::get('inbound-orders/{inboundOrder}', [InboundOrderController::class, 'show'])->name('inbound-orders.show');
+        Route::get('inbound-orders/{inboundOrder}/edit', [InboundOrderController::class, 'edit'])->name('inbound-orders.edit');
+        Route::match(['put', 'patch'], 'inbound-orders/{inboundOrder}', [InboundOrderController::class, 'update'])->name('inbound-orders.update');
+        Route::delete('inbound-orders/{inboundOrder}', [InboundOrderController::class, 'destroy'])->name('inbound-orders.destroy');
+
+        Route::get('reservations', [ReservationController::class, 'index'])->name('reservations.index');
+        Route::get('reservations/create', [ReservationController::class, 'create'])->name('reservations.create');
+        Route::post('reservations', [ReservationController::class, 'store'])->name('reservations.store');
+        Route::get('reservations/{reservation}', [ReservationController::class, 'show'])->name('reservations.show');
+        Route::get('reservations/{reservation}/edit', [ReservationController::class, 'edit'])->name('reservations.edit');
+        Route::match(['put', 'patch'], 'reservations/{reservation}', [ReservationController::class, 'update'])->name('reservations.update');
+        Route::delete('reservations/{reservation}', [ReservationController::class, 'destroy'])->name('reservations.destroy');
+
+        Route::get('calculations', [CalculationRunController::class, 'index'])->name('calculations.index');
+        Route::get('calculations/create', [CalculationRunController::class, 'create'])->name('calculations.create');
+        Route::post('calculations', [CalculationRunController::class, 'store'])->name('calculations.store');
+        Route::get('calculations/{calculationRun}', [CalculationRunController::class, 'show'])->name('calculations.show');
+        Route::get('calculations/{calculationRun}/edit', [CalculationRunController::class, 'edit'])->name('calculations.edit');
+        Route::match(['put', 'patch'], 'calculations/{calculationRun}', [CalculationRunController::class, 'update'])->name('calculations.update');
+        Route::delete('calculations/{calculationRun}', [CalculationRunController::class, 'destroy'])->name('calculations.destroy');
+
+        Route::get('sales-history', [SalesHistoryController::class, 'index'])->name('sales-history.index');
+        Route::get('sales-history/create', [SalesHistoryController::class, 'create'])->name('sales-history.create');
+        Route::post('sales-history', [SalesHistoryController::class, 'store'])->name('sales-history.store');
+        Route::get('sales-history/{salesHistory}', [SalesHistoryController::class, 'show'])->name('sales-history.show');
+        Route::get('sales-history/{salesHistory}/edit', [SalesHistoryController::class, 'edit'])->name('sales-history.edit');
+        Route::match(['put', 'patch'], 'sales-history/{salesHistory}', [SalesHistoryController::class, 'update'])->name('sales-history.update');
+        Route::delete('sales-history/{salesHistory}', [SalesHistoryController::class, 'destroy'])->name('sales-history.destroy');
+
+        Route::get('stock', [StockSnapshotController::class, 'index'])->name('stock.index');
+        Route::get('stock/create', [StockSnapshotController::class, 'create'])->name('stock.create');
+        Route::post('stock', [StockSnapshotController::class, 'store'])->name('stock.store');
+        Route::get('stock/{stockSnapshot}', [StockSnapshotController::class, 'show'])->name('stock.show');
+        Route::get('stock/{stockSnapshot}/edit', [StockSnapshotController::class, 'edit'])->name('stock.edit');
+        Route::match(['put', 'patch'], 'stock/{stockSnapshot}', [StockSnapshotController::class, 'update'])->name('stock.update');
+        Route::delete('stock/{stockSnapshot}', [StockSnapshotController::class, 'destroy'])->name('stock.destroy');
 
         Route::get('form-autofill-runs/{run}', [FormAutofillRunController::class, 'show'])->name('form-autofill-runs.show');
         Route::get('supplier-confirmations/{confirmation}', [SupplierConfirmationController::class, 'show'])->name('supplier-confirmations.show');

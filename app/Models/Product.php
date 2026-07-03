@@ -70,6 +70,26 @@ class Product extends Model
         return $this->hasMany(OrderProposalItem::class);
     }
 
+    public function replenishmentProfiles(): HasMany
+    {
+        return $this->hasMany(ReplenishmentProfile::class);
+    }
+
+    public function salesExclusionRules(): HasMany
+    {
+        return $this->hasMany(SalesExclusionRule::class);
+    }
+
+    public function trendOverrides(): HasMany
+    {
+        return $this->hasMany(TrendOverride::class);
+    }
+
+    public function calculationScenarioItems(): HasMany
+    {
+        return $this->hasMany(CalculationScenarioItem::class);
+    }
+
     public function supplierOrderItems(): HasMany
     {
         return $this->hasMany(SupplierOrderItem::class);

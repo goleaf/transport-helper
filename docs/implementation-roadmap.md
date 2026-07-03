@@ -345,6 +345,27 @@ Implementation:
 * simple Blade analytics pages added without depending on the skipped UI/UX design-system stage;
 * read-only boundary tests added for no AI, no external calls and no business mutation.
 
+## Step 18. Forecast And Replenishment Refinement
+
+Status: implemented in Task 18.
+
+Result:
+
+* replenishment profiles;
+* promotion, anomaly and manual exclusion rules;
+* approved manual trend overrides;
+* deterministic seasonality;
+* scenario simulation, comparison and export.
+
+Implementation:
+
+* forecast refinement tables, models, enums, policies and form requests added;
+* deterministic forecasting services added under `App\Services\Supply\Forecasting`;
+* existing `OrderNeedCalculator` formula remains unchanged;
+* Blade pages added under `/supply/forecasting`;
+* commands added for scenario runs and refinement audit;
+* tests added for services, controllers, commands and boundary rules.
+
 ## Step 21. Exception And Incident Management
 
 Status: implemented in Task 21.

@@ -259,3 +259,17 @@ System:
 * requires root cause and corrective action for critical/high closure;
 * exports private incident reports;
 * does not approve proposals, send emails, apply AI/form/confirmation results, select carriers or update logistics status automatically.
+
+## 18. Forecast And Replenishment Refinement
+
+System:
+
+* manages replenishment profiles by product, category, supplier and company scope;
+* excludes promotions, anomalies and active manual exclusion rules from refined sales inputs;
+* detects outlier candidates deterministically and excludes them only when explicitly enabled;
+* calculates seasonality factors from historical sales with configured clamping;
+* requires reason and approval for manual trend overrides before use;
+* builds refined calculation inputs without replacing the `v1` formula;
+* runs versioned calculation scenarios without mutating proposals or supplier orders;
+* compares scenario variants and exports scenario output;
+* writes audit events for profiles, exclusions, overrides, scenarios, comparison and exports.
