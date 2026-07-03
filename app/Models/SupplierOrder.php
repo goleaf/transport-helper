@@ -29,6 +29,11 @@ class SupplierOrder extends Model
         'sent_by_user_id',
         'sent_at',
         'email_message_id',
+        'email_subject',
+        'email_body',
+        'email_approved_at',
+        'email_approved_by_user_id',
+        'no_attachment_confirmed',
         'notes',
     ];
 
@@ -39,6 +44,8 @@ class SupplierOrder extends Model
             'order_date' => 'date',
             'approved_at' => 'datetime',
             'sent_at' => 'datetime',
+            'email_approved_at' => 'datetime',
+            'no_attachment_confirmed' => 'boolean',
         ];
     }
 
@@ -65,6 +72,11 @@ class SupplierOrder extends Model
     public function sentBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'sent_by_user_id');
+    }
+
+    public function emailApprovedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'email_approved_by_user_id');
     }
 
     public function items(): HasMany

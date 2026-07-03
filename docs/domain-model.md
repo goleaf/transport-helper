@@ -2,7 +2,7 @@
 
 ## Modeling Rule
 
-The domain model is Eloquent-first.
+The domain model is Eloquent-first. DTO classes and `app/Data` are forbidden.
 
 Allowed structured data carriers:
 
@@ -14,135 +14,230 @@ Allowed structured data carriers:
 - enums;
 - PHPDoc array shapes.
 
-Forbidden:
+## Company
 
-- DTO classes;
-- app/Data;
-- Spatie Data classes;
-- classes ending with DTO or Dto.
+Purpose: tenant/business owner for supply data.
 
-## Core Domain Concepts
+Relationships: suppliers, products, stock snapshots, sales history, inbound orders, reservations, calculation runs, order proposals, supplier orders, email accounts, email messages, form templates, form autofill runs, supplier confirmations, carriers, carrier quotes, logistics records, import batches, export files, integration connections, app settings, audit logs.
 
-### User
+## Supplier
 
-An authenticated operator. Users approve proposals, review AI suggestions, select carriers, and perform admin operations according to policy.
+Purpose: manufacturer, distributor, carrier-like supplier, or mixed vendor.
 
-Expected roles:
+Relationships: company, contacts, product rules, inbound orders, calculation runs, order proposals, supplier orders, email messages, logistics records, form templates.
 
-- admin;
-- supply_manager;
-- logistics_manager;
-- viewer.
+## SupplierContact
 
-### Supplier
+Purpose: order/logistics contact point for a supplier.
 
-A manufacturer, vendor, or supplier that can receive orders and send confirmations.
+Relationships: supplier.
 
-Expected responsibilities:
+## Product
 
-- own order contact data;
-- define order form metadata;
-- provide confirmation and logistics communication.
+Purpose: purchasable SKU owned by a company.
 
-### Product
+Relationships: company, supplier product rules, stock snapshots, sales history, inbound order items, reservations, order proposal items, supplier order items, supplier confirmation items.
 
-A purchasable SKU connected to a supplier.
+## SupplierProductRule
 
-Expected responsibilities:
+Purpose: supplier-specific SKU, MOQ, pack, pallet, lead-time, transport and safety settings.
 
-- identify SKU and unit;
-- carry supplier relationship;
-- participate in stock and order calculations.
+Relationships: supplier, product.
 
-### Inventory Snapshot
+## StockSnapshot
 
-Validated stock and demand input for deterministic calculation.
+Purpose: dated stock position used by deterministic calculation.
 
-Expected values:
+Relationships: company, product, optional import batch.
 
-- free stock;
-- inbound quantity by date range;
-- reserved quantity;
-- historical sales;
-- demand horizon;
-- pack, MOQ, pallet, and transport rounding configuration.
+## SalesHistory
 
-### Order Proposal
+Purpose: dated demand history used for trend and period calculations.
 
-A Laravel-created recommendation produced by deterministic calculation.
+Relationships: company, product, optional import batch.
 
-Important behavior:
+## InboundOrder
 
-- stores inputs and explanation;
-- may require human review;
-- may be approved, rejected, or adjusted by authorized users;
-- cannot be created or changed by AI directly.
+Purpose: existing supplier order or incoming stock already in transit.
 
-### Supplier Order
+Relationships: company, supplier, inbound order items.
 
-An approved procurement order prepared from a proposal.
+## InboundOrderItem
 
-Important behavior:
+Purpose: product quantity within an inbound order.
 
-- can have draft email or form output;
-- requires approval before supplier email is sent;
-- can receive confirmation suggestions;
-- tracks supplier confirmation state.
+Relationships: inbound order, product.
 
-### Email Message
+## Reservation
 
-Inbound or outbound supplier communication.
+Purpose: reserved stock or planned project/customer allocation.
 
-Inbound email is source data only. It may produce AI suggestions, but it must not mutate supplier orders, confirmations, logistics, or products directly.
+Relationships: company, product.
 
-### AI Suggestion
+## CalculationRun
 
-A stored proposal generated from AI or extraction.
+Purpose: calculation execution record and formula version anchor.
 
-Expected types:
+Relationships: company, optional supplier, started-by user, order proposals.
 
-- supplier confirmation;
-- form autofill;
-- email reply draft;
-- logistics or quote extraction candidate.
+## OrderProposal
 
-Expected statuses:
+Purpose: deterministic recommended order grouped by supplier/calculation run.
 
-- pending_review;
-- approved;
-- rejected;
-- applied.
+Relationships: company, calculation run, supplier, items, creator, approver, supplier order.
 
-### Human Review
+## OrderProposalItem
 
-A required decision point for uncertain, risky, or AI-generated data.
+Purpose: per-product recommendation with T0/T1/T2/T3 values, warnings and explanation JSON.
 
-Review reasons include:
+Relationships: order proposal, product.
 
-- low confidence;
-- conflict;
-- missing required field;
-- approval required;
-- policy restriction.
+## SupplierOrder
 
-### Carrier Quote
+Purpose: approved procurement order prepared from an order proposal.
 
-A candidate transport option.
+Relationships: company, supplier, order proposal, approver, sender, email approver, items, email messages, confirmations, carrier quotes, logistics records.
 
-Carrier quotes may be imported or entered manually. The system may compare quotes, but a user must select the carrier.
+## SupplierOrderItem
 
-### Logistics Record
+Purpose: ordered product quantity and optional price/confirmation data.
 
-The selected transport plan for a supplier order.
+Relationships: supplier order, product.
 
-It should include carrier, service, price, currency, pickup date, delivery date, status, and audit history.
+## EmailAccount
 
-### Audit Event
+Purpose: configured email mailbox/provider account. Credentials are encrypted at rest.
 
-Append-only record of important workflow actions.
+Relationships: company, email messages.
 
-Audit metadata must not contain secrets.
+## EmailMessage
 
-## Boundary Rule
+Purpose: inbound or outbound email source record. AI may read it, but it does not mutate business records directly.
 
-AI output never replaces domain models. It is attached to domain records as suggestions and must pass Laravel validation plus human approval before any business mutation.
+Relationships: company, email account, related supplier, related supplier order, attachments, AI email extractions, supplier confirmations, carrier quotes, form autofill runs.
+
+## EmailAttachment
+
+Purpose: stored file attached to an email message.
+
+Relationships: email message.
+
+## AiEmailExtraction
+
+Purpose: stored AI email analysis output requiring Laravel validation and human review before application.
+
+Relationships: email message, reviewer, form autofill runs, supplier confirmations, carrier quotes.
+
+## FormTemplate
+
+Purpose: reusable form schema for supplier confirmation, carrier quote, logistics update or custom email form.
+
+Relationships: company, optional supplier, optional carrier, fields, autofill runs.
+
+## FormTemplateField
+
+Purpose: field definition, validation hints and AI extraction hints for a form template.
+
+Relationships: form template.
+
+## FormAutofillRun
+
+Purpose: AI-suggested form fill attempt from an email, stored separately from final business records.
+
+Relationships: company, email message, form template, optional AI extraction, field values, outputs, creator, reviewer, applier, supplier confirmations, carrier quotes.
+
+## FormAutofillFieldValue
+
+Purpose: extracted, normalized and final user-reviewed value for one autofill field.
+
+Relationships: form autofill run, accepted-by user.
+
+## FormAutofillOutput
+
+Purpose: rendered/exported output for a form autofill run.
+
+Relationships: form autofill run, created-by user.
+
+## SupplierConfirmation
+
+Purpose: validated supplier confirmation from manual input, accepted AI extraction or validated form autofill.
+
+Relationships: company, supplier order, optional email message, items, optional AI extraction, optional form autofill run.
+
+## SupplierConfirmationItem
+
+Purpose: product-level confirmed quantity and discrepancy data.
+
+Relationships: supplier confirmation, product.
+
+## Carrier
+
+Purpose: transport provider candidate.
+
+Relationships: company, contacts, quotes, logistics records.
+
+## CarrierContact
+
+Purpose: carrier contact used for quote requests and logistics communication.
+
+Relationships: carrier.
+
+## CarrierQuote
+
+Purpose: candidate transport quote with price, dates, score and source reference.
+
+Relationships: company, supplier order, carrier, optional email message, optional AI extraction, optional form autofill run.
+
+## LogisticsRecord
+
+Purpose: logistics tracking row for supplier order, carrier, dates, transport price and status.
+
+Relationships: company, optional supplier order, optional supplier, optional carrier.
+
+## ImportBatch
+
+Purpose: import run summary for source adapter data.
+
+Relationships: company, rows, starter user, stock snapshots, sales history.
+
+## ImportRow
+
+Purpose: raw/normalized per-row import state and related model link.
+
+Relationships: import batch, related model morph.
+
+## ExportFile
+
+Purpose: stored export artifact for supplier order, logistics, form autofill or other workflows.
+
+Relationships: company, creator user, related model morph.
+
+## IntegrationConnection
+
+Purpose: external system connection metadata. Credentials are encrypted at rest.
+
+Relationships: company.
+
+## AppSetting
+
+Purpose: company-level or global JSON setting.
+
+Relationships: optional company.
+
+## AuditLog
+
+Purpose: append-only critical action log.
+
+Relationships: optional company, optional user, auditable morph.
+
+## Role
+
+Purpose: custom lightweight role in the local role-permission matrix.
+
+Relationships: users, permissions.
+
+## Permission
+
+Purpose: named permission assigned to roles.
+
+Relationships: roles.

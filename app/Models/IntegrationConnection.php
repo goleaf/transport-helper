@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\IntegrationConnectionType;
 use Database\Factories\IntegrationConnectionFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -34,6 +35,7 @@ class IntegrationConnection extends Model
     protected function casts(): array
     {
         return [
+            'type' => IntegrationConnectionType::class,
             'encrypted_config' => 'encrypted:array',
             'is_active' => 'boolean',
             'last_sync_at' => 'datetime',

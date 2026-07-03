@@ -40,7 +40,10 @@ class RolePermissionSeeder extends Seeder
 
         $permissionModels = collect($permissions)
             ->mapWithKeys(fn (string $permission) => [
-                $permission => Permission::query()->updateOrCreate(['name' => $permission]),
+                $permission => Permission::query()->updateOrCreate(
+                    ['name' => $permission],
+                    ['label' => ucwords(str_replace('_', ' ', $permission))]
+                ),
             ]);
 
         $rolePermissions = [
@@ -71,6 +74,9 @@ class RolePermissionSeeder extends Seeder
                 'select_carrier',
                 'view_logistics',
                 'manage_logistics',
+                'review_ai_extractions',
+                'use_email_form_autofill',
+                'apply_email_form_autofill',
             ],
             'accountant' => [
                 'view_products',
@@ -88,7 +94,10 @@ class RolePermissionSeeder extends Seeder
         ];
 
         foreach ($rolePermissions as $roleName => $permissionNames) {
-            $role = Role::query()->updateOrCreate(['name' => $roleName]);
+            $role = Role::query()->updateOrCreate(
+                ['name' => $roleName],
+                ['label' => ucwords(str_replace('_', ' ', $roleName))]
+            );
 
             $role->permissions()->sync(
                 collect($permissionNames)

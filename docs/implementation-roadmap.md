@@ -54,3 +54,13 @@ This stage creates repository memory and guardrails. It does not create business
 ## Next Recommended Task
 
 Create a docs/current-task.md for core schema planning and migrations only. That task should not implement services, controllers, UI, AI providers, or email providers.
+
+## Step 1 Result
+
+- Core supply migrations are present and reused without duplicate tables.
+- Stage 1 alignment migration added missing role labels, supplier order email approval fields, form template uniqueness and autofill-source foreign keys.
+- Core Eloquent models, casts and relationships are present.
+- Native PHP enums are present for workflow statuses and Stage 1 import/export/integration values.
+- Separate demo seeders were added for company, suppliers, carriers, products and form templates.
+- DatabaseSeeder now calls the separated demo seeders idempotently.
+- Base Pest tests were added for tables, key columns, relationships, role permissions, demo seeders and the no-DTO rule.

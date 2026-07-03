@@ -20,6 +20,7 @@ class RoleFactory extends Factory
                 'accountant',
                 'viewer',
             ]).'-'.fake()->unique()->numberBetween(1000, 9999),
+            'label' => fake()->words(2, true),
         ];
     }
 }

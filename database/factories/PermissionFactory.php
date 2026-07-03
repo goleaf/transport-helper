@@ -14,6 +14,7 @@ class PermissionFactory extends Factory
     {
         return [
             'name' => fake()->unique()->slug(2),
+            'label' => fake()->words(3, true),
         ];
     }
 }

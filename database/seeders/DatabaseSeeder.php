@@ -6,6 +6,7 @@ use App\Models\Role;
 use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
 {
@@ -16,14 +17,23 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        $this->call(RolePermissionSeeder::class);
-        $this->call(ProcurementDemoSeeder::class);
-
-        $user = User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-            'role' => 'admin',
+        $this->call([
+            RolePermissionSeeder::class,
+            DemoCompanySeeder::class,
+            DemoSupplierSeeder::class,
+            DemoCarrierSeeder::class,
+            DemoProductSeeder::class,
+            DemoFormTemplateSeeder::class,
         ]);
+
+        $user = User::query()->updateOrCreate(
+            ['email' => 'test@example.com'],
+            [
+                'name' => 'Test User',
+                'password' => Hash::make('password'),
+                'role' => 'admin',
+            ]
+        );
 
         $adminRole = Role::query()->where('name', 'admin')->first();
 

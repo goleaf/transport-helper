@@ -28,6 +28,11 @@ class SupplierOrderFactory extends Factory
             'sent_by_user_id' => User::factory(),
             'sent_at' => null,
             'email_message_id' => null,
+            'email_subject' => null,
+            'email_body' => null,
+            'email_approved_at' => null,
+            'email_approved_by_user_id' => null,
+            'no_attachment_confirmed' => false,
             'notes' => fake()->optional()->sentence(),
         ];
     }

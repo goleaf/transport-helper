@@ -4,11 +4,14 @@ use App\Enums\AiPromptVersion;
 use App\Enums\CarrierQuoteStatus;
 use App\Enums\EmailDirection;
 use App\Enums\EmailProvider;
+use App\Enums\ExportFileStatus;
 use App\Enums\FormAutofillRunStatus;
 use App\Enums\FormFieldType;
 use App\Enums\FormTemplateContextType;
 use App\Enums\FormTemplateFormatType;
 use App\Enums\ImportBatchStatus;
+use App\Enums\ImportRowStatus;
+use App\Enums\IntegrationConnectionType;
 use App\Enums\LogisticsStatus;
 use App\Enums\OrderProposalItemStatus;
 use App\Enums\OrderProposalStatus;
@@ -100,6 +103,32 @@ it('defines procurement enum backing values', function () {
             'completed_with_errors',
             'failed',
             'rolled_back',
+        ])
+        ->and(array_column(ImportRowStatus::cases(), 'value'))->toBe([
+            'pending',
+            'normalized',
+            'valid',
+            'invalid',
+            'persisted',
+            'failed',
+            'skipped',
+        ])
+        ->and(array_column(ExportFileStatus::cases(), 'value'))->toBe([
+            'created',
+            'stored',
+            'failed',
+            'downloaded',
+            'sent',
+        ])
+        ->and(array_column(IntegrationConnectionType::cases(), 'value'))->toBe([
+            'erp',
+            'ecommerce',
+            'accounting',
+            'warehouse',
+            'google_sheets',
+            'email',
+            'api',
+            'manual',
         ])
         ->and(array_column(FormTemplateContextType::cases(), 'value'))->toBe([
             'supplier_order',
