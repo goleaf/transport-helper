@@ -10,85 +10,89 @@
 
 * [x] docs/current-task.md
   * Files: docs/current-task.md
-  * Tests: ./scripts/check-project-docs.sh
-  * Status: rewritten for Punkt 3
+  * Tests: docs/check scripts
+  * Status: created for Task 4
 * [x] docs/current-task-read-confirmation.md
   * Files: docs/current-task-read-confirmation.md
-  * Tests: ./scripts/check-project-docs.sh
+  * Tests: docs/check scripts
   * Status: created
 * [x] docs/current-task-progress.md
   * Files: docs/current-task-progress.md
   * Tests: manual progress review
   * Status: created and active
-* [x] app/Enums/*
-  * Files: app/Enums/*
-  * Tests: tests/Unit/ProcurementEnumsTest.php
-  * Status: existing native enums verified
-* [x] database/migrations/*
-  * Files: database/migrations/*
-  * Tests: tests/Feature/CoreDatabaseMigrationTest.php
-  * Status: user_preferences, saved_views and safe alignment migration added
-* [x] app/Models/*
-  * Files: app/Models/*
-  * Tests: tests/Feature/CoreDatabaseRelationshipTest.php
-  * Status: UserPreference, SavedView, relationships, casts and simple scopes added
-* [x] database/factories/*
-  * Files: database/factories/*
-  * Tests: relationship/factory tests
-  * Status: UserPreferenceFactory and SavedViewFactory added; related factories aligned
-* [x] database/seeders/*
-  * Files: database/seeders/RolePermissionSeeder.php, database/seeders/Demo*.php
-  * Tests: tests/Feature/RolePermissionSeederTest.php, tests/Feature/DemoSeederTest.php
-  * Status: analytics/report permissions added; demo seeders verified
-* [x] Core database tests
-  * Files: tests/Feature/CoreDatabaseMigrationTest.php, tests/Feature/CoreDatabaseRelationshipTest.php
-  * Tests: php artisan test filtered files
-  * Status: updated and focused tests passed
-* [x] Role/permission tests
-  * Files: tests/Feature/RolePermissionSeederTest.php
+* [x] AuditLogService
+  * Files: app/Services/Audit/AuditLogService.php
+  * Tests: tests/Unit/AuditLogServiceTest.php
+  * Status: existing implementation verified
+* [x] CalculationPeriodService
+  * Files: app/Services/Supply/Calculation/CalculationPeriodService.php
+  * Tests: OrderNeedCalculatorTest / proposal tests
+  * Status: existing implementation verified
+* [x] TrendCalculator
+  * Files: app/Services/Supply/Calculation/TrendCalculator.php
+  * Tests: tests/Unit/TrendCalculatorTest.php
+  * Status: existing implementation verified
+* [x] OrderRoundingService
+  * Files: app/Services/Supply/Calculation/OrderRoundingService.php
+  * Tests: tests/Unit/OrderRoundingServiceTest.php
+  * Status: existing implementation verified
+* [x] OrderNeedCalculator
+  * Files: app/Services/Supply/Calculation/OrderNeedCalculator.php
+  * Tests: tests/Unit/OrderNeedCalculatorTest.php
+  * Status: existing implementation verified
+* [x] CalculationDataCollector
+  * Files: app/Services/Supply/Calculation/CalculationDataCollector.php
+  * Tests: tests/Feature/CalculationDataCollectorTest.php
+  * Status: existing implementation verified
+* [x] OrderProposalGenerationService
+  * Files: app/Services/Supply/Calculation/OrderProposalGenerationService.php
+  * Tests: tests/Feature/OrderProposalGenerationServiceTest.php
+  * Status: existing implementation verified
+* [x] CalculationEngineNoAiDependencyTest
+  * Files: tests/Unit/CalculationEngineNoAiDependencyTest.php
   * Tests: php artisan test filtered file
-  * Status: updated and focused test passed
-* [x] Demo seeder tests
-  * Files: tests/Feature/DemoSeederTest.php
-  * Tests: php artisan test filtered file
-  * Status: existing test present
-* [x] No DTO test
-  * Files: tests/Unit/NoDtoRuleTest.php
-  * Tests: php artisan test filtered file
-  * Status: existing test present
-* [x] docs/core-database-implementation-notes.md
-  * Files: docs/core-database-implementation-notes.md
+  * Status: created and passed
+* [x] docs/calculation-engine-implementation-notes.md
+  * Files: docs/calculation-engine-implementation-notes.md
   * Tests: docs/check scripts
-  * Status: updated with implementation notes and check results
-* [x] docs/domain-model.md
-  * Files: docs/domain-model.md
+  * Status: updated
+* [x] docs/calculation-engine.md
+  * Files: docs/calculation-engine.md
   * Tests: docs review
-  * Status: updated with UserPreference, SavedView and key relationships
+  * Status: updated
+* [x] docs/audit-and-security.md
+  * Files: docs/audit-and-security.md
+  * Tests: docs review
+  * Status: updated
 * [x] docs/implementation-roadmap.md
   * Files: docs/implementation-roadmap.md
   * Tests: docs review
-  * Status: Step 3 marked implemented
+  * Status: updated
 
 ## Tests And Checks
 
-* [x] composer install
 * [x] php artisan migrate:fresh --seed
-* [x] php artisan test
-* [x] php artisan test --filter=CoreDatabaseMigrationTest
-* [x] php artisan test --filter=CoreDatabaseRelationshipTest
-* [x] php artisan test --filter=RolePermissionSeederTest
-* [x] php artisan test --filter=DemoSeederTest
-* [x] php artisan test --filter=NoDtoRuleTest
+* [x] php artisan test --filter=AuditLogServiceTest
+* [x] php artisan test --filter=TrendCalculatorTest
+* [x] php artisan test --filter=OrderRoundingServiceTest
+* [x] php artisan test --filter=OrderNeedCalculatorTest
+* [x] php artisan test --filter=CalculationDataCollectorTest
+* [x] php artisan test --filter=OrderProposalGenerationServiceTest
+* [x] php artisan test --filter=CalculationEngineNoAiDependencyTest
 * [x] ./scripts/check-no-dto.sh
 * [x] ./scripts/check-no-secrets.sh
 * [x] ./scripts/check-project-docs.sh
+* [x] php artisan test
 * [x] ./vendor/bin/pint, if available
 * [x] npm run build, if applicable
 * [x] ./scripts/agent-guard.sh
 
 ## Failures
 
-None.
+* `php artisan test --filter=CalculationEngineNoAiDependencyTest` first failed because the generated unit test used `app_path()` without Laravel TestCase context.
+* Fixed by using repository-relative filesystem paths in the test.
+* `./scripts/agent-guard.sh` later failed against unrelated in-progress order-proposal workflow files already present in the worktree.
+* Fixed the local worktree compatibility issue by restoring supply-manager role authorization and dotted audit event names required by the existing workflow tests.
 
 ## Blockers
 
@@ -96,22 +100,27 @@ None.
 
 ## Check Results
 
-* composer install: passed, nothing to install/update/remove.
+* php artisan test --filter=AuditLogServiceTest: passed, 6 tests / 25 assertions.
+* php artisan test --filter=TrendCalculatorTest: passed, 5 tests / 17 assertions.
+* php artisan test --filter=OrderRoundingServiceTest: passed, 9 tests / 13 assertions.
+* php artisan test --filter=OrderNeedCalculatorTest: passed, 10 tests / 56 assertions.
+* php artisan test --filter=CalculationDataCollectorTest: passed, 3 tests / 18 assertions.
+* php artisan test --filter=OrderProposalGenerationServiceTest: passed, 5 tests / 20 assertions.
+* php artisan test --filter=CalculationEngineNoAiDependencyTest: passed, 1 test / 85 assertions after fixing the generated test path helper.
 * php artisan migrate:fresh --seed --env=testing --no-interaction: passed.
-* php artisan test --filter=CoreDatabaseMigrationTest: passed, 2 tests / 54 assertions.
-* php artisan test --filter=CoreDatabaseRelationshipTest: passed, 1 test / 25 assertions.
-* php artisan test --filter=RolePermissionSeederTest: passed, 1 test / 8 assertions.
-* php artisan test --filter=DemoSeederTest: passed, 1 test / 12 assertions.
-* php artisan test --filter=NoDtoRuleTest: passed, 1 test / 3 assertions.
 * ./scripts/check-no-dto.sh: passed.
 * ./scripts/check-no-secrets.sh: passed.
 * ./scripts/check-project-docs.sh: passed.
-* php artisan test: passed, 179 tests / 939 assertions.
-* ./vendor/bin/pint --dirty --format agent: passed.
+* php artisan test: passed, 186 tests / 1030 assertions.
+* ./vendor/bin/pint --dirty --format agent: passed; formatted one existing untracked order-proposal controller outside the Task 4 commit scope.
 * npm run build: passed.
-* ./scripts/agent-guard.sh: passed.
+* php artisan test --filter=OrderProposalWorkflowTest: passed, 7 tests / 51 assertions after the local compatibility fix.
+* php artisan test --filter=LogisticsWorkflowTest: passed, 10 tests / 37 assertions after the local compatibility fix.
+* php artisan test --filter=SupplierOrderWorkflowTest: passed, 8 tests / 27 assertions after the local compatibility fix.
+* php artisan test --filter=SecurityAuditHealthTest: passed, 8 tests / 14 assertions after the local compatibility fix.
+* ./scripts/agent-guard.sh: passed; includes no DTO, no secrets, project docs, php artisan test, Pint test and npm build.
 
 ## Commit
 
-* Commit hash: pending until commit
-* Push status: pending until push
+* Commit hash:
+* Push status:

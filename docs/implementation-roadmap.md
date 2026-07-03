@@ -44,7 +44,7 @@ Implementation:
 
 ## Step 4. Audit Service And Calculation Engine
 
-Status: implemented in Stage 2.
+Status: implemented in Task 4.
 
 Result:
 
@@ -57,7 +57,8 @@ Implementation:
 * centralized audit service added;
 * calculation services added under `app/Services/Supply/Calculation`;
 * proposal generation creates calculation run, proposal and proposal items;
-* focused audit/calculation tests added.
+* focused audit/calculation tests added;
+* deterministic calculation dependency boundary test added.
 
 Next recommended step:
 

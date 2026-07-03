@@ -3,7 +3,7 @@
 ## Existing State
 
 The repository already had broad supply services under `app/Services/Supply`.
-Stage 2 adds a clean deterministic calculation namespace without removing those existing classes.
+Task 4 verifies and extends the clean deterministic calculation namespace without removing existing workflow classes.
 
 Required models, factories and enums from the core database stage exist.
 The project uses custom roles/permissions, Pest and SQLite-compatible tests.
@@ -12,7 +12,7 @@ The project uses custom roles/permissions, Pest and SQLite-compatible tests.
 
 `app/Services/Audit/AuditLogService.php` is the centralized audit service.
 
-Implemented Stage 2 methods:
+Implemented AuditLogService methods:
 
 * `logCreated`;
 * `logUpdated`;
@@ -41,7 +41,7 @@ It is safe for web requests, jobs, CLI and tests.
 
 ## Calculation Services
 
-Stage 2 calculation services live in `app/Services/Supply/Calculation`.
+Task 4 calculation services live in `app/Services/Supply/Calculation`.
 
 Services:
 
@@ -100,6 +100,7 @@ Added or updated tests:
 * `tests/Unit/TrendCalculatorTest.php`;
 * `tests/Unit/OrderRoundingServiceTest.php`;
 * `tests/Unit/OrderNeedCalculatorTest.php`;
+* `tests/Unit/CalculationEngineNoAiDependencyTest.php`;
 * `tests/Feature/CalculationDataCollectorTest.php`;
 * `tests/Feature/OrderProposalGenerationServiceTest.php`.
 
@@ -108,7 +109,7 @@ The required example test confirms:
 * `raw_need = 150`;
 * `recommended_quantity = 156`.
 
-The dependency guard scans `app/Services/Supply/Calculation/OrderNeedCalculator.php` and rejects references to forbidden AI/email/form/external client terms.
+The dependency guard scans every file in `app/Services/Supply/Calculation` and rejects references to forbidden AI/email/form/external client terms.
 
 ## Known Limitations
 
@@ -117,7 +118,7 @@ It collects data for one product at a time and is suitable for correctness tests
 Later import/order-proposal UI work can add batch pre-aggregation if performance requires it.
 
 The existing schema currently casts quantity decimals with three decimal places in some models.
-Stage 2 tests follow the live schema instead of changing migrations.
+Task 4 tests follow the live schema instead of changing migrations.
 
 ## Next Step
 

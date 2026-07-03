@@ -32,7 +32,7 @@ Final_Order = Raw_Need adjusted by MOQ, pack multiple, pallet quantity and trans
 
 ## Implementation
 
-Current Stage 2 implementation lives in `app/Services/Supply/Calculation`.
+Current Task 4 implementation lives in `app/Services/Supply/Calculation`.
 
 Services:
 
@@ -98,7 +98,19 @@ Expected:
 ## Required Test Status
 
 Implemented in `tests/Unit/OrderNeedCalculatorTest.php`.
-The Stage 2 focused test run confirms `raw_need = 150` and `recommended_quantity = 156`.
+The Task 4 focused test run confirms `raw_need = 150` and `recommended_quantity = 156`.
+
+## Dependency Boundary Test
+
+Implemented in `tests/Unit/CalculationEngineNoAiDependencyTest.php`.
+
+The calculation namespace must not import or reference:
+
+* AI services;
+* email services;
+* form autofill services;
+* AI/email/form models;
+* OpenAI/LLM/HTTP/external clients.
 
 ## Edge Cases
 

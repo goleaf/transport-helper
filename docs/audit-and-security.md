@@ -79,7 +79,7 @@ Compatibility methods kept for later workflows:
 * `logOrderQuantityAdjusted`;
 * `logCarrierSelected`.
 
-Stage 2 event names:
+Task 4 audit event names:
 
 * `product_created`;
 * `product_updated`;

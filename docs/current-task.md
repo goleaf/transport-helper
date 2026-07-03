@@ -2,25 +2,25 @@
 
 ## Task Title
 
-Core Database Schema For Supply Agent
+AuditLogService And Deterministic Calculation Engine
 
 ## Task Goal
 
-Create the core database foundation for the Laravel Supply / Procurement Agent.
+Create centralized AuditLogService and deterministic replenishment calculation engine for the Laravel Supply / Procurement Agent.
 
-This includes:
-- migrations;
-- models;
-- relationships;
-- casts;
-- enums/constants;
-- factories;
-- seeders;
-- roles and permissions if missing;
-- base tests.
+This task implements:
+- audit log service;
+- calculation period validation;
+- trend calculation;
+- order rounding;
+- order need calculation;
+- calculation data collection from database;
+- order proposal generation foundation;
+- tests for audit and calculation;
+- required calculation example where raw_need = 150 and recommended_quantity = 156.
 
-This task creates only the database/model foundation.
-Business services and UI workflows are out of scope.
+The calculation engine must be deterministic PHP/Laravel logic.
+AI must not be used in calculation.
 
 ## Required Reading
 
@@ -38,6 +38,7 @@ Business services and UI workflows are out of scope.
 - docs/status-machines.md
 - docs/decision-log.md
 - docs/calculation-engine.md
+- docs/core-database-implementation-notes.md
 
 ## Non-Negotiable Rules
 
@@ -46,10 +47,12 @@ Business services and UI workflows are out of scope.
 - Create docs/current-task-progress.md before implementation.
 - Do not create DTO.
 - Do not create app/Data.
-- Do not implement business services in this task.
-- Do not implement controllers/routes/UI in this task.
+- Do not use AI in calculation.
 - Do not call real external services.
-- Do not call AI.
+- Do not call real email providers.
+- Do not change the formula from docs/calculation-engine.md.
+- Do not implement UI in this task.
+- Do not implement import/email/form/transport/logistics workflows in this task.
 - Do not commit secrets.
 - Do not claim success without checks.
 
@@ -57,95 +60,96 @@ Business services and UI workflows are out of scope.
 
 Create or update:
 
-- app/Enums/*
-- app/Models/*
-- database/migrations/*
-- database/factories/*
-- database/seeders/*
-- tests/Feature/CoreDatabaseMigrationTest.php
-- tests/Feature/CoreDatabaseRelationshipTest.php
-- tests/Feature/RolePermissionSeederTest.php
-- tests/Feature/DemoSeederTest.php
-- tests/Unit/NoDtoRuleTest.php
-- docs/core-database-implementation-notes.md
-- docs/domain-model.md
+- app/Services/Audit/AuditLogService.php
+- app/Services/Supply/Calculation/CalculationPeriodService.php
+- app/Services/Supply/Calculation/TrendCalculator.php
+- app/Services/Supply/Calculation/OrderRoundingService.php
+- app/Services/Supply/Calculation/OrderNeedCalculator.php
+- app/Services/Supply/Calculation/CalculationDataCollector.php
+- app/Services/Supply/Calculation/OrderProposalGenerationService.php
+- tests/Unit/AuditLogServiceTest.php
+- tests/Unit/TrendCalculatorTest.php
+- tests/Unit/OrderRoundingServiceTest.php
+- tests/Unit/OrderNeedCalculatorTest.php
+- tests/Unit/CalculationEngineNoAiDependencyTest.php
+- tests/Feature/CalculationDataCollectorTest.php
+- tests/Feature/OrderProposalGenerationServiceTest.php
+- docs/calculation-engine-implementation-notes.md
+- docs/calculation-engine.md
+- docs/audit-and-security.md
+- docs/implementation-roadmap.md
+
+Optional events:
+
+- app/Events/CalculationRunCompleted.php
+- app/Events/OrderProposalCreated.php
 
 ## Out Of Scope
 
 Do not implement:
-- calculation engine;
-- import system;
-- supplier order workflow;
-- email infrastructure;
-- AI extraction;
+- CSV import system;
+- supplier order export;
+- supplier email sending;
+- inbound email ingestion;
+- AI email analysis;
 - email form autofill;
 - supplier confirmation application;
-- transport module;
-- logistics module;
+- carrier quote scoring;
+- logistics receiving;
 - dashboards;
 - UI routes/controllers.
 
 ## Required Implementation
 
-Create core database schema for:
-- companies;
-- suppliers;
-- supplier contacts;
-- products;
-- supplier product rules;
-- stock snapshots;
-- sales history;
-- inbound orders;
-- inbound order items;
-- reservations;
-- calculation runs;
-- order proposals;
-- order proposal items;
-- supplier orders;
-- supplier order items;
-- email accounts;
-- email messages;
-- email attachments;
-- AI email extractions;
-- form templates;
-- form template fields;
-- form autofill runs;
-- form autofill field values;
-- form autofill outputs;
-- supplier confirmations;
-- supplier confirmation items;
-- carriers;
-- carrier contacts;
-- carrier quotes;
-- logistics records;
-- import batches;
-- import rows;
-- export files;
-- integration connections;
-- app settings;
-- audit logs;
-- user preferences;
-- saved views;
-- roles/permissions if missing.
+Implement centralized audit logging and deterministic calculation services.
 
-The database foundation must use native PHP enums when available, Eloquent relationships, casts for JSON/date/decimal/boolean/encrypted fields, idempotent seeders, fake/demo-only data and no DTO classes.
+The calculation formula is:
+
+Trend = current_year_sales_for_trend / last_year_sales_for_trend
+
+Need_T0_T1 = LY(T0-T1) * Trend
+
+Stock_T1 = free_stock + inbound_until_T1 - Need_T0_T1
+
+Need_T1_T2 = LY(T1-T2) * Trend
+
+Safety_Stock = LY(T2-T3) * Trend
+
+Raw_Need = Need_T1_T2 + Safety_Stock - Stock_T1 - inbound_T1_T3 + reserved_quantity
+
+Final_Order = Raw_Need adjusted by MOQ, pack multiple, pallet quantity and transport rules.
+
+Required test:
+- free_stock = 70
+- trend = 1.20
+- need_t0_t1 = 48
+- stock_t1 = 22
+- need_t1_t2 = 120
+- safety_stock = 72
+- inbound_t1_t3 = 20
+- raw_need = 150
+- pack_multiple = 12
+- recommended_quantity = 156
 
 ## Required Tests
 
-Create or update tests:
-- CoreDatabaseMigrationTest
-- CoreDatabaseRelationshipTest
-- RolePermissionSeederTest
-- DemoSeederTest
-- NoDtoRuleTest
+Create or update:
+- AuditLogServiceTest
+- TrendCalculatorTest
+- OrderRoundingServiceTest
+- OrderNeedCalculatorTest
+- CalculationDataCollectorTest
+- OrderProposalGenerationServiceTest
+- CalculationEngineNoAiDependencyTest
 
 ## Required Documentation
 
 Create:
-- docs/core-database-implementation-notes.md
+- docs/calculation-engine-implementation-notes.md
 
 Update:
-- docs/domain-model.md
+- docs/calculation-engine.md
+- docs/audit-and-security.md
 - docs/implementation-roadmap.md
 
 ## Acceptance Criteria
@@ -155,26 +159,35 @@ Update:
 - [ ] docs/current-task.md read from start to end.
 - [ ] docs/current-task-read-confirmation.md created.
 - [ ] docs/current-task-progress.md created.
-- [ ] Enums/constants created.
-- [ ] Core migrations created.
-- [ ] Core models created.
-- [ ] Model relationships created.
-- [ ] Model casts created.
-- [ ] Factories created.
-- [ ] Seeders created.
-- [ ] Roles/permissions created or existing system reused.
-- [ ] Demo company seeded.
-- [ ] Demo supplier seeded.
-- [ ] Demo carrier seeded.
-- [ ] Demo products seeded.
-- [ ] Demo form templates seeded.
-- [ ] Core database tests created.
-- [ ] Relationship tests created.
-- [ ] Role/permission tests created.
-- [ ] Demo seeder tests created.
-- [ ] No DTO test created.
-- [ ] docs/core-database-implementation-notes.md created.
-- [ ] docs/domain-model.md updated.
+- [ ] AuditLogService created.
+- [ ] AuditLogService works without web request.
+- [ ] AuditLogService resolves company_id for direct and nested models.
+- [ ] CalculationPeriodService created.
+- [ ] TrendCalculator created.
+- [ ] OrderRoundingService created.
+- [ ] OrderNeedCalculator created.
+- [ ] CalculationDataCollector created.
+- [ ] OrderProposalGenerationService created.
+- [ ] Calculation output includes formula_version.
+- [ ] Calculation output includes explanation array.
+- [ ] Calculation output includes formula steps.
+- [ ] Calculation output includes rounding steps.
+- [ ] Required 150 -> 156 test passes.
+- [ ] Negative raw need returns zero unless strategic minimum rule.
+- [ ] MOQ rule tested.
+- [ ] Pack multiple rule tested.
+- [ ] Pallet show_only/enforce rule tested.
+- [ ] Missing last year sales requires review.
+- [ ] Invalid T0/T1/T2/T3 timeline requires review.
+- [ ] Reservation strategy handled.
+- [ ] Safety stock note says T2-T3 only.
+- [ ] Calculation engine has no AI/email/form autofill dependency.
+- [ ] Order proposal generation creates calculation_run, order_proposal and items.
+- [ ] Order proposal generation writes audit logs.
+- [ ] docs/calculation-engine-implementation-notes.md created.
+- [ ] docs/calculation-engine.md updated.
+- [ ] docs/audit-and-security.md updated.
+- [ ] docs/implementation-roadmap.md updated.
 - [ ] php artisan migrate:fresh --seed passed or blocker documented.
 - [ ] ./scripts/check-no-dto.sh passed.
 - [ ] ./scripts/check-no-secrets.sh passed.
@@ -207,4 +220,4 @@ npm run build
 
 ## Commit Message
 
-Add supply agent core database schema
+Add audit service and deterministic calculation engine
