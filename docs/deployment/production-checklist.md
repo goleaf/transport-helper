@@ -1,0 +1,25 @@
+# Production Checklist
+
+- [ ] `APP_ENV=production`
+- [ ] `APP_DEBUG=false`
+- [ ] `APP_KEY` set
+- [ ] database backup configured
+- [ ] storage backup configured
+- [ ] queue worker configured
+- [ ] scheduler configured
+- [ ] health check scheduled
+- [ ] logistics monitor scheduled
+- [ ] permissions reviewed
+- [ ] audit logs enabled
+- [ ] external AI disabled or explicitly approved
+- [ ] email provider configured or log/manual mode understood
+- [ ] secrets not committed
+- [ ] storage private
+- [ ] HTTPS/VPN/internal network configured
+- [ ] admin user created
+- [ ] calculation 150 -> 156 test passes
+- [ ] supplier email approval tested
+- [ ] inbound email manual test performed
+- [ ] form autofill test performed
+- [ ] carrier selection test performed
+- [ ] receiving test performed

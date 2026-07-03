@@ -38,4 +38,17 @@ return [
         'backup_marker_path' => env('SUPPLY_BACKUP_MARKER_PATH', storage_path('app/backups/last_successful_backup.txt')),
         'external_ai_allowed' => env('SUPPLY_EXTERNAL_AI_ALLOWED', false),
     ],
+    'backup' => [
+        'marker_path' => env('SUPPLY_BACKUP_MARKER_PATH', storage_path('app/backups/last_successful_backup.txt')),
+        'max_age_hours' => env('SUPPLY_BACKUP_MAX_AGE_HOURS', 48),
+    ],
+    'production_readiness' => [
+        'strict_by_default' => env('SUPPLY_PRODUCTION_READINESS_STRICT', false),
+    ],
+    'ai_boundary' => [
+        'external_ai_allowed' => env('SUPPLY_EXTERNAL_AI_ALLOWED', false),
+    ],
+    'local_mode' => [
+        'enabled' => env('SUPPLY_LOCAL_MODE', true),
+    ],
 ];

@@ -244,12 +244,25 @@ Implementation:
 
 ## Step 13. Production Readiness
 
+Status: implemented in Task 13.
+
 Result:
 
 * health checks;
 * backup verification;
 * permissions audit;
 * end-to-end tests.
+
+Implementation:
+
+* final E2E and regression boundary tests added;
+* permission audit command added;
+* audit coverage command added;
+* backup verification command added;
+* AI boundary audit command added;
+* production readiness aggregation command added;
+* deployment, scheduler, backup/restore and troubleshooting docs added;
+* `scripts/run-supply-checks.sh` added.
 
 ## Step 14. Real Integrations
 

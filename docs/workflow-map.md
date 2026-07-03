@@ -206,3 +206,15 @@ System:
 * runs dry-runs;
 * performs UAT;
 * requires approval before live use.
+
+## 12. Final Integration Hardening
+
+System:
+
+* runs E2E workflow tests across confirmation, transport, logistics and receiving;
+* verifies human-review boundaries;
+* audits permissions and dangerous role assignments;
+* audits critical audit-event coverage;
+* verifies backup marker, storage folders and restore documentation;
+* audits AI/form/scoring boundaries;
+* aggregates health, security, permissions, audit, backup and AI boundary checks into production readiness.

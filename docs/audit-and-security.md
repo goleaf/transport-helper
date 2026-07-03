@@ -219,3 +219,26 @@ Task 12 writes audit logs for:
 
 Audit metadata records logistics record ids, supplier order ids, old/new logistics values, manual update reasons, received item counts, receiving discrepancies, delay-monitoring counts, export file ids and health summary counts.
 Confirmed quantities are not changed during receiving, and health/security output does not expose secret values.
+
+## Final Hardening Commands
+
+Task 13 adds final verification commands:
+
+* `php artisan supply:permissions-audit`;
+* `php artisan supply:audit-coverage`;
+* `php artisan supply:backup-verify`;
+* `php artisan supply:ai-boundary-audit`;
+* `php artisan supply:production-readiness`;
+* `./scripts/run-supply-checks.sh`.
+
+These checks verify role/permission safety, audit event coverage, backup marker/readiness, AI and form boundaries, no DTO/app/Data, no secrets and aggregate production readiness.
+
+Critical boundaries remain:
+
+* AI does not calculate quantities;
+* AI does not apply confirmations;
+* form autofill does not mutate business records directly;
+* supplier email requires approval;
+* carrier selection requires a user;
+* receiving updates received quantities only;
+* health/security checks do not expose secret values.

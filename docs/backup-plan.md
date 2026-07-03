@@ -52,3 +52,21 @@ After restore:
 3. Open a supplier order with logistics and receiving history.
 4. Verify private storage files exist for exports, form autofill outputs and email attachments.
 5. Verify encrypted integration credentials are present through configuration screens without printing secrets.
+
+## Backup Verification Command
+
+Run:
+
+```bash
+php artisan supply:backup-verify
+```
+
+The command checks:
+
+* backup marker path configured by `SUPPLY_BACKUP_MARKER_PATH`;
+* marker freshness configured by `SUPPLY_BACKUP_MAX_AGE_HOURS`;
+* private storage folders;
+* `.env.example` readiness keys;
+* backup and restore documentation.
+
+No real backup archive is required in git, and backup archives must not be committed.

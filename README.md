@@ -36,6 +36,38 @@ Core rules:
 * Audit logs are required.
 * DTO classes are forbidden.
 
+## Supply Agent Production Checks
+
+Important docs:
+
+* docs/architecture.md
+* docs/workflow-map.md
+* docs/production-readiness.md
+* docs/deployment/local-deployment.md
+* docs/deployment/production-checklist.md
+* docs/deployment/backup-and-restore.md
+
+Useful commands:
+
+```bash
+php artisan test
+php artisan supply:health-check
+php artisan supply:permissions-audit
+php artisan supply:audit-coverage
+php artisan supply:backup-verify
+php artisan supply:ai-boundary-audit
+php artisan supply:production-readiness
+./scripts/run-supply-checks.sh
+```
+
+Core safety rules:
+
+* Laravel owns business logic.
+* AI only reads, extracts or suggests.
+* Human approval is required for critical actions.
+* DTOs are forbidden.
+* No secrets in git.
+
 ## Codex Execution Rules
 
 This repository uses strict Codex task execution rules.

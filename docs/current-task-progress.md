@@ -8,67 +8,51 @@
 
 ## Implementation Checklist
 
-- [x] Safe migrations
-- [x] LogisticsStatusResolver
-- [x] LogisticsRecordService
-- [x] Receiving discrepancy service
-- [x] Receiving service
-- [x] Delay monitoring service
-- [x] Export service
-- [x] Google Sheets placeholder
-- [x] Notification recipient resolver
-- [x] Notification service
-- [x] Health check service
-- [x] Security check service
-- [x] Database notification
-- [x] Commands
-- [x] FormRequests
-- [x] Policies
-- [x] Controllers
-- [x] Routes
-- [x] Views
+- [x] E2E tests
+- [x] Regression boundary tests
+- [x] PermissionAuditService
+- [x] AuditCoverageService
+- [x] BackupVerificationService
+- [x] ProductionReadinessService
+- [x] AiBoundaryAuditService
+- [x] Artisan commands
+- [x] Route smoke tests
+- [x] Scripts
+- [x] Config
+- [x] Deployment docs
+- [x] Production readiness docs
+- [x] README update
+- [x] Optional CI decision
 - [x] Tests
 - [x] Docs
 
 ## Tests And Checks
 
-- [x] ./scripts/check-no-dto.sh
-- [x] ./scripts/check-no-secrets.sh
-- [x] ./scripts/check-project-docs.sh
-- [x] php artisan migrate:fresh --seed
-- [x] php artisan supply:monitor-logistics --dry-run
-- [x] php artisan supply:health-check
-- [x] php artisan test
-- [x] ./vendor/bin/pint, if available
-- [x] npm run build, if applicable
+- [x] ./scripts/check-no-dto.sh passed
+- [x] ./scripts/check-no-secrets.sh passed
+- [x] ./scripts/check-project-docs.sh passed
+- [x] php artisan migrate:fresh --seed passed
+- [x] php artisan test passed: 544 tests, 2128 assertions
+- [x] php artisan supply:health-check passed with warnings for seeded review/delayed records
+- [x] php artisan supply:monitor-logistics --dry-run passed
+- [x] php artisan supply:permissions-audit passed
+- [x] php artisan supply:audit-coverage passed
+- [x] php artisan supply:backup-verify passed
+- [x] php artisan supply:ai-boundary-audit passed
+- [x] php artisan supply:production-readiness passed with health warnings from seeded data
+- [x] ./scripts/run-supply-checks.sh passed
+- [x] ./vendor/bin/pint, if available, passed
+- [x] npm run build, if applicable, passed
 
 ## Failures
 
-- Initial focused TDD run failed before implementation because LogisticsStatusResolver did not exist yet.
-- Focused logistics tests found status precedence, enum string comparison and health/security output type issues; fixed.
-- First full test run found shared navigation fallback gaps; fixed by restoring canonical SupplyNavigation-backed rendering.
+Initial focused tests failed before the final-hardening services and commands existed, then passed after implementation. Current failures: none.
 
 ## Blockers
 
-None.
+None yet.
 
 ## Commit
 
-- Commit hash: see HEAD / final response
+- Commit hash: final hash reported in final response after commit
 - Push status: pending
-
-## Check Results
-
-- composer install --no-interaction: passed
-- php artisan migrate:fresh --seed --no-interaction: passed
-- php artisan supply:monitor-logistics --dry-run: passed
-- php artisan supply:monitor-logistics --dry-run --json: passed
-- php artisan supply:health-check: passed with warning status for seeded review queues and missing backup marker
-- php artisan supply:health-check --json: passed
-- ./scripts/check-no-dto.sh: passed
-- ./scripts/check-no-secrets.sh: passed
-- ./scripts/check-project-docs.sh: passed
-- php artisan test: passed, 484 tests, 1967 assertions
-- ./vendor/bin/pint --dirty --format agent: passed
-- npm run build: passed
-- find app -iname "*DTO*" -o -path "app/Data": no results
