@@ -117,7 +117,7 @@ Implementation:
 
 ## Step 7. Supplier Order Export And Email
 
-Status: implemented in Stage 5.
+Status: implemented in Task 7.
 
 Result:
 

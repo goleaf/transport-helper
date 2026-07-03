@@ -16,41 +16,40 @@
 - docs/workflow-map.md
 - docs/status-machines.md
 - docs/decision-log.md
-- docs/calculation-engine.md
-- docs/calculation-engine-implementation-notes.md
-- docs/core-database-implementation-notes.md
-- docs/import-system-implementation-notes.md
+- docs/order-proposal-workflow.md
+- docs/import-export-adapters.md
+- docs/audit-and-security.md
 
 ## Headings Found In Current Task
 
-1. Current Task
-2. Task Title
-3. Task Goal
-4. Required Reading
-5. Non-Negotiable Rules
-6. Scope
-7. Out Of Scope
-8. Required Implementation
-9. Required Tests
-10. Required Documentation
-11. Acceptance Criteria
-12. Required Commands
-13. Commit Message
+- Current Task
+- Task Title
+- Task Goal
+- Required Reading
+- Non-Negotiable Rules
+- Scope
+- Out Of Scope
+- Required Implementation
+- Required Tests
+- Required Documentation
+- Acceptance Criteria
+- Required Commands
+- Commit Message
 
 ## Understanding
 
-- Task Title: Build the order proposal review workflow.
-- Task Goal: Provide proposal list/detail, item review, timeline/formula UI, approve/adjust/reject, proposal approval, conversion and audit without changing calculations.
-- Required Reading: Use repository rules plus architecture, workflow, status, decision and calculation docs as the source of truth.
-- Non-Negotiable Rules: No DTO/app/Data, no AI/external/email/carrier side effects, no formula changes, and no success claim without checks.
-- Scope: Services, FormRequests, policies, controllers, routes, Blade views, tests and proposal workflow docs.
-- Out Of Scope: Supplier order export/email, inbound email, AI extraction, form autofill, confirmation application, carrier selection/scoring and full logistics workflow.
-- Required Implementation: Human users review stored calculation results, resolve item decisions, approve proposals only when safe, and convert only approved positive lines.
-- Required Tests: Unit and feature coverage for summary, decisions, proposal approval, conversion, controller flow, no-AI dependency and no DTO.
-- Required Documentation: Create order proposal workflow docs and update workflow/status/roadmap docs.
-- Acceptance Criteria: Every file, behavior, check, commit and push requirement must be completed or explicitly blocked.
-- Required Commands: Run no-DTO, no-secrets, docs check, migrate:fresh --seed, php artisan test, Pint and npm build when available.
-- Commit Message: Use `Add order proposal review workflow`.
+- Task Title: Build the supplier order export and outbound email workflow.
+- Task Goal: Add deterministic export, email draft, approval and safe sender-based send flow with audit and tests.
+- Required Reading: Project rules, workflow docs, order proposal docs, adapter docs and audit docs were reviewed before implementation.
+- Non-Negotiable Rules: No DTO, no app/Data, no AI, no real email providers, no unapproved sending and no secrets.
+- Scope: Export/email contracts, services, senders, requests, policies, controllers, routes, views, config, tests and docs are in scope.
+- Out Of Scope: Inbound email, AI extraction, form autofill, confirmations, carrier selection and real external providers are not part of this task.
+- Required Implementation: Supplier orders can be exported, drafted, approved and sent safely through the log sender while persisting email/export records.
+- Required Tests: Exporters, services, controllers, dependency boundary and no-DTO coverage are required.
+- Required Documentation: Supplier order email workflow docs and related workflow/audit/adapter/status roadmap docs must be updated.
+- Acceptance Criteria: Every required file, behavior, test/check, docs update, commit and push step must be tracked.
+- Required Commands: Guard scripts, migrate fresh seed, php artisan test and optional formatter/build must be run.
+- Commit Message: Use "Add supplier order export and email sending workflow".
 
 ## Acceptance Criteria Copied
 
@@ -59,37 +58,42 @@
 - [ ] docs/current-task.md read from start to end.
 - [ ] docs/current-task-read-confirmation.md created.
 - [ ] docs/current-task-progress.md created.
-- [ ] OrderProposalSummaryService created.
-- [ ] OrderProposalDecisionService created.
-- [ ] OrderProposalApprovalService created.
-- [ ] SupplierOrderCreationService created.
-- [ ] Approve item implemented.
-- [ ] Adjust item implemented with required reason.
-- [ ] Reject item implemented with required reason.
-- [ ] Proposal approval implemented.
-- [ ] Proposal approval blocks unresolved items.
-- [ ] Proposal approval blocks all-rejected proposal.
-- [ ] Conversion to supplier order implemented.
-- [ ] Conversion excludes rejected items.
-- [ ] Conversion excludes zero quantity items.
-- [ ] Conversion creates logistics record if model/table exists.
-- [ ] All decision actions write audit logs.
+- [ ] SupplierOrderExporterInterface created.
+- [ ] EmailSenderInterface created.
+- [ ] CSV supplier order exporter created.
+- [ ] JSON supplier order exporter created.
+- [ ] Excel-compatible CSV exporter created.
+- [ ] PDF placeholder exporter created.
+- [ ] Supplier custom template placeholder exporter created.
+- [ ] SupplierOrderExportService created.
+- [ ] SupplierOrderEmailDraftService created.
+- [ ] SupplierOrderEmailApprovalService created.
+- [ ] SupplierOrderSendService created.
+- [ ] LogEmailSender created.
+- [ ] SMTP/Gmail/Microsoft sender placeholders created.
+- [ ] Supplier order export creates ExportFile.
+- [ ] Export files stored in private storage.
+- [ ] Export download route created.
+- [ ] Email draft creates outbound EmailMessage.
+- [ ] Email draft attaches export via EmailAttachment.
+- [ ] Email approval validates recipients, subject, body and attachment/no-attachment confirmation.
+- [ ] Email send blocked before approval.
+- [ ] Email send updates EmailMessage status sent.
+- [ ] Email send updates SupplierOrder status sent.
+- [ ] Email send updates LogisticsRecord status order_sent if available.
+- [ ] Email send is idempotency-protected by default.
+- [ ] Real external email providers not used in tests.
+- [ ] Audit events written.
+- [ ] Supplier order UI created/updated.
 - [ ] FormRequests created.
-- [ ] Policies created or updated.
+- [ ] Policies created/updated.
 - [ ] Controllers created.
 - [ ] Routes created.
-- [ ] Views created.
-- [ ] T0/T1/T2/T3 timeline visible.
-- [ ] Formula explanation visible.
-- [ ] Warnings visible.
-- [ ] Adjustment reason visible and stored.
-- [ ] Supplier order minimal show page created if needed.
-- [ ] Service tests created.
-- [ ] Controller tests created.
+- [ ] Tests created.
 - [ ] No AI dependency test created.
 - [ ] No DTO test updated.
-- [ ] docs/order-proposal-workflow.md created.
-- [ ] docs/order-proposal-workflow-implementation-notes.md created.
+- [ ] docs/supplier-order-email-workflow.md created.
+- [ ] docs/supplier-order-email-workflow-implementation-notes.md created.
 - [ ] docs/workflow-map.md updated.
 - [ ] docs/status-machines.md updated.
 - [ ] docs/implementation-roadmap.md updated.
@@ -105,3 +109,5 @@
 - [ ] git status reviewed.
 - [ ] Commit created.
 - [ ] Push attempted.
+
+Do not start implementation until this file exists.

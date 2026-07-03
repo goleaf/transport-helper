@@ -3,7 +3,7 @@
 ## Existing State
 
 The repository already had supplier order screens and broad services for export, email draft and manual send.
-Stage 5 keeps compatibility wrappers under `App\Services\Supply` and adds the implemented workflow under `App\Services\Supply\SupplierOrders`.
+Task 7 keeps compatibility wrappers under `App\Services\Supply` and adds the implemented workflow under `App\Services\Supply\SupplierOrders`.
 
 ## Supplier Order UI
 

@@ -104,3 +104,28 @@ Events:
 * import_failed;
 * import_duplicate_blocked;
 * import_rolled_back.
+
+## Supplier Order Export
+
+Implemented export formats:
+
+* supplier order CSV;
+* supplier order JSON;
+* supplier order Excel-compatible CSV.
+
+Placeholder export formats:
+
+* supplier order PDF;
+* supplier custom template.
+
+Supplier order exports create `ExportFile` records, store files in private storage under `exports/supplier-orders/{order_number}/`, and are downloaded only through an authorized route.
+
+## Supplier Order Email Attachments
+
+Supplier order email drafts can attach:
+
+* a selected existing export file;
+* the latest export file for the order;
+* an auto-generated Excel-compatible CSV export when no export exists.
+
+PDF and supplier custom template exports remain explicit placeholders until configured.

@@ -2,27 +2,28 @@
 
 ## Task Title
 
-Order Proposal Review Workflow
+Supplier Order Export, Email Draft, Email Approval And Send Workflow
 
 ## Task Goal
 
-Create the order proposal review workflow for the Laravel Supply / Procurement Agent.
+Create supplier order export and outbound supplier email workflow.
 
 This task implements:
-- order proposal list/detail UI;
-- order proposal item detail UI;
-- T0/T1/T2/T3 timeline;
-- calculation formula explanation display;
-- approve item;
-- adjust item quantity with required reason;
-- reject item with required reason;
-- approve whole proposal;
-- convert approved proposal to supplier order;
-- audit logs for all decisions;
-- tests and documentation.
+- supplier order CSV export;
+- supplier order JSON export;
+- Excel-compatible CSV export;
+- PDF export placeholder;
+- supplier custom template export placeholder;
+- deterministic email draft generator;
+- email approval workflow;
+- safe email send workflow through sender interface;
+- local/test-safe LogEmailSender;
+- outbound EmailMessage and EmailAttachment storage;
+- SupplierOrder export/email UI;
+- audit logs;
+- tests and docs.
 
-This task uses the calculation results already stored in order_proposal_items.
-It does not change the calculation formula.
+Supplier email must never be sent without human approval.
 
 ## Required Reading
 
@@ -39,8 +40,9 @@ It does not change the calculation formula.
 - docs/workflow-map.md
 - docs/status-machines.md
 - docs/decision-log.md
-- docs/calculation-engine.md
-- docs/calculation-engine-implementation-notes.md
+- docs/order-proposal-workflow.md
+- docs/import-export-adapters.md
+- docs/audit-and-security.md
 
 ## Non-Negotiable Rules
 
@@ -49,12 +51,14 @@ It does not change the calculation formula.
 - Create docs/current-task-progress.md before implementation.
 - Do not create DTO.
 - Do not create app/Data.
-- Do not change deterministic calculation formula.
-- Do not use AI.
-- Do not call real external services.
-- Do not send email.
+- Do not call AI.
+- Do not call real external services in tests.
+- Do not call real email providers in tests.
+- Do not send supplier email without approval.
+- Do not pretend PDF/custom template export is implemented if it is only placeholder.
+- Do not implement inbound email in this task.
+- Do not implement supplier confirmation application in this task.
 - Do not select carrier.
-- Do not implement supplier confirmation application.
 - Do not commit secrets.
 - Do not claim success without checks.
 
@@ -62,103 +66,118 @@ It does not change the calculation formula.
 
 Create or update:
 
-- app/Services/Supply/OrderProposals/OrderProposalSummaryService.php
-- app/Services/Supply/OrderProposals/OrderProposalDecisionService.php
-- app/Services/Supply/OrderProposals/OrderProposalApprovalService.php
-- app/Services/Supply/OrderProposals/SupplierOrderCreationService.php
-- app/Http/Requests/Supply/ApproveOrderProposalItemRequest.php
-- app/Http/Requests/Supply/AdjustOrderProposalItemRequest.php
-- app/Http/Requests/Supply/RejectOrderProposalItemRequest.php
-- app/Http/Requests/Supply/ApproveOrderProposalRequest.php
-- app/Http/Requests/Supply/ConvertOrderProposalRequest.php
-- app/Policies/OrderProposalPolicy.php
-- app/Policies/OrderProposalItemPolicy.php
+- app/Contracts/Export/SupplierOrderExporterInterface.php
+- app/Contracts/Email/EmailSenderInterface.php
+- app/Services/Export/SupplierOrders/CsvSupplierOrderExporter.php
+- app/Services/Export/SupplierOrders/JsonSupplierOrderExporter.php
+- app/Services/Export/SupplierOrders/ExcelCsvSupplierOrderExporter.php
+- app/Services/Export/SupplierOrders/PdfSupplierOrderExporterPlaceholder.php
+- app/Services/Export/SupplierOrders/SupplierCustomTemplateExporterPlaceholder.php
+- app/Services/Supply/SupplierOrders/SupplierOrderExportService.php
+- app/Services/Supply/SupplierOrders/SupplierOrderEmailDraftService.php
+- app/Services/Supply/SupplierOrders/SupplierOrderEmailApprovalService.php
+- app/Services/Supply/SupplierOrders/SupplierOrderSendService.php
+- app/Services/Email/Senders/LogEmailSender.php
+- app/Services/Email/Senders/SmtpEmailSenderPlaceholder.php
+- app/Services/Email/Senders/GmailEmailSenderPlaceholder.php
+- app/Services/Email/Senders/MicrosoftGraphEmailSenderPlaceholder.php
+- app/Http/Requests/Supply/ExportSupplierOrderRequest.php
+- app/Http/Requests/Supply/PrepareSupplierOrderEmailRequest.php
+- app/Http/Requests/Supply/ApproveSupplierOrderEmailRequest.php
+- app/Http/Requests/Supply/SendSupplierOrderEmailRequest.php
 - app/Policies/SupplierOrderPolicy.php
-- app/Http/Controllers/Supply/OrderProposalController.php
-- app/Http/Controllers/Supply/OrderProposalItemDecisionController.php
-- app/Http/Controllers/Supply/OrderProposalApprovalController.php
-- app/Http/Controllers/Supply/ConvertProposalToSupplierOrderController.php
-- app/Http/Controllers/Supply/SupplierOrderController.php if minimal show route needed
+- app/Policies/ExportFilePolicy.php
+- app/Policies/EmailMessagePolicy.php
+- app/Http/Controllers/Supply/SupplierOrderController.php
+- app/Http/Controllers/Supply/SupplierOrderExportController.php
+- app/Http/Controllers/Supply/SupplierOrderEmailDraftController.php
+- app/Http/Controllers/Supply/SupplierOrderEmailApprovalController.php
+- app/Http/Controllers/Supply/SupplierOrderSendController.php
+- app/Http/Controllers/Supply/ExportDownloadController.php
 - routes/web.php
-- resources/views/supply/proposals/*
-- resources/views/supply/supplier-orders/show.blade.php if needed
-- tests/Unit/OrderProposalSummaryServiceTest.php
-- tests/Feature/OrderProposalDecisionServiceTest.php
-- tests/Feature/OrderProposalApprovalServiceTest.php
-- tests/Feature/SupplierOrderCreationFromProposalTest.php
-- tests/Feature/OrderProposalWorkflowControllerTest.php
-- tests/Unit/OrderProposalWorkflowNoAiDependencyTest.php
+- resources/views/supply/supplier-orders/index.blade.php
+- resources/views/supply/supplier-orders/show.blade.php
+- resources/views/supply/supplier-orders/partials/*
+- config/supply.php
+- .env.example
+- tests/Unit/SupplierOrderExporterTest.php
+- tests/Feature/SupplierOrderExportServiceTest.php
+- tests/Feature/SupplierOrderEmailDraftServiceTest.php
+- tests/Feature/SupplierOrderEmailApprovalServiceTest.php
+- tests/Feature/SupplierOrderSendServiceTest.php
+- tests/Feature/SupplierOrderWorkflowControllerTest.php
+- tests/Unit/SupplierOrderEmailWorkflowNoAiDependencyTest.php
 - tests/Unit/NoDtoRuleTest.php update
-- docs/order-proposal-workflow.md
-- docs/order-proposal-workflow-implementation-notes.md
+- docs/supplier-order-email-workflow.md
+- docs/supplier-order-email-workflow-implementation-notes.md
 - docs/workflow-map.md update
 - docs/status-machines.md update
 - docs/implementation-roadmap.md update
+- docs/import-export-adapters.md update
+- docs/audit-and-security.md update
 
 ## Out Of Scope
 
 Do not implement:
-- supplier order export;
-- supplier email draft;
-- supplier email approval;
-- supplier email sending;
 - inbound email reading;
-- AI extraction;
+- AI email analysis;
 - email form autofill;
 - supplier confirmation application;
 - carrier quote scoring;
 - carrier selection;
-- logistics full workflow.
+- logistics receiving;
+- real Gmail API;
+- real Microsoft Graph API;
+- real SMTP provider with real credentials;
+- external integrations.
 
 ## Required Implementation
 
-Implement order proposal human review workflow.
+Implement supplier order export and email workflow.
 
-A user must be able to:
-- list order proposals;
-- open order proposal detail;
-- open order proposal item detail;
-- see T0/T1/T2/T3 timeline;
-- see every calculation component;
-- see explanation_json in readable format;
-- see warnings_json;
-- approve an item;
-- adjust item quantity with required reason;
-- reject item with required reason;
-- approve proposal only when all items are resolved;
-- convert approved proposal to supplier order;
+User must be able to:
+- open supplier order list;
+- open supplier order detail;
+- export supplier order to CSV;
+- export supplier order to JSON;
+- export supplier order to Excel-compatible CSV;
+- see placeholder errors for PDF/custom template;
+- prepare deterministic supplier email draft;
+- auto-attach latest/generated export;
+- approve email only after validation;
+- send email only after approval;
+- send through LogEmailSender by default;
+- store outbound email as EmailMessage;
+- store attachments as EmailAttachment;
+- update supplier_order status;
+- update logistics status to order_sent after sending if logistics record exists;
+- download export files through private route;
 - see audit history.
-
-Business rules:
-- resolved item statuses are approved, adjusted and rejected;
-- unresolved item statuses are draft and needs_review;
-- proposal approval requires all items resolved and at least one approved or adjusted positive-quantity item;
-- rejected and zero-quantity items are excluded from supplier order conversion;
-- conversion creates a draft supplier order and planned logistics record when the table/model exists;
-- all decisions write audit logs;
-- no export, email, AI, carrier selection or supplier confirmation application is performed in this task.
 
 ## Required Tests
 
 Create or update:
-- OrderProposalSummaryServiceTest
-- OrderProposalDecisionServiceTest
-- OrderProposalApprovalServiceTest
-- SupplierOrderCreationFromProposalTest
-- OrderProposalWorkflowControllerTest
-- OrderProposalWorkflowNoAiDependencyTest
+- SupplierOrderExporterTest
+- SupplierOrderExportServiceTest
+- SupplierOrderEmailDraftServiceTest
+- SupplierOrderEmailApprovalServiceTest
+- SupplierOrderSendServiceTest
+- SupplierOrderWorkflowControllerTest
+- SupplierOrderEmailWorkflowNoAiDependencyTest
 - NoDtoRuleTest
 
 ## Required Documentation
 
 Create:
-- docs/order-proposal-workflow.md
-- docs/order-proposal-workflow-implementation-notes.md
+- docs/supplier-order-email-workflow.md
+- docs/supplier-order-email-workflow-implementation-notes.md
 
 Update:
 - docs/workflow-map.md
 - docs/status-machines.md
 - docs/implementation-roadmap.md
+- docs/import-export-adapters.md
+- docs/audit-and-security.md
 
 ## Acceptance Criteria
 
@@ -167,37 +186,42 @@ Update:
 - [ ] docs/current-task.md read from start to end.
 - [ ] docs/current-task-read-confirmation.md created.
 - [ ] docs/current-task-progress.md created.
-- [ ] OrderProposalSummaryService created.
-- [ ] OrderProposalDecisionService created.
-- [ ] OrderProposalApprovalService created.
-- [ ] SupplierOrderCreationService created.
-- [ ] Approve item implemented.
-- [ ] Adjust item implemented with required reason.
-- [ ] Reject item implemented with required reason.
-- [ ] Proposal approval implemented.
-- [ ] Proposal approval blocks unresolved items.
-- [ ] Proposal approval blocks all-rejected proposal.
-- [ ] Conversion to supplier order implemented.
-- [ ] Conversion excludes rejected items.
-- [ ] Conversion excludes zero quantity items.
-- [ ] Conversion creates logistics record if model/table exists.
-- [ ] All decision actions write audit logs.
+- [ ] SupplierOrderExporterInterface created.
+- [ ] EmailSenderInterface created.
+- [ ] CSV supplier order exporter created.
+- [ ] JSON supplier order exporter created.
+- [ ] Excel-compatible CSV exporter created.
+- [ ] PDF placeholder exporter created.
+- [ ] Supplier custom template placeholder exporter created.
+- [ ] SupplierOrderExportService created.
+- [ ] SupplierOrderEmailDraftService created.
+- [ ] SupplierOrderEmailApprovalService created.
+- [ ] SupplierOrderSendService created.
+- [ ] LogEmailSender created.
+- [ ] SMTP/Gmail/Microsoft sender placeholders created.
+- [ ] Supplier order export creates ExportFile.
+- [ ] Export files stored in private storage.
+- [ ] Export download route created.
+- [ ] Email draft creates outbound EmailMessage.
+- [ ] Email draft attaches export via EmailAttachment.
+- [ ] Email approval validates recipients, subject, body and attachment/no-attachment confirmation.
+- [ ] Email send blocked before approval.
+- [ ] Email send updates EmailMessage status sent.
+- [ ] Email send updates SupplierOrder status sent.
+- [ ] Email send updates LogisticsRecord status order_sent if available.
+- [ ] Email send is idempotency-protected by default.
+- [ ] Real external email providers not used in tests.
+- [ ] Audit events written.
+- [ ] Supplier order UI created/updated.
 - [ ] FormRequests created.
-- [ ] Policies created or updated.
+- [ ] Policies created/updated.
 - [ ] Controllers created.
 - [ ] Routes created.
-- [ ] Views created.
-- [ ] T0/T1/T2/T3 timeline visible.
-- [ ] Formula explanation visible.
-- [ ] Warnings visible.
-- [ ] Adjustment reason visible and stored.
-- [ ] Supplier order minimal show page created if needed.
-- [ ] Service tests created.
-- [ ] Controller tests created.
+- [ ] Tests created.
 - [ ] No AI dependency test created.
 - [ ] No DTO test updated.
-- [ ] docs/order-proposal-workflow.md created.
-- [ ] docs/order-proposal-workflow-implementation-notes.md created.
+- [ ] docs/supplier-order-email-workflow.md created.
+- [ ] docs/supplier-order-email-workflow-implementation-notes.md created.
 - [ ] docs/workflow-map.md updated.
 - [ ] docs/status-machines.md updated.
 - [ ] docs/implementation-roadmap.md updated.
@@ -233,4 +257,4 @@ npm run build
 
 ## Commit Message
 
-Add order proposal review workflow
+Add supplier order export and email sending workflow

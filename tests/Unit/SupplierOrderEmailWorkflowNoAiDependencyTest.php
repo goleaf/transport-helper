@@ -22,6 +22,9 @@ it('keeps supplier order export and email workflow independent from AI services'
         'LLM',
         'AiEmailExtraction',
         'FormAutofill',
+        'Http::',
+        'Guzzle',
+        'curl_',
     ];
 
     foreach ($files as $file) {
