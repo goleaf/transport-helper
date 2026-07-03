@@ -1,23 +1,34 @@
-# Global Rules
+# Global Project Rules
 
-This repository uses strict agent rules.
+This project is a Laravel-based Supply / Procurement Agent.
 
-Laravel owns business logic.
-AI is only an assistant for email/text/form extraction and draft replies.
-AI must never mutate business records directly.
+Laravel is the only source of business truth.
 
-Never create DTO classes.
-Never create app/Data.
-Never call real external services in tests.
-Never commit secrets.
-Never claim success without tests/checks.
+AI is allowed only for:
+- reading inbound email content;
+- extracting structured information from email;
+- generating draft email replies;
+- suggesting autofill values for forms from email content.
 
-Every future task must be implemented through:
+AI is not allowed to:
+- calculate order quantities;
+- change formulas;
+- approve proposals;
+- send emails without approval;
+- select carriers;
+- apply confirmations directly;
+- apply form autofill directly;
+- mutate business records without Laravel validation and human approval.
 
-* task file;
-* progress checklist;
-* tests;
-* guard scripts;
-* final report;
-* commit;
-* push attempt.
+All calculations must be deterministic and testable.
+All important decisions must be auditable.
+All uncertain cases must go to human review.
+Controllers must be thin.
+Business logic must live in services.
+Do not create DTO classes.
+Do not create app/Data.
+Use arrays, Eloquent models, FormRequest, Validator, JSON columns, Enums, Jobs, Policies and PHPDoc array shapes.
+
+Every feature must include tests.
+Every risky workflow must include audit logs.
+Every AI output must be stored separately and reviewed or validated before application.
