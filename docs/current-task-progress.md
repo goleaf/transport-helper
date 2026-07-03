@@ -5,40 +5,28 @@
 - [x] AGENTS.md read
 - [x] docs/current-task.md read from first line to last line
 - [x] .codex/skills read
-- [x] docs/current-task-template.md read
-- [x] docs/current-task-progress-template.md read
 
 ## Implementation Checklist
 
-- [x] Create current task file
-
-  - Files: docs/current-task.md
-  - Tests: ./scripts/check-project-docs.sh
-  - Status: Created from the template structure and filled with the architecture bootstrap task.
-
-- [x] Create read confirmation and progress files
-
-  - Files: docs/current-task-read-confirmation.md, docs/current-task-progress.md
-  - Tests: ./scripts/check-project-docs.sh
-  - Status: Created before architecture documentation implementation.
-
-- [x] Create and update required architecture docs
-
-  - Files: docs/architecture.md, docs/domain-model.md, docs/workflow-map.md, docs/decision-log.md, docs/calculation-engine.md, docs/email-ai-boundary.md, docs/email-form-autofill.md, docs/import-export-adapters.md, docs/status-machines.md, docs/audit-and-security.md, docs/backup-plan.md, docs/implementation-roadmap.md, docs/next-codex-prompts.md, docs/repository-architecture-bootstrap-notes.md
-  - Tests: tests/Feature/ArchitectureDocsExistTest.php
-  - Status: Implemented.
-
-- [x] Update README links
-
-  - Files: README.md
-  - Tests: tests/Feature/ArchitectureDocsExistTest.php
-  - Status: Implemented.
-
-- [x] Add architecture docs existence test
-
-  - Files: tests/Feature/ArchitectureDocsExistTest.php
-  - Tests: php artisan test
-  - Status: Implemented.
+- [x] docs/current-task.md
+- [x] docs/current-task-read-confirmation.md
+- [x] docs/current-task-progress.md
+- [x] docs/architecture.md
+- [x] docs/domain-model.md
+- [x] docs/workflow-map.md
+- [x] docs/decision-log.md
+- [x] docs/calculation-engine.md
+- [x] docs/email-ai-boundary.md
+- [x] docs/email-form-autofill.md
+- [x] docs/import-export-adapters.md
+- [x] docs/status-machines.md
+- [x] docs/audit-and-security.md
+- [x] docs/backup-plan.md
+- [x] docs/implementation-roadmap.md
+- [x] docs/next-codex-prompts.md
+- [x] docs/repository-architecture-bootstrap-notes.md
+- [x] README.md links to architecture docs
+- [x] tests/Feature/ArchitectureDocsExistTest.php
 
 ## Tests And Checks
 
@@ -48,17 +36,16 @@
 - [x] php artisan test
 - [x] ./vendor/bin/pint, if available
 - [x] npm run build, if applicable
-- [x] ./scripts/agent-guard.sh
 
 ## Failures
 
-None.
+None yet.
 
 ## Blockers
 
-None.
+None yet.
 
 ## Commit
 
-- Commit hash: pending
-- Push status: pending
+- Commit hash:
+- Push status:
