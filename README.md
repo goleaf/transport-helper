@@ -97,6 +97,8 @@ Important docs:
 - `docs/deployment/local-deployment.md`
 - `docs/deployment/production-checklist.md`
 - `docs/deployment/backup-and-restore.md`
+- `docs/pilot/overview.md`
+- `docs/pilot/go-live-checklist.md`
 
 Useful commands:
 
@@ -108,6 +110,7 @@ php artisan supply:audit-coverage
 php artisan supply:backup-verify
 php artisan supply:ai-boundary-audit
 php artisan supply:production-readiness
+php artisan supply:pilot-onboarding-checklist --json
 ./scripts/run-supply-checks.sh
 ```
 
@@ -116,5 +119,6 @@ Core safety rules:
 - Laravel owns business logic.
 - AI only reads, extracts or suggests.
 - Human approval is required for critical actions.
+- Pilot mode stores real supplier samples privately and does not send real email, call external APIs, call external AI, or select carriers by default.
 - DTOs are forbidden.
 - No secrets in git.

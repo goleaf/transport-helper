@@ -46,6 +46,7 @@ class SupplyNavigation
             ['key' => 'audit-logs', 'label' => 'Audit Logs', 'route' => 'supply.audit-logs.index', 'active' => 'supply.audit-logs.*'],
             ['key' => 'settings', 'label' => 'Settings', 'route' => 'supply.settings.index', 'active' => 'supply.settings.*'],
             ['key' => 'integrations', 'label' => 'Integrations', 'route' => 'supply.integrations.index', 'active' => 'supply.integrations.*'],
+            ['key' => 'pilots', 'label' => 'Pilot UAT', 'route' => 'supply.pilots.index', 'active' => 'supply.pilots.*'],
         ];
     }
 

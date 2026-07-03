@@ -284,11 +284,24 @@ Implementation:
 
 ## Step 15. Pilot Supplier
 
+Status: implemented in Task 15.
+
 Result:
 
 * one real supplier mapping;
 * UAT checklist;
 * go/no-go report.
+
+Implementation:
+
+* pilot supplier configuration added;
+* private pilot file tracking and checksum storage added;
+* import, manufacturer form, email, carrier and logistics mappings added;
+* data quality and readiness checks added;
+* safe pilot dry-runs added;
+* UAT checklist and live approval guard added;
+* pilot reports and commands added;
+* no real email/API/AI calls are made by default.
 
 ## Step 16. UI/UX
 

@@ -74,4 +74,11 @@ return [
         'enabled' => env('SUPPLY_EXTERNAL_AI_ENABLED', false),
         'require_redaction' => true,
     ],
+    'pilot' => [
+        'storage_path' => env('SUPPLY_PILOT_STORAGE_PATH', 'pilot'),
+        'allow_real_email_send' => env('SUPPLY_PILOT_ALLOW_REAL_EMAIL_SEND', false),
+        'allow_real_external_calls' => env('SUPPLY_PILOT_ALLOW_REAL_EXTERNAL_CALLS', false),
+        'allow_external_ai' => env('SUPPLY_PILOT_ALLOW_EXTERNAL_AI', false),
+        'max_upload_size_kb' => env('SUPPLY_PILOT_MAX_UPLOAD_SIZE_KB', 10240),
+    ],
 ];

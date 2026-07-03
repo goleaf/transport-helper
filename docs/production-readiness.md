@@ -21,6 +21,7 @@
 - email provider configured or log/manual mode understood;
 - supplier contacts configured;
 - carrier contacts configured;
+- pilot supplier readiness reviewed before first live supplier;
 - calculation 150 -> 156 test passes.
 
 ## Commands
@@ -32,6 +33,7 @@ php artisan supply:audit-coverage
 php artisan supply:backup-verify
 php artisan supply:ai-boundary-audit
 php artisan supply:production-readiness
+php artisan supply:pilot-onboarding-checklist --json
 php artisan test
 ./scripts/run-supply-checks.sh
 ```
@@ -56,3 +58,17 @@ php artisan test
 - Credentials are encrypted and masked in UI.
 - External AI requires redaction and owner approval.
 - Real supplier files and real emails must stay out of git.
+
+## Pilot Readiness
+
+Before using one real supplier live:
+
+- create a pilot supplier;
+- upload required real samples through private storage;
+- run data quality and readiness checks;
+- run safe dry-runs;
+- complete UAT checklist;
+- export readiness/UAT report;
+- approve for live only after critical items pass.
+
+Live pilot approval does not activate integrations automatically.
