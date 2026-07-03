@@ -149,3 +149,24 @@ Task 9 writes audit logs for:
 
 Audit metadata records run ids, template ids, context type, extractor, confidence, field keys, old/new final values, review reasons, export formats and apply gate blocking reasons.
 Full email bodies, secrets and attachment contents are not stored in audit metadata.
+
+## Supplier Confirmation Audit Events
+
+Task 10 writes audit logs for:
+
+* `supplier_confirmation_applied`;
+* `supplier_confirmation_created`;
+* `supplier_confirmation_item_created`;
+* `supplier_confirmation_needs_review`;
+* `supplier_order_status_changed`;
+* `supplier_order_item_confirmed`;
+* `supplier_order_item_confirmation_mismatch`;
+* `inbound_order_updated`;
+* `logistics_record_updated`;
+* `supplier_confirmation_risk_flagged`;
+* `form_autofill_run_applied`;
+* `ai_extraction_applied_to_supplier_confirmation`;
+* `manual_supplier_confirmation_applied`.
+
+Audit metadata records supplier confirmation ids, supplier order ids, source type/id, statuses, discrepancy counts, matched item ids and risk reasons.
+Full email bodies, secrets, attachment contents and external provider credentials are not stored in audit metadata.

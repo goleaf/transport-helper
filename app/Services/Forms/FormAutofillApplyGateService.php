@@ -73,8 +73,9 @@ class FormAutofillApplyGateService
 
     private function canApply(User $user): bool
     {
-        return $user->hasAnyRole([UserRole::Admin])
-            || $user->hasPermissionTo('apply_email_form_autofill');
+        return $user->hasAnyRole([UserRole::Admin, UserRole::SupplyManager])
+            || $user->hasPermissionTo('apply_email_form_autofill')
+            || $user->hasPermissionTo('apply_supplier_confirmations');
     }
 
     private function targetAction(string $contextType): string

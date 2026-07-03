@@ -15,6 +15,8 @@ it('does not contain forbidden dto files or app data directory', function () {
 
         return str_contains($contents, 'Spatie\\LaravelData')
             || str_contains($contents, 'DataTransferObject')
+            || str_contains($contents, 'SupplierConfirmationDTO')
+            || str_contains($contents, 'SupplierConfirmationData')
             || preg_match('/class\s+\w*(?:DTO|Dto)\b/', $contents) === 1;
     });
 

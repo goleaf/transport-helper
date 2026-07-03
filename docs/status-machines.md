@@ -111,11 +111,12 @@ Human review transitions:
 * ai_filled
 * needs_review
 * validated
+* applied
 * rejected
 * exported
 * failed
 
-`applied` is reserved for the later target-specific application stage and is not set by the Email Form Autofill workflow.
+`applied` is set only by a later target-specific application stage after that application succeeds.
 
 ## SupplierConfirmation
 
@@ -126,6 +127,24 @@ Human review transitions:
 * date_mismatch
 * needs_review
 * rejected
+
+Transitions:
+
+* draft -> confirmed when all matched quantities and dates are accepted;
+* draft -> partially_confirmed when confirmation is incomplete without a blocking conflict;
+* draft -> quantity_mismatch when quantity differences are detected;
+* draft -> date_mismatch when date delay or date change is detected;
+* draft -> needs_review when unknown SKU, ambiguous SKU, invalid date or severe conflict is detected;
+* needs_review -> confirmed later after future resolution;
+* any -> rejected in a future review workflow.
+
+SupplierOrder after confirmation:
+
+* sent -> confirmed;
+* sent -> partially_confirmed;
+* sent -> delayed;
+* sent -> needs_review;
+* confirmed -> completed later after receiving.
 
 ## CarrierQuote
 

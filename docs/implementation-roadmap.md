@@ -173,11 +173,25 @@ Result:
 
 ## Step 10. Supplier Confirmation
 
+Status: implemented in Task 10.
+
 Result:
 
 * manual/AI/form confirmation application;
 * mismatch detection;
 * logistics update.
+
+Implementation:
+
+* manual supplier confirmation application added;
+* accepted AI extraction application added;
+* validated form autofill application added;
+* exact product/SKU/manufacturer SKU/supplier SKU matching added;
+* unknown/ambiguous SKU, quantity and date discrepancy detection added;
+* supplier confirmations and matched confirmation items created;
+* supplier order status and confirmed quantities updated;
+* inbound and logistics records updated where safe;
+* risk audit/event written for mismatch and delay.
 
 ## Step 11. Transport
 

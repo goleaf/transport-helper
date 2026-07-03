@@ -45,7 +45,10 @@ Fields require review when:
 ## Apply Gate
 
 Apply gate checks readiness only.
-It does not create supplier confirmations, carrier quotes or logistics updates.
+Email Form Autofill itself does not create supplier confirmations, carrier quotes or logistics updates.
+
+Validated form autofill runs can now be applied as supplier confirmations through SupplierConfirmationApplicationService.
+The run status becomes applied only after target application succeeds.
 
 ## Exports
 

@@ -62,6 +62,9 @@ The extraction stores prompt version, provider, model name, input hash, output J
 Accepting an AI extraction does not create supplier confirmations, update supplier order items, update logistics records, select carriers or send replies.
 Application of accepted data belongs to later workflow services.
 
+Accepted AI extraction still does not apply itself.
+Supplier confirmation application is a separate Laravel service that validates source data, matches items and writes business changes only after user action.
+
 ## Human Review
 
 Required when:
@@ -91,3 +94,8 @@ Each field stores:
 Extractor output is never treated as final.
 User accept/edit/reject actions decide final values.
 Validated autofill runs can be exported or checked by the apply gate, but this stage does not mutate supplier confirmations, carrier quotes, logistics records or supplier order item quantities.
+
+## Supplier Confirmation Application Boundary
+
+Task 10 adds supplier confirmation application from accepted AI extraction and validated form autofill run.
+The source records remain suggestions or reviewed form data; only the supplier confirmation application service mutates supplier confirmations, supplier order items, inbound orders and logistics records.

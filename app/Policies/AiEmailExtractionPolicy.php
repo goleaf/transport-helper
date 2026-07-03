@@ -48,6 +48,12 @@ class AiEmailExtractionPolicy
         return $this->review($user);
     }
 
+    public function applyAsSupplierConfirmation(User $user, AiEmailExtraction $aiEmailExtraction): bool
+    {
+        return $user->hasAnyRole([UserRole::Admin, UserRole::SupplyManager])
+            || $user->hasPermissionTo('apply_supplier_confirmations');
+    }
+
     public function delete(User $user, AiEmailExtraction $aiEmailExtraction): bool
     {
         return false;

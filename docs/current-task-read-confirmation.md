@@ -18,8 +18,8 @@
 - docs/decision-log.md
 - docs/email-ai-boundary.md
 - docs/inbound-email-ai-workflow.md
-- docs/inbound-email-ai-workflow-implementation-notes.md
 - docs/email-form-autofill.md
+- docs/supplier-order-email-workflow.md
 - docs/audit-and-security.md
 
 ## Headings Found In Current Task
@@ -32,7 +32,6 @@
 - ## Scope
 - ## Out Of Scope
 - ## Required Implementation
-- ## Business Rules
 - ## Required Tests
 - ## Required Documentation
 - ## Acceptance Criteria
@@ -41,19 +40,41 @@
 
 ## Understanding
 
-- Task Title: Implement the Email Form Autofill Tool as the next workflow stage.
-- Task Goal: Add template-based email-to-form extraction, validation, field review, export and apply-readiness checks without direct business mutation.
-- Required Reading: The task depends on current project rules, AI boundary docs, inbound email implementation and audit/security expectations.
-- Non-Negotiable Rules: No DTOs, app/Data, external calls, real AI, direct application, confirmations, carrier quotes, logistics updates, email sending or secrets.
-- Scope: Add AI form extractor contract, local extractors, form services, requests, policies, controllers, routes, views, config, seeders, tests and docs.
-- Out Of Scope: Target-specific application, real AI, portal automation, PDF filling, carrier selection and email sending stay outside this task.
-- Required Implementation: Users select a template from an inbound email, generate preview, review fields, validate a run, export and check apply readiness.
-- Business Rules: Keep extracted, normalized and final values separate; user review controls final values; apply gate only checks readiness.
-- Required Tests: Cover normalization, extractors, validation, context, service workflows, exports, apply gate, controllers and boundaries.
-- Required Documentation: Create email form autofill docs and update AI boundary, workflow, status, roadmap and audit docs.
-- Acceptance Criteria: Every required implementation, test, doc, check, commit and push item is tracked as a checklist.
-- Required Commands: Run no-DTO, no-secrets, project-docs, migrate fresh seed, full tests, Pint and npm build when available.
-- Commit Message: Use "Add email form autofill workflow".
+Task Title:
+This task is Supplier Confirmation Application, the first workflow that applies reviewed supplier confirmation data to business records.
+
+Task Goal:
+The goal is to apply manual, accepted AI extraction, or validated form autofill confirmation data through Laravel validation and a dedicated service.
+
+Required Reading:
+The required docs establish Laravel as the only business mutation layer and confirm AI/form autofill outputs are only reviewed sources.
+
+Non-Negotiable Rules:
+No DTOs, app/Data, external calls, unreviewed source application, fuzzy SKU confirmation, received quantity updates, carrier selection, email sending, or secret commits are allowed.
+
+Scope:
+The scope includes source normalization, item matching, discrepancy detection, application, inbound/logistics updates, risk audit, requests, policies, controllers, routes, views, tests, and docs.
+
+Out Of Scope:
+Transport scoring, carrier selection, receiving, invoice processing, autonomous recalculation, real AI/email/API calls, and email replies are not part of this task.
+
+Required Implementation:
+The implementation must create confirmations, update matched order item confirmed quantities and statuses, update inbound/logistics records where safe, flag risks, and audit every important action.
+
+Required Tests:
+Tests must cover normalizers, matchers, discrepancy/status services, application sources, inbound/logistics updates, controllers, and boundaries.
+
+Required Documentation:
+The supplier confirmation workflow and implementation notes must be created, and workflow/status/boundary/roadmap/audit docs updated.
+
+Acceptance Criteria:
+All required services, UI, source gates, matching rules, discrepancy behavior, audit events, tests, checks, commit, and push must be completed or blockers documented.
+
+Required Commands:
+The required guard scripts, fresh migration with seed, and full test suite must be run, with Pint and npm build run when available.
+
+Commit Message:
+The commit message must be `Add supplier confirmation application workflow`.
 
 ## Acceptance Criteria Copied
 
@@ -62,50 +83,64 @@
 - [ ] docs/current-task.md read from start to end.
 - [ ] docs/current-task-read-confirmation.md created.
 - [ ] docs/current-task-progress.md created.
-- [ ] AiEmailFormExtractorInterface created.
-- [ ] FakeAiEmailFormExtractor created.
-- [ ] RuleBasedAiEmailFormExtractor created.
-- [ ] ExternalAiEmailFormExtractorPlaceholder created.
-- [ ] FormTemplateService created.
-- [ ] FormAutofillContextBuilder created.
-- [ ] FormFieldNormalizationService created.
-- [ ] AiEmailFormExtractionValidationService created.
-- [ ] EmailFormAutofillService created.
-- [ ] FormAutofillReviewService created.
-- [ ] FormAutofillExportService created.
-- [ ] FormAutofillApplyGateService created.
-- [ ] extracted_value, normalized_value and final_value kept separate.
-- [ ] source_excerpt stored and displayed.
-- [ ] field confidence stored and displayed.
-- [ ] accept field implemented.
-- [ ] edit field implemented.
-- [ ] reject field implemented.
-- [ ] validate run implemented.
-- [ ] export JSON implemented.
-- [ ] export CSV implemented.
-- [ ] application gate implemented.
-- [ ] application gate does not mutate business records.
+- [ ] Optional safe migrations added if missing fields block implementation.
+- [ ] SupplierConfirmationSourceNormalizer created.
+- [ ] SupplierConfirmationItemMatcher created.
+- [ ] SupplierConfirmationDiscrepancyService created.
+- [ ] SupplierConfirmationStatusResolver created.
+- [ ] SupplierConfirmationApplicationService created.
+- [ ] SupplierConfirmationManualDataService created.
+- [ ] SupplierConfirmationFromAiExtractionService created.
+- [ ] SupplierConfirmationFromFormAutofillService created.
+- [ ] SupplierConfirmationInboundUpdater created.
+- [ ] SupplierConfirmationLogisticsUpdater created.
+- [ ] SupplierConfirmationRiskService created.
+- [ ] Manual confirmation source implemented.
+- [ ] Accepted AI extraction source implemented.
+- [ ] Validated form autofill run source implemented.
+- [ ] Unaccepted AI extraction cannot be applied.
+- [ ] Rejected AI extraction cannot be applied.
+- [ ] Unvalidated form autofill run cannot be applied.
+- [ ] SKU matching by product SKU implemented.
+- [ ] SKU matching by manufacturer SKU implemented.
+- [ ] SKU matching by supplier SKU implemented.
+- [ ] Matching by product_id implemented.
+- [ ] Unknown SKU creates discrepancy and needs_review.
+- [ ] Ambiguous SKU creates discrepancy and needs_review.
+- [ ] Missing ordered item creates discrepancy.
+- [ ] Additional supplier item creates discrepancy.
+- [ ] Lower quantity creates quantity mismatch.
+- [ ] Higher quantity creates quantity mismatch / needs_review by default.
+- [ ] Invalid date creates needs_review.
+- [ ] Date delay creates warning/risk flag.
+- [ ] SupplierConfirmation created.
+- [ ] SupplierConfirmationItems created only for matched items.
+- [ ] SupplierOrderItem.confirmed_quantity updated for matched items.
+- [ ] SupplierOrder status updated.
+- [ ] InboundOrder updated/created where safe.
+- [ ] InboundOrderItem updated/created for matched items.
+- [ ] LogisticsRecord updated/created.
+- [ ] Risk event/audit created for quantity mismatch/delay.
+- [ ] Notifications created or skipped with documented reason.
 - [ ] FormRequests created.
-- [ ] Policies created.
+- [ ] Policies created/updated.
 - [ ] Controllers created.
 - [ ] Routes created.
-- [ ] Views created.
-- [ ] Email show page has "Autofill form from this email".
-- [ ] Form template seeders updated if needed.
+- [ ] Views created/updated.
+- [ ] AI extraction show page has apply supplier confirmation panel only when accepted.
+- [ ] Form autofill run show page has apply supplier confirmation panel only when validated.
+- [ ] Supplier order show page has manual confirmation button/list.
 - [ ] Audit events written.
-- [ ] Config updated.
-- [ ] .env.example updated without secrets.
 - [ ] Tests created.
-- [ ] Boundary test proves no SupplierConfirmation is created by autofill.
-- [ ] Boundary test proves no CarrierQuote is created by autofill.
-- [ ] Boundary test proves no LogisticsRecord is updated by autofill.
-- [ ] Boundary test proves no SupplierOrderItem confirmed_quantity is updated by autofill.
+- [ ] Boundary test confirms no AI/email/carrier calls.
+- [ ] Boundary test confirms no received_quantity update.
 - [ ] No DTO test updated.
-- [ ] docs/email-form-autofill.md created.
-- [ ] docs/email-form-autofill-implementation-notes.md created.
-- [ ] docs/email-ai-boundary.md updated.
+- [ ] docs/supplier-confirmation-workflow.md created.
+- [ ] docs/supplier-confirmation-implementation-notes.md created.
 - [ ] docs/workflow-map.md updated.
 - [ ] docs/status-machines.md updated.
+- [ ] docs/email-ai-boundary.md updated.
+- [ ] docs/email-form-autofill.md updated.
 - [ ] docs/implementation-roadmap.md updated.
 - [ ] php artisan migrate:fresh --seed passed or blocker documented.
 - [ ] ./scripts/check-no-dto.sh passed.
@@ -119,5 +154,3 @@
 - [ ] git status reviewed.
 - [ ] Commit created.
 - [ ] Push attempted.
-
-Do not start implementation until this file exists.

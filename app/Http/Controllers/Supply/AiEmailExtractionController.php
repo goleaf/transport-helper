@@ -67,6 +67,7 @@ class AiEmailExtractionController extends Controller
             'canReject' => Gate::allows('reject', $extraction),
             'canRequestHumanReview' => Gate::allows('markNeedsReview', $extraction),
             'canMarkNeedsReview' => Gate::allows('markNeedsReview', $extraction),
+            'canApplySupplierConfirmation' => Gate::allows('applyAsSupplierConfirmation', $extraction),
         ]);
     }
 }

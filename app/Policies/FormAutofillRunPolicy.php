@@ -58,6 +58,13 @@ class FormAutofillRunPolicy
             || $user->hasPermissionTo('apply_email_form_autofill');
     }
 
+    public function applyAsSupplierConfirmation(User $user, FormAutofillRun $formAutofillRun): bool
+    {
+        return $user->hasAnyRole([UserRole::Admin, UserRole::SupplyManager])
+            || $user->hasPermissionTo('apply_supplier_confirmations')
+            || $user->hasPermissionTo('apply_email_form_autofill');
+    }
+
     public function reject(User $user, FormAutofillRun $formAutofillRun): bool
     {
         return $this->review($user, $formAutofillRun);

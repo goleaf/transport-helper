@@ -10,6 +10,7 @@ use App\Services\Forms\FormAutofillReviewService;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 
 class FormAutofillRunController extends Controller
 {
@@ -55,6 +56,7 @@ class FormAutofillRunController extends Controller
             'run' => $run,
             'auditLogs' => $auditLogs,
             'canApply' => false,
+            'canApplySupplierConfirmation' => Gate::allows('applyAsSupplierConfirmation', $run),
         ]);
     }
 

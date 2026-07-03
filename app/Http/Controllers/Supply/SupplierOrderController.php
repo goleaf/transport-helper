@@ -7,6 +7,7 @@ use App\Models\AuditLog;
 use App\Models\EmailMessage;
 use App\Models\ExportFile;
 use App\Models\Supplier;
+use App\Models\SupplierConfirmation;
 use App\Models\SupplierOrder;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
@@ -63,6 +64,7 @@ class SupplierOrderController extends Controller
             'supplier.contacts:id,supplier_id,name,email,receives_orders,is_active',
             'orderProposal:id,status',
             'items.product:id,sku,manufacturer_sku,name,unit',
+            'confirmations:id,supplier_order_id,supplier_reference,status,confirmation_date,ready_date,expected_arrival_date,discrepancy_summary,applied_at',
             'logisticsRecords:id,supplier_order_id,status,order_date,ready_date,pickup_date,delivery_date,transport_price,currency',
             'emailMessages:id,company_id,related_supplier_order_id,direction,to_json,cc_json,subject,body_text,status,message_id,sent_at,created_at',
             'emailMessages.attachments:id,email_message_id,original_filename,stored_path,mime_type,size_bytes',
@@ -99,6 +101,7 @@ class SupplierOrderController extends Controller
             'canPrepareEmail' => Gate::allows('prepareEmail', $order),
             'canApproveEmail' => Gate::allows('approveEmail', $order),
             'canSendEmail' => Gate::allows('sendEmail', $order),
+            'canCreateManualConfirmation' => Gate::allows('createManual', SupplierConfirmation::class),
         ]);
     }
 

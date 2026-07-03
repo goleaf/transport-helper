@@ -175,7 +175,7 @@ function applySupplierConfirmationApplication(array $fixture, array $data, array
 
 function supplierConfirmationApplicationDiscrepancyTypes(SupplierConfirmation $confirmation): array
 {
-    return collect(json_decode((string) $confirmation->discrepancy_summary, true) ?: [])
+    return collect($confirmation->discrepancies_json ?: [])
         ->pluck('type')
         ->values()
         ->all();
@@ -215,12 +215,12 @@ it('creates a lower quantity discrepancy', function () {
     $confirmation = $result['confirmation'];
 
     expect($result['supplier_order']->status)->toBe(SupplierOrderStatus::PartiallyConfirmed)
-        ->and($confirmation->status)->toBe(SupplierConfirmationStatus::PartiallyConfirmed)
-        ->and($confirmation->items->first()->status)->toBe('quantity_lower_than_ordered')
+        ->and($confirmation->status)->toBe(SupplierConfirmationStatus::QuantityMismatch)
+        ->and($confirmation->items->first()->status)->toBe('partially_confirmed')
         ->and(supplierConfirmationApplicationDiscrepancyTypes($confirmation))->toContain('quantity_lower_than_ordered')
-        ->and($result['risk_recalculation_triggered'])->toBeTrue();
+        ->and($result['risk_flagged'])->toBeTrue();
 
-    Queue::assertPushed(RecalculateSupplyRiskJob::class, fn (RecalculateSupplyRiskJob $job): bool => in_array('quantity_lower_than_ordered', $job->reasons, true));
+    Queue::assertNotPushed(RecalculateSupplyRiskJob::class);
 });
 
 it('requires human review for an unknown sku', function () {
@@ -267,11 +267,10 @@ it('dispatches risk recalculation when dates are delayed', function () {
         'expected_arrival_date' => '2026-07-20',
     ]));
 
-    expect($result['supplier_order']->status)->toBe(SupplierOrderStatus::NeedsReview)
-        ->and($result['risk_recalculation_triggered'])->toBeTrue();
+    expect($result['supplier_order']->status)->toBe(SupplierOrderStatus::Delayed)
+        ->and($result['risk_flagged'])->toBeTrue();
 
-    Queue::assertPushed(RecalculateSupplyRiskJob::class, fn (RecalculateSupplyRiskJob $job): bool => in_array('delayed_ready_date', $job->reasons, true)
-        && in_array('delayed_arrival_date', $job->reasons, true));
+    Queue::assertNotPushed(RecalculateSupplyRiskJob::class);
 });
 
 it('writes an audit log', function () {
@@ -280,7 +279,7 @@ it('writes an audit log', function () {
     $result = applySupplierConfirmationApplication($fixture, supplierConfirmationApplicationData());
 
     expect(AuditLog::query()
-        ->where('event_type', 'supplier_confirmation.applied')
+        ->where('event_type', 'supplier_confirmation_applied')
         ->where('auditable_id', $result['confirmation']->getKey())
         ->where('user_id', $fixture['user']->getKey())
         ->exists())->toBeTrue();

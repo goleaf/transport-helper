@@ -29,6 +29,26 @@ class SupplierConfirmationPolicy
         return $this->apply($user);
     }
 
+    public function createManual(User $user): bool
+    {
+        return $this->apply($user);
+    }
+
+    public function applyFromAiExtraction(User $user): bool
+    {
+        return $this->apply($user);
+    }
+
+    public function applyFromFormAutofill(User $user): bool
+    {
+        return $this->apply($user);
+    }
+
+    public function resolveReview(User $user, ?SupplierConfirmation $supplierConfirmation = null): bool
+    {
+        return $this->apply($user);
+    }
+
     public function update(User $user, SupplierConfirmation $supplierConfirmation): bool
     {
         return $this->apply($user);

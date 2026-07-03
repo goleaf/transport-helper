@@ -3,6 +3,8 @@
 use App\Http\Controllers\Supply\AiEmailExtractionController;
 use App\Http\Controllers\Supply\AiEmailExtractionReviewController;
 use App\Http\Controllers\Supply\AnalyzeInboundEmailController;
+use App\Http\Controllers\Supply\ApplyAiSupplierConfirmationController;
+use App\Http\Controllers\Supply\ApplyFormAutofillSupplierConfirmationController;
 use App\Http\Controllers\Supply\CarrierQuoteDecisionController;
 use App\Http\Controllers\Supply\CarrierQuoteRequestController;
 use App\Http\Controllers\Supply\ConvertProposalToSupplierOrderController;
@@ -24,9 +26,11 @@ use App\Http\Controllers\Supply\LogisticsExportController;
 use App\Http\Controllers\Supply\LogisticsGoogleSheetsSyncController;
 use App\Http\Controllers\Supply\ManualCarrierQuoteController;
 use App\Http\Controllers\Supply\ManualInboundEmailController;
+use App\Http\Controllers\Supply\ManualSupplierConfirmationController;
 use App\Http\Controllers\Supply\OrderProposalApprovalController;
 use App\Http\Controllers\Supply\OrderProposalController;
 use App\Http\Controllers\Supply\OrderProposalItemDecisionController;
+use App\Http\Controllers\Supply\SupplierConfirmationController;
 use App\Http\Controllers\Supply\SupplierOrderController;
 use App\Http\Controllers\Supply\SupplierOrderEmailApprovalController;
 use App\Http\Controllers\Supply\SupplierOrderEmailDraftController;
@@ -55,7 +59,7 @@ Route::middleware(['web'])
         Route::get('reservations', [SupplySectionController::class, 'show'])->defaults('section', 'reservations')->name('reservations.index');
         Route::get('calculations', [SupplySectionController::class, 'show'])->defaults('section', 'calculations')->name('calculations.index');
         Route::get('form-autofill-runs', [FormAutofillRunController::class, 'index'])->name('form-autofill-runs.index');
-        Route::get('supplier-confirmations', [SupplySectionController::class, 'show'])->defaults('section', 'supplier-confirmations')->name('supplier-confirmations.index');
+        Route::get('supplier-confirmations', [SupplierConfirmationController::class, 'index'])->name('supplier-confirmations.index');
         Route::get('exports', [SupplySectionController::class, 'show'])->defaults('section', 'exports')->name('exports.index');
         Route::get('audit-logs', [SupplySectionController::class, 'show'])->defaults('section', 'audit-logs')->name('audit-logs.index');
         Route::get('settings', [SupplySectionController::class, 'show'])->defaults('section', 'settings')->name('settings.index');
@@ -78,6 +82,8 @@ Route::middleware(['web'])
 
         Route::get('supplier-orders', [SupplierOrderController::class, 'index'])->name('supplier-orders.index');
         Route::get('supplier-orders/{order}', [SupplierOrderController::class, 'show'])->name('supplier-orders.show');
+        Route::get('supplier-orders/{order}/confirmations/create', [ManualSupplierConfirmationController::class, 'create'])->name('supplier-orders.confirmations.create');
+        Route::post('supplier-orders/{order}/confirmations', [ManualSupplierConfirmationController::class, 'store'])->name('supplier-orders.confirmations.store');
         Route::post('supplier-orders/{order}/export', [SupplierOrderExportController::class, 'store'])->name('supplier-orders.export');
         Route::post('supplier-orders/{order}/prepare-email', [SupplierOrderEmailDraftController::class, 'store'])->name('supplier-orders.prepare-email');
         Route::post('supplier-orders/{order}/approve-email', [SupplierOrderEmailApprovalController::class, 'store'])->name('supplier-orders.approve-email');
@@ -94,6 +100,7 @@ Route::middleware(['web'])
         Route::get('ai-extractions', [AiEmailExtractionController::class, 'index'])->name('ai-extractions.index');
         Route::get('ai-extractions/{extraction}', [AiEmailExtractionController::class, 'show'])->name('ai-extractions.show');
         Route::post('ai-extractions/{extraction}/review', [AiEmailExtractionReviewController::class, 'store'])->name('ai-extractions.review');
+        Route::post('ai-extractions/{extraction}/apply-supplier-confirmation', [ApplyAiSupplierConfirmationController::class, 'store'])->name('ai-extractions.apply-supplier-confirmation');
         Route::post('ai-extractions/{extraction}/accept', [AiEmailExtractionReviewController::class, 'store'])->defaults('decision', 'accept')->name('ai-extractions.accept');
         Route::post('ai-extractions/{extraction}/reject', [AiEmailExtractionReviewController::class, 'store'])->defaults('decision', 'reject')->name('ai-extractions.reject');
         Route::post('ai-extractions/{extraction}/request-human-review', [AiEmailExtractionReviewController::class, 'store'])->defaults('decision', 'needs_review')->name('ai-extractions.request-human-review');
@@ -107,11 +114,13 @@ Route::middleware(['web'])
         Route::post('forms/templates/{template}/fields', [FormTemplateFieldController::class, 'store'])->name('forms.templates.fields.store');
 
         Route::get('form-autofill-runs/{run}', [FormAutofillRunController::class, 'show'])->name('form-autofill-runs.show');
+        Route::get('supplier-confirmations/{confirmation}', [SupplierConfirmationController::class, 'show'])->name('supplier-confirmations.show');
         Route::post('form-autofill-runs/{run}/fields/{field}/accept', [FormAutofillFieldReviewController::class, 'accept'])->name('form-autofill-runs.fields.accept');
         Route::post('form-autofill-runs/{run}/fields/{field}/update', [FormAutofillFieldReviewController::class, 'update'])->name('form-autofill-runs.fields.update');
         Route::post('form-autofill-runs/{run}/fields/{field}/reject', [FormAutofillFieldReviewController::class, 'reject'])->name('form-autofill-runs.fields.reject');
         Route::post('form-autofill-runs/{run}/validate', [FormAutofillRunValidationController::class, 'store'])->name('form-autofill-runs.validate');
         Route::post('form-autofill-runs/{run}/application-check', FormAutofillApplyGateController::class)->name('form-autofill-runs.application-check');
+        Route::post('form-autofill-runs/{run}/apply-supplier-confirmation', [ApplyFormAutofillSupplierConfirmationController::class, 'store'])->name('form-autofill-runs.apply-supplier-confirmation');
         Route::post('form-autofill-runs/{run}/export', FormAutofillExportController::class)->name('form-autofill-runs.export');
         Route::get('form-autofill-outputs/{output}/download', FormAutofillOutputDownloadController::class)->name('form-autofill-outputs.download');
 

@@ -2,31 +2,37 @@
 
 ## Task Title
 
-Email Form Autofill Tool
+Supplier Confirmation Application
 
 ## Task Goal
 
-Create Email Form Autofill workflow for the Laravel Supply / Procurement Agent.
+Create Supplier Confirmation Application workflow for the Laravel Supply / Procurement Agent.
 
-This task implements:
-- selecting a form template from an inbound email;
-- building context from email, supplier, supplier order and known products;
-- AI form extractor contract;
-- fake and rule-based extractors;
-- external AI placeholder;
-- field-level extraction;
-- Laravel normalization and validation;
-- storing extracted_value, normalized_value and final_value separately;
-- user field review: accept, edit, reject;
-- validated autofill run;
-- export to JSON and CSV;
-- application-check gate;
-- UI;
-- audit logs;
-- tests and docs.
+This task implements application of reviewed supplier confirmation data from:
+- manual input;
+- accepted AI extraction;
+- validated form autofill run.
 
-AI suggestions are not final values.
-AI suggestions must not mutate business records directly.
+The system must:
+- normalize source data;
+- match items to supplier order items;
+- detect unknown SKU;
+- detect ambiguous SKU;
+- detect missing items;
+- detect additional items;
+- detect quantity mismatch;
+- detect date mismatch;
+- create SupplierConfirmation;
+- create SupplierConfirmationItem;
+- update SupplierOrder status;
+- update SupplierOrderItem confirmed_quantity;
+- update or create InboundOrder and InboundOrderItem where safe;
+- update LogisticsRecord dates/status;
+- create risk flag/audit;
+- write audit logs.
+
+AI extraction and form autofill do not apply themselves.
+Business changes happen only through this dedicated application service.
 
 ## Required Reading
 
@@ -45,6 +51,8 @@ AI suggestions must not mutate business records directly.
 - docs/decision-log.md
 - docs/email-ai-boundary.md
 - docs/inbound-email-ai-workflow.md
+- docs/email-form-autofill.md
+- docs/supplier-order-email-workflow.md
 - docs/audit-and-security.md
 
 ## Non-Negotiable Rules
@@ -54,17 +62,19 @@ AI suggestions must not mutate business records directly.
 - Create docs/current-task-progress.md before implementation.
 - Do not create DTO.
 - Do not create app/Data.
-- Do not call real external services.
-- Do not call real AI providers.
+- Do not call AI.
 - Do not call OpenAI.
-- Do not apply autofill output to business records in this task.
-- Do not create SupplierConfirmation.
-- Do not create CarrierQuote.
-- Do not update LogisticsRecord.
-- Do not update SupplierOrderItem confirmed_quantity.
-- Do not set FormAutofillRun status applied.
-- Do not send email.
+- Do not call external APIs.
+- Do not call real email providers.
+- Do not apply unaccepted AI extraction.
+- Do not apply rejected AI extraction.
+- Do not apply unvalidated form autofill run.
+- Do not fuzzy auto-match SKU as confirmed.
+- Do not hide mismatches.
+- Do not update received_quantity.
+- Do not mark supplier order completed.
 - Do not select carrier.
+- Do not send email.
 - Do not commit secrets.
 - Do not claim success without checks.
 
@@ -72,155 +82,130 @@ AI suggestions must not mutate business records directly.
 
 Create or update:
 
-- app/Contracts/AI/AiEmailFormExtractorInterface.php
-- app/Services/AI/Forms/FakeAiEmailFormExtractor.php
-- app/Services/AI/Forms/RuleBasedAiEmailFormExtractor.php
-- app/Services/AI/Forms/ExternalAiEmailFormExtractorPlaceholder.php
-- app/Services/Forms/FormTemplateService.php
-- app/Services/Forms/FormAutofillContextBuilder.php
-- app/Services/Forms/FormFieldNormalizationService.php
-- app/Services/Forms/AiEmailFormExtractionValidationService.php
-- app/Services/Forms/EmailFormAutofillService.php
-- app/Services/Forms/FormAutofillReviewService.php
-- app/Services/Forms/FormAutofillExportService.php
-- app/Services/Forms/FormAutofillApplyGateService.php
-- app/Http/Requests/Supply/StoreFormTemplateRequest.php
-- app/Http/Requests/Supply/StoreFormTemplateFieldRequest.php
-- app/Http/Requests/Supply/CreateEmailFormAutofillRunRequest.php
-- app/Http/Requests/Supply/UpdateAutofillFieldValueRequest.php
-- app/Http/Requests/Supply/RejectAutofillFieldRequest.php
-- app/Http/Requests/Supply/ValidateAutofillRunRequest.php
-- app/Http/Requests/Supply/ExportAutofillRunRequest.php
-- app/Http/Requests/Supply/CheckAutofillApplyGateRequest.php
-- app/Policies/FormTemplatePolicy.php
-- app/Policies/FormAutofillRunPolicy.php
-- app/Policies/FormAutofillFieldValuePolicy.php
-- app/Policies/FormAutofillOutputPolicy.php
-- app/Http/Controllers/Supply/FormTemplateController.php
-- app/Http/Controllers/Supply/FormTemplateFieldController.php
-- app/Http/Controllers/Supply/EmailFormAutofillController.php
-- app/Http/Controllers/Supply/FormAutofillRunController.php
-- app/Http/Controllers/Supply/FormAutofillFieldReviewController.php
-- app/Http/Controllers/Supply/FormAutofillRunValidationController.php
-- app/Http/Controllers/Supply/FormAutofillExportController.php
-- app/Http/Controllers/Supply/FormAutofillApplyGateController.php
-- app/Http/Controllers/Supply/FormAutofillOutputDownloadController.php
+- app/Services/Supply/Confirmations/SupplierConfirmationSourceNormalizer.php
+- app/Services/Supply/Confirmations/SupplierConfirmationItemMatcher.php
+- app/Services/Supply/Confirmations/SupplierConfirmationDiscrepancyService.php
+- app/Services/Supply/Confirmations/SupplierConfirmationStatusResolver.php
+- app/Services/Supply/Confirmations/SupplierConfirmationApplicationService.php
+- app/Services/Supply/Confirmations/SupplierConfirmationManualDataService.php
+- app/Services/Supply/Confirmations/SupplierConfirmationFromAiExtractionService.php
+- app/Services/Supply/Confirmations/SupplierConfirmationFromFormAutofillService.php
+- app/Services/Supply/Confirmations/SupplierConfirmationInboundUpdater.php
+- app/Services/Supply/Confirmations/SupplierConfirmationLogisticsUpdater.php
+- app/Services/Supply/Confirmations/SupplierConfirmationRiskService.php
+- app/Events/SupplierConfirmationApplied.php optional
+- app/Events/SupplierConfirmationRiskChanged.php optional
+- app/Notifications/SupplierConfirmationNeedsReviewNotification.php optional
+- app/Notifications/SupplierConfirmationDelayNotification.php optional
+- app/Notifications/SupplierConfirmationQuantityMismatchNotification.php optional
+- app/Http/Requests/Supply/StoreManualSupplierConfirmationRequest.php
+- app/Http/Requests/Supply/ApplyAiSupplierConfirmationRequest.php
+- app/Http/Requests/Supply/ApplyFormAutofillSupplierConfirmationRequest.php
+- app/Http/Requests/Supply/ResolveSupplierConfirmationReviewRequest.php optional
+- app/Policies/SupplierConfirmationPolicy.php
+- app/Policies/AiEmailExtractionPolicy.php update
+- app/Policies/FormAutofillRunPolicy.php update
+- app/Http/Controllers/Supply/SupplierConfirmationController.php
+- app/Http/Controllers/Supply/ManualSupplierConfirmationController.php
+- app/Http/Controllers/Supply/ApplyAiSupplierConfirmationController.php
+- app/Http/Controllers/Supply/ApplyFormAutofillSupplierConfirmationController.php
+- app/Http/Controllers/Supply/SupplierConfirmationReviewController.php optional
 - routes/web.php
-- resources/views/supply/forms/templates/*
-- resources/views/supply/form-autofill/create.blade.php
-- resources/views/supply/form-autofill-runs/*
-- resources/views/supply/emails/show.blade.php
-- config/supply.php
-- .env.example
-- database/seeders/DemoFormTemplateSeeder.php
-- tests/Unit/FormFieldNormalizationServiceTest.php
-- tests/Unit/FakeAiEmailFormExtractorTest.php
-- tests/Unit/RuleBasedAiEmailFormExtractorTest.php
-- tests/Unit/ExternalAiEmailFormExtractorPlaceholderTest.php
-- tests/Unit/AiEmailFormExtractionValidationServiceTest.php
-- tests/Feature/FormAutofillContextBuilderTest.php
-- tests/Feature/EmailFormAutofillServiceTest.php
-- tests/Feature/FormAutofillReviewServiceTest.php
-- tests/Feature/FormAutofillExportServiceTest.php
-- tests/Feature/FormAutofillApplyGateServiceTest.php
-- tests/Feature/EmailFormAutofillControllerTest.php
-- tests/Feature/FormTemplateControllerTest.php
-- tests/Feature/FormAutofillRunControllerTest.php
-- tests/Unit/EmailFormAutofillBoundaryTest.php
-- tests/Unit/NoDtoRuleTest.php
-- docs/email-form-autofill.md
-- docs/email-form-autofill-implementation-notes.md
-- docs/email-ai-boundary.md
-- docs/workflow-map.md
-- docs/status-machines.md
-- docs/implementation-roadmap.md
-- docs/audit-and-security.md
+- resources/views/supply/supplier-confirmations/*
+- resources/views/supply/supplier-orders/show.blade.php update
+- resources/views/supply/ai-extractions/show.blade.php update
+- resources/views/supply/form-autofill-runs/show.blade.php update
+- tests/Unit/SupplierConfirmationSourceNormalizerTest.php
+- tests/Feature/SupplierConfirmationItemMatcherTest.php
+- tests/Unit/SupplierConfirmationDiscrepancyServiceTest.php
+- tests/Unit/SupplierConfirmationStatusResolverTest.php
+- tests/Feature/SupplierConfirmationApplicationServiceTest.php
+- tests/Feature/SupplierConfirmationFromAiExtractionServiceTest.php
+- tests/Feature/SupplierConfirmationFromFormAutofillServiceTest.php
+- tests/Feature/SupplierConfirmationInboundUpdaterTest.php
+- tests/Feature/SupplierConfirmationLogisticsUpdaterTest.php
+- tests/Feature/SupplierConfirmationControllerTest.php
+- tests/Feature/ManualSupplierConfirmationControllerTest.php
+- tests/Feature/ApplyAiSupplierConfirmationControllerTest.php
+- tests/Feature/ApplyFormAutofillSupplierConfirmationControllerTest.php
+- tests/Unit/SupplierConfirmationBoundaryTest.php
+- tests/Unit/NoDtoRuleTest.php update
+- docs/supplier-confirmation-workflow.md
+- docs/supplier-confirmation-implementation-notes.md
+- docs/workflow-map.md update
+- docs/status-machines.md update
+- docs/email-ai-boundary.md update
+- docs/email-form-autofill.md update
+- docs/implementation-roadmap.md update
+- docs/audit-and-security.md update
 
 ## Out Of Scope
 
 Do not implement:
-- SupplierConfirmationApplicationService;
-- CarrierQuoteApplicationService;
-- logistics update from form autofill;
-- actual apply to business records;
-- real external AI provider;
-- OpenAI integration;
-- browser/portal automation;
-- real PDF form filling unless already configured and test-safe;
+- carrier quote scoring;
 - carrier selection;
-- email sending.
+- transport quote comparison UI;
+- full logistics dashboard;
+- goods receiving workflow;
+- invoice/proforma processing;
+- automatic recalculation of proposals;
+- real AI calls;
+- real email calls;
+- external APIs;
+- email reply sending.
 
 ## Required Implementation
 
-Implement Email Form Autofill workflow.
+Implement supplier confirmation application from:
+- manual data;
+- accepted AI extraction;
+- validated form autofill run.
 
-User must be able to:
-- open an inbound email;
-- click "Autofill form from this email";
-- select form template;
-- generate autofill preview;
-- see extracted values;
-- see normalized values;
-- see final values;
-- see confidence;
-- see source excerpts;
-- accept field;
-- edit field;
-- reject field;
-- validate whole run;
-- export validated run to JSON/CSV;
-- check application readiness through apply gate;
-- see warning that this stage does not apply business changes.
-
-## Business Rules
-
-The workflow is: open inbound email, select template, build Laravel context, run fake/rule-based/external-placeholder extractor, validate output, create FormAutofillRun and FormAutofillFieldValue rows, review fields, validate run, export, and check apply gate.
-
-AI may suggest field values, confidence, source excerpts and warnings. AI must not save final values, validate a run, apply a form, create supplier confirmations or carrier quotes, update logistics or supplier orders, select carriers, send email or change calculation data.
-
-Every field stores extracted_value, normalized_value and final_value separately. User edits update final_value only and must not overwrite extracted_value.
-
-Run statuses are draft, ai_filled, needs_review, validated, rejected, exported and failed. Applied is reserved for a later target-specific application stage and must not be set in this task.
-
-Field review actions are accept, edit and reject. Run validation requires all required fields to have final_value, no required field requiring review, all final values passing validation, and no blocking errors.
-
-Apply gate is a readiness check only. It returns can_apply, context_type, target_action, final_values, warnings and blocking reasons. It must not mutate SupplierConfirmation, CarrierQuote, LogisticsRecord, SupplierOrder or SupplierOrderItem.
-
-Exports support JSON and CSV, stored privately under storage/app/form-autofill-outputs/{run_id}/ and recorded as FormAutofillOutput.
-
-Default confidence thresholds are overall 0.80, required field 0.85, date 0.90, quantity 0.90, SKU 0.90 and currency 0.85.
-
-Supported contexts are supplier_confirmation, ready_date_update, quantity_mismatch, carrier_quote, logistics_update, custom_email_form and supplier_order.
+The system must:
+- validate source;
+- resolve supplier order;
+- normalize data;
+- match SKU/product;
+- detect discrepancies;
+- create SupplierConfirmation;
+- create SupplierConfirmationItem for matched items;
+- update SupplierOrderItem.confirmed_quantity;
+- update SupplierOrder.status;
+- update InboundOrder/InboundOrderItem where safe;
+- update LogisticsRecord where safe;
+- flag risk for mismatch/delay;
+- write audit logs.
 
 ## Required Tests
 
 Create or update:
-- FormFieldNormalizationServiceTest
-- FakeAiEmailFormExtractorTest
-- RuleBasedAiEmailFormExtractorTest
-- ExternalAiEmailFormExtractorPlaceholderTest
-- AiEmailFormExtractionValidationServiceTest
-- FormAutofillContextBuilderTest
-- EmailFormAutofillServiceTest
-- FormAutofillReviewServiceTest
-- FormAutofillExportServiceTest
-- FormAutofillApplyGateServiceTest
-- EmailFormAutofillControllerTest
-- FormTemplateControllerTest
-- FormAutofillRunControllerTest
-- EmailFormAutofillBoundaryTest
+- SupplierConfirmationSourceNormalizerTest
+- SupplierConfirmationItemMatcherTest
+- SupplierConfirmationDiscrepancyServiceTest
+- SupplierConfirmationStatusResolverTest
+- SupplierConfirmationApplicationServiceTest
+- SupplierConfirmationFromAiExtractionServiceTest
+- SupplierConfirmationFromFormAutofillServiceTest
+- SupplierConfirmationInboundUpdaterTest
+- SupplierConfirmationLogisticsUpdaterTest
+- SupplierConfirmationControllerTest
+- ManualSupplierConfirmationControllerTest
+- ApplyAiSupplierConfirmationControllerTest
+- ApplyFormAutofillSupplierConfirmationControllerTest
+- SupplierConfirmationBoundaryTest
 - NoDtoRuleTest
 
 ## Required Documentation
 
 Create:
-- docs/email-form-autofill.md
-- docs/email-form-autofill-implementation-notes.md
+- docs/supplier-confirmation-workflow.md
+- docs/supplier-confirmation-implementation-notes.md
 
 Update:
-- docs/email-ai-boundary.md
 - docs/workflow-map.md
 - docs/status-machines.md
+- docs/email-ai-boundary.md
+- docs/email-form-autofill.md
 - docs/implementation-roadmap.md
 - docs/audit-and-security.md
 
@@ -231,50 +216,64 @@ Update:
 - [ ] docs/current-task.md read from start to end.
 - [ ] docs/current-task-read-confirmation.md created.
 - [ ] docs/current-task-progress.md created.
-- [ ] AiEmailFormExtractorInterface created.
-- [ ] FakeAiEmailFormExtractor created.
-- [ ] RuleBasedAiEmailFormExtractor created.
-- [ ] ExternalAiEmailFormExtractorPlaceholder created.
-- [ ] FormTemplateService created.
-- [ ] FormAutofillContextBuilder created.
-- [ ] FormFieldNormalizationService created.
-- [ ] AiEmailFormExtractionValidationService created.
-- [ ] EmailFormAutofillService created.
-- [ ] FormAutofillReviewService created.
-- [ ] FormAutofillExportService created.
-- [ ] FormAutofillApplyGateService created.
-- [ ] extracted_value, normalized_value and final_value kept separate.
-- [ ] source_excerpt stored and displayed.
-- [ ] field confidence stored and displayed.
-- [ ] accept field implemented.
-- [ ] edit field implemented.
-- [ ] reject field implemented.
-- [ ] validate run implemented.
-- [ ] export JSON implemented.
-- [ ] export CSV implemented.
-- [ ] application gate implemented.
-- [ ] application gate does not mutate business records.
+- [ ] Optional safe migrations added if missing fields block implementation.
+- [ ] SupplierConfirmationSourceNormalizer created.
+- [ ] SupplierConfirmationItemMatcher created.
+- [ ] SupplierConfirmationDiscrepancyService created.
+- [ ] SupplierConfirmationStatusResolver created.
+- [ ] SupplierConfirmationApplicationService created.
+- [ ] SupplierConfirmationManualDataService created.
+- [ ] SupplierConfirmationFromAiExtractionService created.
+- [ ] SupplierConfirmationFromFormAutofillService created.
+- [ ] SupplierConfirmationInboundUpdater created.
+- [ ] SupplierConfirmationLogisticsUpdater created.
+- [ ] SupplierConfirmationRiskService created.
+- [ ] Manual confirmation source implemented.
+- [ ] Accepted AI extraction source implemented.
+- [ ] Validated form autofill run source implemented.
+- [ ] Unaccepted AI extraction cannot be applied.
+- [ ] Rejected AI extraction cannot be applied.
+- [ ] Unvalidated form autofill run cannot be applied.
+- [ ] SKU matching by product SKU implemented.
+- [ ] SKU matching by manufacturer SKU implemented.
+- [ ] SKU matching by supplier SKU implemented.
+- [ ] Matching by product_id implemented.
+- [ ] Unknown SKU creates discrepancy and needs_review.
+- [ ] Ambiguous SKU creates discrepancy and needs_review.
+- [ ] Missing ordered item creates discrepancy.
+- [ ] Additional supplier item creates discrepancy.
+- [ ] Lower quantity creates quantity mismatch.
+- [ ] Higher quantity creates quantity mismatch / needs_review by default.
+- [ ] Invalid date creates needs_review.
+- [ ] Date delay creates warning/risk flag.
+- [ ] SupplierConfirmation created.
+- [ ] SupplierConfirmationItems created only for matched items.
+- [ ] SupplierOrderItem.confirmed_quantity updated for matched items.
+- [ ] SupplierOrder status updated.
+- [ ] InboundOrder updated/created where safe.
+- [ ] InboundOrderItem updated/created for matched items.
+- [ ] LogisticsRecord updated/created.
+- [ ] Risk event/audit created for quantity mismatch/delay.
+- [ ] Notifications created or skipped with documented reason.
 - [ ] FormRequests created.
-- [ ] Policies created.
+- [ ] Policies created/updated.
 - [ ] Controllers created.
 - [ ] Routes created.
-- [ ] Views created.
-- [ ] Email show page has "Autofill form from this email".
-- [ ] Form template seeders updated if needed.
+- [ ] Views created/updated.
+- [ ] AI extraction show page has apply supplier confirmation panel only when accepted.
+- [ ] Form autofill run show page has apply supplier confirmation panel only when validated.
+- [ ] Supplier order show page has manual confirmation button/list.
 - [ ] Audit events written.
-- [ ] Config updated.
-- [ ] .env.example updated without secrets.
 - [ ] Tests created.
-- [ ] Boundary test proves no SupplierConfirmation is created by autofill.
-- [ ] Boundary test proves no CarrierQuote is created by autofill.
-- [ ] Boundary test proves no LogisticsRecord is updated by autofill.
-- [ ] Boundary test proves no SupplierOrderItem confirmed_quantity is updated by autofill.
+- [ ] Boundary test confirms no AI/email/carrier calls.
+- [ ] Boundary test confirms no received_quantity update.
 - [ ] No DTO test updated.
-- [ ] docs/email-form-autofill.md created.
-- [ ] docs/email-form-autofill-implementation-notes.md created.
-- [ ] docs/email-ai-boundary.md updated.
+- [ ] docs/supplier-confirmation-workflow.md created.
+- [ ] docs/supplier-confirmation-implementation-notes.md created.
 - [ ] docs/workflow-map.md updated.
 - [ ] docs/status-machines.md updated.
+- [ ] docs/email-ai-boundary.md updated.
+- [ ] docs/email-form-autofill.md updated.
 - [ ] docs/implementation-roadmap.md updated.
 - [ ] php artisan migrate:fresh --seed passed or blocker documented.
 - [ ] ./scripts/check-no-dto.sh passed.
@@ -291,21 +290,16 @@ Update:
 
 ## Required Commands
 
-```bash
 ./scripts/check-no-dto.sh
 ./scripts/check-no-secrets.sh
 ./scripts/check-project-docs.sh
 php artisan migrate:fresh --seed
 php artisan test
-```
 
 Optional:
-
-```bash
 ./vendor/bin/pint
 npm run build
-```
 
 ## Commit Message
 
-Add email form autofill workflow
+Add supplier confirmation application workflow

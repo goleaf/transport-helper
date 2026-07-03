@@ -148,11 +148,20 @@ System:
 
 System:
 
-* applies manual/accepted AI/validated form data;
-* matches SKU;
+* accepts manual input;
+* applies accepted AI extraction only after user action;
+* applies validated form autofill run only after user action;
+* normalizes source data;
+* matches product id, product SKU, manufacturer SKU or supplier SKU;
+* detects unknown and ambiguous SKUs;
+* detects missing or additional items;
 * compares quantities;
-* detects date issues;
-* updates supplier order/inbound/logistics;
+* detects date issues and delays;
+* creates supplier confirmation and matched confirmation items;
+* updates supplier order and confirmed item quantities;
+* updates inbound orders and matched inbound items;
+* updates logistics dates and status;
+* flags risk for mismatch or delay;
 * writes audit.
 
 ## 9. Transport
