@@ -1,3 +1,55 @@
+## Mandatory behavior
+
+Before coding, read:
+- AGENTS.md
+- docs/implementation-roadmap.md
+- docs/current-task.md
+- .codex/skills/00-global-project-rules.md
+- .codex/skills/02-no-dto-rule.md
+
+Never create DTO classes.
+Never create app/Data.
+Never call real external AI, email, Google, carrier or ERP APIs in tests.
+Never mutate business records from AI extraction directly.
+Never send supplier email without approval.
+Never select carrier automatically.
+
+## Work loop
+
+For every task:
+1. Read task from docs/current-task.md.
+2. Create an implementation checklist.
+3. Inspect current repository state.
+4. Implement code.
+5. Add or update tests.
+6. Run required checks.
+7. If checks fail, fix and rerun.
+8. Repeat until checks pass or a real blocker is found.
+9. Do not claim success without test output.
+10. Commit only after checks pass.
+
+## Required checks
+
+Run:
+- php artisan test
+- ./scripts/check-no-dto.sh
+- ./scripts/check-no-secrets.sh
+- ./scripts/check-project-docs.sh
+
+If available:
+- ./vendor/bin/pint
+- npm run build
+
+## Final response
+
+Final response must include:
+- changed files summary
+- tests run
+- failed tests if any
+- blockers if any
+- commit hash
+- push status
+
 <laravel-boost-guidelines>
 === foundation rules ===
 
