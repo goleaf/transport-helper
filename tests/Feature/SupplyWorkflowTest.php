@@ -195,11 +195,17 @@ it('seeds demo company, suppliers, carrier, products, and templates', function (
         ])
         ->and($company->products->flatMap->supplierProductRules)->toHaveCount(3)
         ->and(FormTemplate::query()->whereBelongsTo($company)->pluck('code')->sort()->values()->all())->toBe([
+            'carrier-quote-form',
             'carrier-quote-request',
+            'logistics-update-form',
+            'supplier-confirmation-form',
             'supplier-order-form',
         ])
         ->and(FormTemplate::query()->where('code', 'supplier-order-form')->firstOrFail()->fields()->count())->toBe(4)
-        ->and(FormTemplate::query()->where('code', 'carrier-quote-request')->firstOrFail()->fields()->count())->toBe(4);
+        ->and(FormTemplate::query()->where('code', 'carrier-quote-request')->firstOrFail()->fields()->count())->toBe(4)
+        ->and(FormTemplate::query()->where('code', 'supplier-confirmation-form')->firstOrFail()->fields()->count())->toBe(8)
+        ->and(FormTemplate::query()->where('code', 'carrier-quote-form')->firstOrFail()->fields()->count())->toBe(8)
+        ->and(FormTemplate::query()->where('code', 'logistics-update-form')->firstOrFail()->fields()->count())->toBe(10);
 });
 
 it('connects supplier orders, ai email extractions, confirmations, transport, and logistics records through relationships', function () {

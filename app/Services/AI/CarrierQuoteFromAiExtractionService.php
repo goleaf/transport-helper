@@ -2,15 +2,19 @@
 
 namespace App\Services\AI;
 
-use App\Enums\CarrierQuoteStatus;
 use App\Models\AiEmailExtraction;
 use App\Models\Carrier;
 use App\Models\CarrierQuote;
 use App\Models\SupplierOrder;
+use App\Services\Supply\CarrierQuoteApplicationService;
 use Illuminate\Validation\ValidationException;
 
 class CarrierQuoteFromAiExtractionService
 {
+    public function __construct(
+        private readonly CarrierQuoteApplicationService $carrierQuoteApplicationService,
+    ) {}
+
     public function create(AiEmailExtraction $extraction): CarrierQuote
     {
         $extraction->loadMissing('emailMessage.relatedSupplierOrder');
@@ -25,9 +29,7 @@ class CarrierQuoteFromAiExtractionService
         }
 
         $carrier = $this->carrierFor($supplierOrder, $quote);
-
-        return CarrierQuote::query()->create([
-            'company_id' => $supplierOrder->company_id,
+        $result = $this->carrierQuoteApplicationService->create([
             'supplier_order_id' => $supplierOrder->id,
             'carrier_id' => $carrier->id,
             'email_message_id' => $extraction->email_message_id,
@@ -38,13 +40,11 @@ class CarrierQuoteFromAiExtractionService
             'transit_days' => $quote['transit_days'] ?? null,
             'conditions' => $quote['conditions'] ?? null,
             'reliability_score' => $carrier->reliability_score,
-            'calculated_score' => null,
-            'score_explanation_json' => [
-                'source' => 'ai_email_extraction',
-            ],
-            'status' => CarrierQuoteStatus::Received,
-            'created_from_ai_extraction_id' => $extraction->id,
+            'ai_email_extraction_id' => $extraction->id,
+            'source_type' => 'ai_email_extraction',
         ]);
+
+        return $result['quote'];
     }
 
     private function carrierFor(SupplierOrder $supplierOrder, array $quote): Carrier

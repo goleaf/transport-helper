@@ -2,27 +2,30 @@
 
 namespace App\Services\FormAutofill;
 
-use App\Enums\CarrierQuoteStatus;
 use App\Enums\FormAutofillRunStatus;
 use App\Enums\FormTemplateContextType;
 use App\Enums\LogisticsStatus;
-use App\Enums\SupplierConfirmationStatus;
 use App\Models\AuditLog;
 use App\Models\Carrier;
 use App\Models\CarrierQuote;
 use App\Models\FormAutofillOutput;
 use App\Models\FormAutofillRun;
 use App\Models\LogisticsRecord;
-use App\Models\Product;
 use App\Models\SupplierConfirmation;
 use App\Models\SupplierOrder;
 use App\Models\User;
-use Illuminate\Database\Eloquent\Model;
+use App\Services\Supply\CarrierQuoteApplicationService;
+use App\Services\Supply\SupplierConfirmationApplicationService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
 class FormAutofillApplyService
 {
+    public function __construct(
+        private readonly SupplierConfirmationApplicationService $supplierConfirmationApplicationService,
+        private readonly CarrierQuoteApplicationService $carrierQuoteApplicationService,
+    ) {}
+
     /**
      * @param  array<string, mixed>  $options
      * @return array<string, mixed>
@@ -40,9 +43,9 @@ class FormAutofillApplyService
 
             $run->loadMissing(['fieldValues', 'formTemplate', 'emailMessage.relatedSupplierOrder']);
             $applied = match ($run->formTemplate->context_type) {
-                FormTemplateContextType::SupplierConfirmation => $this->applySupplierConfirmation($run),
+                FormTemplateContextType::SupplierConfirmation => $this->applySupplierConfirmation($run, $user),
                 FormTemplateContextType::ReadyDateUpdate => $this->applyReadyDateUpdate($run),
-                FormTemplateContextType::QuantityMismatch => $this->applyQuantityMismatch($run),
+                FormTemplateContextType::QuantityMismatch => $this->applyQuantityMismatch($run, $user),
                 FormTemplateContextType::CarrierQuote => $this->applyCarrierQuote($run),
                 FormTemplateContextType::LogisticsUpdate => $this->applyLogisticsUpdate($run),
                 FormTemplateContextType::CustomEmailForm => $this->storeCustomOutput($run, $user),
@@ -81,43 +84,18 @@ class FormAutofillApplyService
         });
     }
 
-    private function applySupplierConfirmation(FormAutofillRun $run): SupplierConfirmation
+    private function applySupplierConfirmation(FormAutofillRun $run, User $user): SupplierConfirmation
     {
         $values = $this->values($run);
         $supplierOrder = $this->supplierOrder($run, $values);
-
-        $confirmation = SupplierConfirmation::query()->create([
-            'company_id' => $run->company_id,
+        $result = $this->supplierConfirmationApplicationService->apply([
             'supplier_order_id' => $supplierOrder->id,
-            'email_message_id' => $run->email_message_id,
-            'supplier_reference' => $values['supplier_reference'] ?? null,
-            'confirmation_date' => now()->toDateString(),
-            'ready_date' => $values['ready_date'] ?? null,
-            'shipping_date' => $values['shipping_date'] ?? null,
-            'expected_arrival_date' => $values['expected_arrival_date'] ?? null,
-            'status' => SupplierConfirmationStatus::Confirmed,
-            'discrepancy_summary' => null,
-            'created_from_form_autofill_run_id' => $run->id,
+            'form_autofill_run_id' => $run->id,
+            'manual_confirmation_data' => $values,
+            'applied_by_user_id' => $user->id,
         ]);
 
-        $product = $this->product($run, $values['sku'] ?? null);
-        $quantity = $values['confirmed_quantity'] ?? null;
-
-        if ($product instanceof Product && $quantity !== null) {
-            $orderItem = $supplierOrder->items()->whereBelongsTo($product)->first();
-            $orderedQuantity = $orderItem?->ordered_quantity ?? $quantity;
-
-            $confirmation->items()->create([
-                'product_id' => $product->id,
-                'ordered_quantity' => $orderedQuantity,
-                'confirmed_quantity' => $quantity,
-                'discrepancy_quantity' => (float) $quantity - (float) $orderedQuantity,
-                'status' => abs((float) $quantity - (float) $orderedQuantity) > 0.0001 ? 'quantity_mismatch' : 'confirmed',
-                'notes' => $values['notes'] ?? null,
-            ]);
-        }
-
-        return $confirmation->load('items');
+        return $result['confirmation'];
     }
 
     private function applyCarrierQuote(FormAutofillRun $run): CarrierQuote
@@ -135,8 +113,7 @@ class FormAutofillApplyService
             'notes' => 'Created from form autofill run.',
         ]);
 
-        return CarrierQuote::query()->create([
-            'company_id' => $run->company_id,
+        $result = $this->carrierQuoteApplicationService->create([
             'supplier_order_id' => $supplierOrder->id,
             'carrier_id' => $carrier->id,
             'email_message_id' => $run->email_message_id,
@@ -146,9 +123,12 @@ class FormAutofillApplyService
             'delivery_date' => $values['delivery_date'] ?? null,
             'transit_days' => $values['transit_days'] ?? null,
             'conditions' => $values['conditions'] ?? null,
-            'status' => CarrierQuoteStatus::Received,
-            'created_from_form_autofill_run_id' => $run->id,
+            'reliability_score' => $carrier->reliability_score,
+            'form_autofill_run_id' => $run->id,
+            'source_type' => 'form_autofill',
         ]);
+
+        return $result['quote'];
     }
 
     private function applyLogisticsUpdate(FormAutofillRun $run): LogisticsRecord
@@ -190,15 +170,9 @@ class FormAutofillApplyService
         return $this->applyLogisticsUpdate($run);
     }
 
-    private function applyQuantityMismatch(FormAutofillRun $run): SupplierConfirmation
+    private function applyQuantityMismatch(FormAutofillRun $run, User $user): SupplierConfirmation
     {
-        $confirmation = $this->applySupplierConfirmation($run);
-        $confirmation->forceFill([
-            'status' => SupplierConfirmationStatus::NeedsReview,
-            'discrepancy_summary' => 'Created from quantity mismatch form autofill run.',
-        ])->save();
-
-        return $confirmation;
+        return $this->applySupplierConfirmation($run, $user);
     }
 
     private function storeCustomOutput(FormAutofillRun $run, User $user): FormAutofillOutput
@@ -250,17 +224,5 @@ class FormAutofillApplyService
         throw ValidationException::withMessages([
             'supplier_order_number' => 'A supplier order is required before applying this autofill run.',
         ]);
-    }
-
-    private function product(FormAutofillRun $run, mixed $sku): ?Product
-    {
-        if (! is_string($sku) || $sku === '') {
-            return null;
-        }
-
-        return Product::query()
-            ->where('company_id', $run->company_id)
-            ->where('sku', $sku)
-            ->first();
     }
 }

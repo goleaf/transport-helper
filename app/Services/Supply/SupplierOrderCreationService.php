@@ -7,7 +7,6 @@ use App\Enums\OrderProposalItemStatus;
 use App\Enums\OrderProposalStatus;
 use App\Enums\SupplierOrderStatus;
 use App\Models\AuditLog;
-use App\Models\LogisticsRecord;
 use App\Models\OrderProposal;
 use App\Models\SupplierOrder;
 use App\Models\User;
@@ -18,6 +17,7 @@ class SupplierOrderCreationService
 {
     public function __construct(
         private readonly OrderProposalDecisionService $decisionService,
+        private readonly LogisticsRecordService $logisticsRecordService,
     ) {}
 
     public function createFromApprovedProposal(OrderProposal $proposal, User $user): SupplierOrder
@@ -74,14 +74,7 @@ class SupplierOrderCreationService
                     ]);
                 });
 
-            LogisticsRecord::query()->create([
-                'company_id' => $proposal->company_id,
-                'supplier_order_id' => $supplierOrder->id,
-                'supplier_id' => $proposal->supplier_id,
-                'order_date' => $supplierOrder->order_date,
-                'status' => LogisticsStatus::Planned,
-                'currency' => $proposal->supplier()->select(['id', 'default_currency'])->value('default_currency'),
-            ]);
+            $this->logisticsRecordService->ensureForSupplierOrder($supplierOrder, $user);
 
             $oldProposalValues = $proposal->only(['status']);
 

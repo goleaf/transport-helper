@@ -32,7 +32,7 @@ class AiEmailExtractionReviewService
                 ]);
             }
 
-            $applied = $this->applyAcceptedOutput($extraction);
+            $applied = $this->applyAcceptedOutput($extraction, $user);
             $oldValues = $this->auditValues($extraction);
 
             $extraction->forceFill([
@@ -102,12 +102,12 @@ class AiEmailExtractionReviewService
         });
     }
 
-    private function applyAcceptedOutput(AiEmailExtraction $extraction): ?Model
+    private function applyAcceptedOutput(AiEmailExtraction $extraction, User $user): ?Model
     {
         $output = is_array($extraction->output_json) ? $extraction->output_json : [];
 
         return match ($output['email_type'] ?? 'unclear') {
-            'supplier_confirmation', 'date_update', 'quantity_mismatch' => $this->supplierConfirmationService->create($extraction),
+            'supplier_confirmation', 'date_update', 'quantity_mismatch' => $this->supplierConfirmationService->create($extraction, $user),
             'transport_quote' => $this->carrierQuoteService->create($extraction),
             default => null,
         };
