@@ -4,15 +4,19 @@ namespace App\Services\Supply;
 
 use App\Enums\EmailDirection;
 use App\Enums\SupplierOrderStatus;
-use App\Models\AuditLog;
 use App\Models\EmailMessage;
 use App\Models\SupplierOrder;
 use App\Models\User;
+use App\Services\Audit\AuditLogService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
 class SupplierOrderSendService
 {
+    public function __construct(
+        private readonly AuditLogService $auditLogService,
+    ) {}
+
     /**
      * @param  array<string, mixed>  $options
      */
@@ -73,26 +77,24 @@ class SupplierOrderSendService
                 'email_message_id' => $messageId,
             ])->save();
 
-            AuditLog::query()->create([
-                'company_id' => $order->company_id,
-                'user_id' => $user->id,
-                'event_type' => 'supplier_order.email_sent',
-                'auditable_type' => $order::class,
-                'auditable_id' => $order->id,
-                'old_values_json' => $oldOrderValues,
-                'new_values_json' => [
+            $this->auditLogService->logEmailSent(
+                auditable: $order,
+                emailMessage: $sentEmail,
+                user: $user,
+                oldValues: $oldOrderValues,
+                newValues: [
                     'status' => $order->status,
                     'sent_by_user_id' => $order->sent_by_user_id,
                     'sent_at' => $order->sent_at,
                     'email_message_id' => $order->email_message_id,
                     'email_message_record_id' => $sentEmail->id,
                 ],
-                'metadata_json' => [
+                metadata: [
                     'no_attachment_confirmed' => $noAttachmentConfirmed,
                     'attachments_count' => $sentEmail->attachments()->count(),
                 ],
-                'created_at' => now(),
-            ]);
+                companyId: $order->company_id,
+            );
 
             return $sentEmail->load('attachments');
         });

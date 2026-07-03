@@ -26,11 +26,18 @@ class EmailAccount extends Model
         'is_active',
     ];
 
+    /**
+     * @var list<string>
+     */
+    protected $hidden = [
+        'encrypted_config',
+    ];
+
     protected function casts(): array
     {
         return [
             'provider' => EmailProvider::class,
-            'encrypted_config' => 'array',
+            'encrypted_config' => 'encrypted:array',
             'is_active' => 'boolean',
         ];
     }

@@ -2,7 +2,6 @@
 
 namespace App\Services\Supply;
 
-use App\Enums\LogisticsStatus;
 use App\Enums\OrderProposalItemStatus;
 use App\Enums\OrderProposalStatus;
 use App\Enums\SupplierOrderStatus;

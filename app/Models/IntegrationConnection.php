@@ -24,10 +24,17 @@ class IntegrationConnection extends Model
         'last_sync_at',
     ];
 
+    /**
+     * @var list<string>
+     */
+    protected $hidden = [
+        'encrypted_config',
+    ];
+
     protected function casts(): array
     {
         return [
-            'encrypted_config' => 'array',
+            'encrypted_config' => 'encrypted:array',
             'is_active' => 'boolean',
             'last_sync_at' => 'datetime',
         ];

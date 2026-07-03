@@ -4,14 +4,18 @@ namespace App\Services\Supply;
 
 use App\Enums\OrderProposalItemStatus;
 use App\Enums\OrderProposalStatus;
-use App\Models\AuditLog;
 use App\Models\OrderProposal;
 use App\Models\OrderProposalItem;
 use App\Models\User;
+use App\Services\Audit\AuditLogService;
 use Illuminate\Support\Facades\DB;
 
 class OrderProposalDecisionService
 {
+    public function __construct(
+        private readonly AuditLogService $auditLogService,
+    ) {}
+
     public function approveItem(OrderProposalItem $item, User $user): OrderProposalItem
     {
         return DB::transaction(function () use ($item, $user): OrderProposalItem {
@@ -26,7 +30,7 @@ class OrderProposalDecisionService
                 'requires_human_review' => false,
             ])->save();
 
-            $this->writeAuditLog(
+            $this->auditLogService->write(
                 eventType: 'order_proposal_item.approved',
                 user: $user,
                 auditable: $item,
@@ -57,10 +61,9 @@ class OrderProposalDecisionService
                 'requires_human_review' => false,
             ])->save();
 
-            $this->writeAuditLog(
-                eventType: 'order_proposal_item.adjusted',
+            $this->auditLogService->logOrderQuantityAdjusted(
+                item: $item,
                 user: $user,
-                auditable: $item,
                 companyId: $this->companyIdForItem($item),
                 oldValues: $oldValues,
                 newValues: $this->itemAuditValues($item),
@@ -83,7 +86,7 @@ class OrderProposalDecisionService
                 'requires_human_review' => false,
             ])->save();
 
-            $this->writeAuditLog(
+            $this->auditLogService->write(
                 eventType: 'order_proposal_item.rejected',
                 user: $user,
                 auditable: $item,
@@ -109,7 +112,7 @@ class OrderProposalDecisionService
                 'approved_at' => now(),
             ])->save();
 
-            $this->writeAuditLog(
+            $this->auditLogService->write(
                 eventType: 'order_proposal.approved',
                 user: $user,
                 auditable: $proposal,
@@ -169,32 +172,5 @@ class OrderProposalDecisionService
         return (int) $item->orderProposal()
             ->select(['id', 'company_id'])
             ->value('company_id');
-    }
-
-    /**
-     * @param  array<string, mixed>  $oldValues
-     * @param  array<string, mixed>  $newValues
-     * @param  array<string, mixed>  $metadata
-     */
-    private function writeAuditLog(
-        string $eventType,
-        User $user,
-        OrderProposal|OrderProposalItem $auditable,
-        int $companyId,
-        array $oldValues,
-        array $newValues,
-        array $metadata = [],
-    ): void {
-        AuditLog::query()->create([
-            'company_id' => $companyId,
-            'user_id' => $user->id,
-            'event_type' => $eventType,
-            'auditable_type' => $auditable::class,
-            'auditable_id' => $auditable->id,
-            'old_values_json' => $oldValues,
-            'new_values_json' => $newValues,
-            'metadata_json' => $metadata,
-            'created_at' => now(),
-        ]);
     }
 }
