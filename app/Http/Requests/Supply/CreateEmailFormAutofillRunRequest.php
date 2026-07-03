@@ -18,7 +18,10 @@ class CreateEmailFormAutofillRunRequest extends FormRequest
     {
         return [
             'form_template_id' => ['required', 'integer', 'exists:form_templates,id'],
-            'instructions' => ['nullable', 'array'],
+            'extractor' => ['nullable', 'string', 'in:fake,rule_based,external'],
+            'force_new' => ['nullable', 'boolean'],
+            'fake_output' => ['nullable', 'array'],
+            'include_attachments_summary' => ['nullable', 'boolean'],
         ];
     }
 }

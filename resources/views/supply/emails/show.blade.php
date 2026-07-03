@@ -12,7 +12,9 @@
         <header>
             <p><a href="{{ route('supply.emails.index') }}">Back to emails</a></p>
             <h1>{{ $email->subject }}</h1>
-            <p>Autofill form from this email — next stage.</p>
+            @if (($email->direction instanceof \BackedEnum ? $email->direction->value : $email->direction) === 'inbound')
+                <p><a href="{{ route('supply.emails.autofill.create', $email) }}">Autofill form from this email</a></p>
+            @endif
         </header>
 
         <section>
@@ -97,6 +99,38 @@
                     @empty
                         <tr>
                             <td colspan="7">No AI extractions.</td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </section>
+
+        <section>
+            <h2>Form Autofill Runs</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Template</th>
+                        <th>Status</th>
+                        <th>Confidence</th>
+                        <th>Created</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse ($email->formAutofillRuns as $run)
+                        <tr>
+                            <td>{{ $run->id }}</td>
+                            <td>{{ $run->formTemplate?->name }}</td>
+                            <td>{{ $run->status instanceof \BackedEnum ? $run->status->value : $run->status }}</td>
+                            <td>{{ $run->confidence }}</td>
+                            <td>{{ $run->created_at?->toDateTimeString() }}</td>
+                            <td><a href="{{ route('supply.form-autofill-runs.show', $run) }}">Review run</a></td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="6">No form autofill runs.</td>
                         </tr>
                     @endforelse
                 </tbody>

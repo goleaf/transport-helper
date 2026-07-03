@@ -133,11 +133,16 @@ System:
 
 System:
 
+* user opens inbound email;
 * user selects template;
-* AI suggests fields;
-* Laravel validates;
+* Laravel builds context;
+* extractor suggests fields;
+* Laravel normalizes and validates;
 * user accepts/edits/rejects fields;
-* validated run can be applied by dedicated service.
+* user validates run;
+* validated run can be exported;
+* apply gate checks target readiness;
+* no business application happens in this stage.
 
 ## 8. Supplier Confirmation
 

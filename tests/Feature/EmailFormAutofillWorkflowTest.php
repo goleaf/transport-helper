@@ -29,7 +29,6 @@ use App\Services\FormAutofill\FormAutofillReviewService;
 use App\Services\FormAutofill\FormRenderService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Validation\ValidationException;
 use Mockery\MockInterface;
 
 uses(RefreshDatabase::class);
@@ -370,7 +369,7 @@ it('stores mocked AI extractor fields on the run', function () {
 
     expect($run->fieldValues)->toHaveCount(8)
         ->and($run->fieldValues->firstWhere('field_key', 'supplier_reference')->final_value)->toBe('CONF-88421')
-        ->and($run->fieldValues->firstWhere('field_key', 'confirmed_quantity')->final_value)->toBe('156')
+        ->and($run->fieldValues->firstWhere('field_key', 'confirmed_quantity')->final_value)->toEqual(156)
         ->and($run->fieldValues->firstWhere('field_key', 'confirmed_quantity')->source_excerpt)->toBe('156 pcs');
 });
 
@@ -413,7 +412,7 @@ it('allows a user to update an extracted field final value', function () {
 
     $response->assertRedirect();
 
-    expect($field->fresh()->final_value)->toBe('144')
+    expect($field->fresh()->final_value)->toEqual(144)
         ->and($field->fresh()->requires_review)->toBeFalse();
 });
 
@@ -426,44 +425,43 @@ it('writes an audit log when a user updates a field', function () {
         'final_value' => '144',
     ]);
 
-    expect(AuditLog::query()->where('event_type', 'form_autofill_field.updated')->exists())->toBeTrue();
+    expect(AuditLog::query()->where('event_type', 'form_autofill_field_edited')->exists())->toBeTrue();
 });
 
-it('creates a supplier confirmation from a validated run', function () {
+it('checks supplier confirmation application readiness without creating confirmation', function () {
     $fixture = makeEmailFormAutofillWorkflowFixture();
+    $fixture['user']->forceFill(['role' => UserRole::Admin])->save();
     $run = validateEmailFormAutofillRun(
         createEmailFormAutofillRunWithOutput($fixture, emailFormAutofillOutput()),
         $fixture['user'],
     );
 
     $result = app(FormAutofillApplyService::class)->apply($run, $fixture['user']);
-    $confirmation = SupplierConfirmation::query()->with('items')->firstOrFail();
 
-    expect($result['applied']->is($confirmation))->toBeTrue()
-        ->and($confirmation->supplier_order_id)->toBe($fixture['supplierOrder']->getKey())
-        ->and($confirmation->supplier_reference)->toBe('CONF-88421')
-        ->and($confirmation->items)->toHaveCount(1)
-        ->and((float) $confirmation->items->first()->confirmed_quantity)->toBe(156.0);
+    expect($result['can_apply'])->toBeTrue()
+        ->and($result['target_action'])->toBe('create_supplier_confirmation')
+        ->and(SupplierConfirmation::query()->count())->toBe(0)
+        ->and($run->fresh()->status)->toBe(FormAutofillRunStatus::Validated);
 });
 
-it('creates a carrier quote from a carrier quote run', function () {
+it('checks carrier quote application readiness without creating a carrier quote', function () {
     $fixture = makeEmailFormAutofillWorkflowFixture(FormTemplateContextType::CarrierQuote->value);
+    $fixture['user']->forceFill(['role' => UserRole::Admin])->save();
     $run = validateEmailFormAutofillRun(
         createEmailFormAutofillRunWithOutput($fixture, carrierQuoteAutofillOutput()),
         $fixture['user'],
     );
 
-    app(FormAutofillApplyService::class)->apply($run, $fixture['user']);
-    $quote = CarrierQuote::query()->with('carrier')->firstOrFail();
+    $result = app(FormAutofillApplyService::class)->apply($run, $fixture['user']);
 
-    expect($quote->supplier_order_id)->toBe($fixture['supplierOrder']->getKey())
-        ->and($quote->carrier->name)->toBe('Express Road')
-        ->and((float) $quote->price)->toBe(430.5)
-        ->and($quote->currency)->toBe('EUR');
+    expect($result['can_apply'])->toBeTrue()
+        ->and($result['target_action'])->toBe('create_carrier_quote')
+        ->and(CarrierQuote::query()->count())->toBe(0);
 });
 
-it('updates a logistics record from a logistics update run', function () {
+it('checks logistics update readiness without updating logistics records', function () {
     $fixture = makeEmailFormAutofillWorkflowFixture(FormTemplateContextType::LogisticsUpdate->value);
+    $fixture['user']->forceFill(['role' => UserRole::Admin])->save();
     $record = LogisticsRecord::factory()->create([
         'company_id' => $fixture['company']->getKey(),
         'supplier_order_id' => $fixture['supplierOrder']->getKey(),
@@ -475,24 +473,26 @@ it('updates a logistics record from a logistics update run', function () {
         $fixture['user'],
     );
 
-    app(FormAutofillApplyService::class)->apply($run, $fixture['user']);
+    $original = $record->fresh()->only(['ready_date', 'pickup_date', 'delivery_date', 'transport_price', 'status']);
+    $result = app(FormAutofillApplyService::class)->apply($run, $fixture['user']);
     $record->refresh();
 
-    expect($record->ready_date?->toDateString())->toBe('2026-07-18')
-        ->and($record->pickup_date?->toDateString())->toBe('2026-07-19')
-        ->and($record->delivery_date?->toDateString())->toBe('2026-07-22')
-        ->and((float) $record->transport_price)->toBe(520.0)
-        ->and($record->status)->toBe(LogisticsStatus::PickupScheduled);
+    expect($result['can_apply'])->toBeTrue()
+        ->and($result['target_action'])->toBe('update_logistics_record')
+        ->and($record->only(['ready_date', 'pickup_date', 'delivery_date', 'transport_price', 'status']))->toEqual($original);
 });
 
-it('does not apply a run with unresolved required fields', function () {
+it('does not pass the application gate with unresolved required fields', function () {
     $fixture = makeEmailFormAutofillWorkflowFixture();
     $fields = emailFormAutofillOutput()['fields'];
     unset($fields['sku']);
     $run = createEmailFormAutofillRunWithOutput($fixture, emailFormAutofillOutput(['fields' => $fields]));
 
-    expect(fn () => app(FormAutofillApplyService::class)->apply($run, $fixture['user']))
-        ->toThrow(ValidationException::class);
+    $result = app(FormAutofillApplyService::class)->apply($run, $fixture['user']);
+
+    expect($result['can_apply'])->toBeFalse()
+        ->and($result['blocking_reasons'])->toContain('run_not_validated')
+        ->and(SupplierConfirmation::query()->count())->toBe(0);
 });
 
 it('does not change business records after a run is rejected', function () {

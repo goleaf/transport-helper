@@ -36,16 +36,36 @@
                 <dt>Possible supplier order</dt>
                 <dd>{{ $email->relatedSupplierOrder?->order_number }}</dd>
             </dl>
+            <p>{{ \Illuminate\Support\Str::limit((string) $email->body_text, 500) }}</p>
         </section>
 
         <form method="post" action="{{ route('supply.emails.autofill.preview', $email) }}">
             @csrf
             <label for="form_template_id">Form template</label>
             <select id="form_template_id" name="form_template_id">
-                @foreach ($templates as $template)
+                @forelse ($templates as $template)
                     <option value="{{ $template->id }}">{{ $template->name }} {{ $template->context_type instanceof \BackedEnum ? $template->context_type->value : $template->context_type }}</option>
-                @endforeach
+                @empty
+                    <option value="">No active templates</option>
+                @endforelse
             </select>
+
+            <label for="extractor">Extractor</label>
+            <select id="extractor" name="extractor">
+                <option value="rule_based">Rule based</option>
+                <option value="fake">Fake</option>
+                <option value="external">External placeholder</option>
+            </select>
+
+            <label>
+                <input type="checkbox" name="force_new" value="1">
+                Force new run
+            </label>
+
+            <label>
+                <input type="checkbox" name="include_attachments_summary" value="1" checked>
+                Include attachments summary
+            </label>
 
             <button type="submit">Generate autofill preview</button>
         </form>

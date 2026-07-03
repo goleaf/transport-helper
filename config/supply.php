@@ -18,4 +18,14 @@ return [
         'email_extraction_requires_human_review_by_default' => true,
         'email_extraction_min_confidence' => 0.80,
     ],
+    'form_autofill' => [
+        'default_extractor' => env('SUPPLY_FORM_AUTOFILL_EXTRACTOR', 'rule_based'),
+        'overall_min_confidence' => 0.80,
+        'required_field_min_confidence' => 0.85,
+        'date_field_min_confidence' => 0.90,
+        'quantity_field_min_confidence' => 0.90,
+        'sku_field_min_confidence' => 0.90,
+        'currency_field_min_confidence' => 0.85,
+        'human_review_by_default' => true,
+    ],
 ];

@@ -199,13 +199,13 @@ it('writes an audit log when email is sent', function () {
         ->exists())->toBeTrue();
 });
 
-it('writes an audit log when form autofill is applied', function () {
+it('writes an audit log when form autofill application gate is checked', function () {
     $fixture = makeSecurityCustomFormAutofillFixture();
 
     app(FormAutofillApplyService::class)->apply($fixture['run'], $fixture['user']);
 
     expect(AuditLog::query()
-        ->where('event_type', 'form_autofill_run.applied')
+        ->where('event_type', 'form_autofill_apply_gate_checked')
         ->where('auditable_id', $fixture['run']->getKey())
         ->where('user_id', $fixture['user']->getKey())
         ->exists())->toBeTrue();

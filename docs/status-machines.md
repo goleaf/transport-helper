@@ -111,10 +111,11 @@ Human review transitions:
 * ai_filled
 * needs_review
 * validated
-* applied
 * rejected
 * exported
 * failed
+
+`applied` is reserved for the later target-specific application stage and is not set by the Email Form Autofill workflow.
 
 ## SupplierConfirmation
 

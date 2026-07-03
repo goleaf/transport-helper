@@ -18,7 +18,8 @@ class ExportAutofillRunRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'format' => ['required', 'string', Rule::in(['json', 'csv', 'internal_html', 'excel', 'pdf', 'custom'])],
+            'format' => ['required', 'string', Rule::in(['json', 'csv'])],
+            'include_review_fields' => ['nullable', 'boolean'],
         ];
     }
 }

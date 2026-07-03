@@ -19,13 +19,13 @@ class StoreFormTemplateFieldRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'field_key' => ['required', 'string', 'max:255'],
+            'field_key' => ['required', 'string', 'max:100', 'regex:/^[A-Za-z0-9_-]+$/'],
             'label' => ['required', 'string', 'max:255'],
             'field_type' => ['required', 'string', Rule::in(array_column(FormFieldType::cases(), 'value'))],
             'is_required' => ['sometimes', 'boolean'],
             'validation_rules_json' => ['nullable', 'array'],
-            'ai_extraction_hint' => ['nullable', 'string'],
-            'default_value_json' => ['nullable', 'array'],
+            'ai_extraction_hint' => ['nullable', 'string', 'max:5000'],
+            'default_value_json' => ['nullable'],
             'sort_order' => ['sometimes', 'integer', 'min:0'],
         ];
     }

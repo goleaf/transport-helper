@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Supply\StoreFormTemplateRequest;
 use App\Models\Company;
 use App\Models\FormTemplate;
-use App\Services\FormAutofill\FormTemplateService;
+use App\Services\Forms\FormTemplateService;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 
@@ -36,7 +36,7 @@ class FormTemplateController extends Controller
 
     public function store(StoreFormTemplateRequest $request, FormTemplateService $templateService): RedirectResponse
     {
-        $template = $templateService->createTemplate($request->validated());
+        $template = $templateService->createTemplate($request->validated(), $request->user())['template'];
 
         return redirect()
             ->route('supply.forms.templates.show', $template)
@@ -50,5 +50,24 @@ class FormTemplateController extends Controller
         return view('supply.forms.templates.show', [
             'template' => $template,
         ]);
+    }
+
+    public function edit(FormTemplate $template): View
+    {
+        $template->load(['company:id,name', 'fields']);
+
+        return view('supply.forms.templates.edit', [
+            'template' => $template,
+            'companies' => Company::query()->select(['id', 'name'])->orderBy('name')->get(),
+        ]);
+    }
+
+    public function update(StoreFormTemplateRequest $request, FormTemplate $template, FormTemplateService $templateService): RedirectResponse
+    {
+        $template = $templateService->updateTemplate($template, $request->validated(), $request->user())['template'];
+
+        return redirect()
+            ->route('supply.forms.templates.show', $template)
+            ->with('status', 'Form template updated.');
     }
 }

@@ -65,6 +65,8 @@ class EmailMessageController extends Controller
             'relatedSupplierOrder:id,order_number',
             'attachments:id,email_message_id,original_filename,stored_path,mime_type,size_bytes,checksum',
             'aiEmailExtractions:id,email_message_id,provider,prompt_version,output_json,confidence,requires_human_review,review_reason,accepted_at,rejected_at,created_at',
+            'formAutofillRuns:id,email_message_id,form_template_id,status,confidence,created_at',
+            'formAutofillRuns.formTemplate:id,name,context_type',
         ]);
 
         return view('supply.emails.show', [

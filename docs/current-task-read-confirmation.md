@@ -17,39 +17,43 @@
 - docs/status-machines.md
 - docs/decision-log.md
 - docs/email-ai-boundary.md
-- docs/supplier-order-email-workflow.md
+- docs/inbound-email-ai-workflow.md
+- docs/inbound-email-ai-workflow-implementation-notes.md
+- docs/email-form-autofill.md
 - docs/audit-and-security.md
 
 ## Headings Found In Current Task
 
-- Current Task
-- Task Title
-- Task Goal
-- Required Reading
-- Non-Negotiable Rules
-- Scope
-- Out Of Scope
-- Required Implementation
-- Required Tests
-- Required Documentation
-- Acceptance Criteria
-- Required Commands
-- Commit Message
+- # Current Task
+- ## Task Title
+- ## Task Goal
+- ## Required Reading
+- ## Non-Negotiable Rules
+- ## Scope
+- ## Out Of Scope
+- ## Required Implementation
+- ## Business Rules
+- ## Required Tests
+- ## Required Documentation
+- ## Acceptance Criteria
+- ## Required Commands
+- ## Commit Message
 
 ## Understanding
 
-- Task Title: Implement the inbound email infrastructure and AI email extraction human review boundary.
-- Task Goal: Store inbound email and attachments, link suppliers/orders, analyze into separate AI extraction records, and require human review without mutating business records.
-- Required Reading: The task depends on strict project rules, AI boundary docs, workflow/status docs and the supplier order email workflow from the previous stage.
-- Non-Negotiable Rules: No DTO/app/Data, no real external calls, no real AI/email providers, no supplier confirmation/order/logistics mutation from AI output, and no unverified success claims.
-- Scope: Add or update email provider contracts, local/manual providers, placeholders, ingestion/matching/attachment services, AI analyzers, validation/review services, jobs, requests, policies, controllers, views, routes, config, tests and docs.
-- Out Of Scope: Do not implement form autofill, supplier confirmation application, carrier quote application, transport scoring, logistics application, real providers or automatic business mutation.
-- Required Implementation: Users can create/list/show emails, analyze inbound emails, see extraction output, and accept/reject/keep needs-review while the system stores evidence and audit logs.
-- Required Tests: Cover providers, matchers, ingestion, validation, analysis, review, controllers, jobs and no-DTO/no-business-mutation boundary.
-- Required Documentation: Create inbound email workflow docs and implementation notes, then update AI boundary, workflow, statuses, roadmap and audit/security docs.
-- Acceptance Criteria: The checklist below is binding for implementation and verification.
-- Required Commands: Run no-DTO, no-secrets, project-docs, migrate:fresh --seed, full tests, plus formatter/build when available.
-- Commit Message: Use `Add inbound email analysis and human review workflow`.
+- Task Title: Implement the Email Form Autofill Tool as the next workflow stage.
+- Task Goal: Add template-based email-to-form extraction, validation, field review, export and apply-readiness checks without direct business mutation.
+- Required Reading: The task depends on current project rules, AI boundary docs, inbound email implementation and audit/security expectations.
+- Non-Negotiable Rules: No DTOs, app/Data, external calls, real AI, direct application, confirmations, carrier quotes, logistics updates, email sending or secrets.
+- Scope: Add AI form extractor contract, local extractors, form services, requests, policies, controllers, routes, views, config, seeders, tests and docs.
+- Out Of Scope: Target-specific application, real AI, portal automation, PDF filling, carrier selection and email sending stay outside this task.
+- Required Implementation: Users select a template from an inbound email, generate preview, review fields, validate a run, export and check apply readiness.
+- Business Rules: Keep extracted, normalized and final values separate; user review controls final values; apply gate only checks readiness.
+- Required Tests: Cover normalization, extractors, validation, context, service workflows, exports, apply gate, controllers and boundaries.
+- Required Documentation: Create email form autofill docs and update AI boundary, workflow, status, roadmap and audit docs.
+- Acceptance Criteria: Every required implementation, test, doc, check, commit and push item is tracked as a checklist.
+- Required Commands: Run no-DTO, no-secrets, project-docs, migrate fresh seed, full tests, Pint and npm build when available.
+- Commit Message: Use "Add email form autofill workflow".
 
 ## Acceptance Criteria Copied
 
@@ -58,56 +62,47 @@
 - [ ] docs/current-task.md read from start to end.
 - [ ] docs/current-task-read-confirmation.md created.
 - [ ] docs/current-task-progress.md created.
-- [ ] EmailProviderInterface created.
-- [ ] AiEmailAnalyzerInterface created.
-- [ ] ManualEmailProvider created.
-- [ ] Gmail provider placeholder created.
-- [ ] Microsoft Graph provider placeholder created.
-- [ ] IMAP provider placeholder created.
-- [ ] EmailIngestionService created.
-- [ ] SupplierEmailMatcher created.
-- [ ] SupplierOrderEmailMatcher created.
-- [ ] EmailAttachmentStorageService created.
-- [ ] FakeAiEmailAnalyzer created.
-- [ ] RuleBasedAiEmailAnalyzer created.
-- [ ] ExternalAiEmailAnalyzerPlaceholder created.
-- [ ] AiEmailAnalysisService created.
-- [ ] AiEmailExtractionValidationService created.
-- [ ] AiEmailExtractionReviewService created.
-- [ ] FetchEmailMessagesJob created.
-- [ ] AnalyzeInboundEmailJob created.
-- [ ] Manual inbound email request created.
-- [ ] Analyze inbound email request created.
-- [ ] Review AI extraction request created.
-- [ ] EmailMessagePolicy created/updated.
-- [ ] AiEmailExtractionPolicy created/updated.
-- [ ] Email controllers created.
-- [ ] AI extraction controllers created.
+- [ ] AiEmailFormExtractorInterface created.
+- [ ] FakeAiEmailFormExtractor created.
+- [ ] RuleBasedAiEmailFormExtractor created.
+- [ ] ExternalAiEmailFormExtractorPlaceholder created.
+- [ ] FormTemplateService created.
+- [ ] FormAutofillContextBuilder created.
+- [ ] FormFieldNormalizationService created.
+- [ ] AiEmailFormExtractionValidationService created.
+- [ ] EmailFormAutofillService created.
+- [ ] FormAutofillReviewService created.
+- [ ] FormAutofillExportService created.
+- [ ] FormAutofillApplyGateService created.
+- [ ] extracted_value, normalized_value and final_value kept separate.
+- [ ] source_excerpt stored and displayed.
+- [ ] field confidence stored and displayed.
+- [ ] accept field implemented.
+- [ ] edit field implemented.
+- [ ] reject field implemented.
+- [ ] validate run implemented.
+- [ ] export JSON implemented.
+- [ ] export CSV implemented.
+- [ ] application gate implemented.
+- [ ] application gate does not mutate business records.
+- [ ] FormRequests created.
+- [ ] Policies created.
+- [ ] Controllers created.
 - [ ] Routes created.
 - [ ] Views created.
-- [ ] Inbound email deduplication implemented.
-- [ ] Supplier matching by exact contact email implemented.
-- [ ] Supplier matching by unique domain implemented.
-- [ ] Supplier order matching by order number implemented.
-- [ ] Supplier order matching by thread_id implemented.
-- [ ] Attachments stored privately.
-- [ ] AI extraction stored separately.
-- [ ] AI extraction validation detects low confidence.
-- [ ] AI extraction validation detects unknown SKU.
-- [ ] AI extraction validation detects quantity mismatch.
-- [ ] Human review accept implemented.
-- [ ] Human review reject implemented.
-- [ ] Human review needs_review implemented.
-- [ ] Accepting extraction does not create SupplierConfirmation.
-- [ ] Accepting extraction does not update SupplierOrderItem.
-- [ ] Accepting extraction does not update LogisticsRecord.
+- [ ] Email show page has "Autofill form from this email".
+- [ ] Form template seeders updated if needed.
 - [ ] Audit events written.
 - [ ] Config updated.
 - [ ] .env.example updated without secrets.
 - [ ] Tests created.
+- [ ] Boundary test proves no SupplierConfirmation is created by autofill.
+- [ ] Boundary test proves no CarrierQuote is created by autofill.
+- [ ] Boundary test proves no LogisticsRecord is updated by autofill.
+- [ ] Boundary test proves no SupplierOrderItem confirmed_quantity is updated by autofill.
 - [ ] No DTO test updated.
-- [ ] docs/inbound-email-ai-workflow.md created.
-- [ ] docs/inbound-email-ai-workflow-implementation-notes.md created.
+- [ ] docs/email-form-autofill.md created.
+- [ ] docs/email-form-autofill-implementation-notes.md created.
 - [ ] docs/email-ai-boundary.md updated.
 - [ ] docs/workflow-map.md updated.
 - [ ] docs/status-machines.md updated.
@@ -124,3 +119,5 @@
 - [ ] git status reviewed.
 - [ ] Commit created.
 - [ ] Push attempted.
+
+Do not start implementation until this file exists.

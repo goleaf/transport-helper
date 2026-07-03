@@ -17,7 +17,8 @@ class UpdateAutofillFieldValueRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'final_value' => ['required', 'string', 'max:2000'],
+            'final_value' => ['required'],
+            'reason' => ['nullable', 'string', 'max:5000'],
         ];
     }
 }

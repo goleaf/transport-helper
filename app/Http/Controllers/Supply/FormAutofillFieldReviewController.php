@@ -3,10 +3,11 @@
 namespace App\Http\Controllers\Supply;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Supply\RejectAutofillFieldRequest;
 use App\Http\Requests\Supply\UpdateAutofillFieldValueRequest;
 use App\Models\FormAutofillFieldValue;
 use App\Models\FormAutofillRun;
-use App\Services\FormAutofill\FormAutofillReviewService;
+use App\Services\Forms\FormAutofillReviewService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 
@@ -30,12 +31,10 @@ class FormAutofillFieldReviewController extends Controller
         return redirect()->route('supply.form-autofill-runs.show', $run)->with('status', 'Field updated.');
     }
 
-    public function reject(Request $request, FormAutofillRun $run, FormAutofillFieldValue $field, FormAutofillReviewService $reviewService): RedirectResponse
+    public function reject(RejectAutofillFieldRequest $request, FormAutofillRun $run, FormAutofillFieldValue $field, FormAutofillReviewService $reviewService): RedirectResponse
     {
-        abort_unless($request->user()?->canManageSupplyWorkflow(), 403);
-
         $this->ensureFieldBelongsToRun($run, $field);
-        $reviewService->rejectField($field, $request->user());
+        $reviewService->rejectField($field, $request->user(), $request->validated());
 
         return redirect()->route('supply.form-autofill-runs.show', $run)->with('status', 'Field rejected.');
     }

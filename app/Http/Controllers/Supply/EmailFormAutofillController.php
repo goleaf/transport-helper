@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Supply\CreateEmailFormAutofillRunRequest;
 use App\Models\EmailMessage;
 use App\Models\FormTemplate;
-use App\Services\FormAutofill\EmailFormAutofillService;
+use App\Services\Forms\EmailFormAutofillService;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 
@@ -23,13 +23,21 @@ class EmailFormAutofillController extends Controller
             ->orderBy('name')
             ->get();
 
-        return view('supply.emails.autofill', [
+        return view('supply.form-autofill.create', [
             'email' => $email,
             'templates' => $templates,
         ]);
     }
 
     public function preview(
+        CreateEmailFormAutofillRunRequest $request,
+        EmailMessage $email,
+        EmailFormAutofillService $autofillService,
+    ): RedirectResponse {
+        return $this->store($request, $email, $autofillService);
+    }
+
+    public function store(
         CreateEmailFormAutofillRunRequest $request,
         EmailMessage $email,
         EmailFormAutofillService $autofillService,

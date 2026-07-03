@@ -8,63 +8,47 @@
 
 ## Implementation Checklist
 
-- [x] Email provider contract
-- [x] AI analyzer contract
-- [x] Manual email provider
-- [x] Provider placeholders
-- [x] Email ingestion service
-- [x] Supplier matcher
-- [x] Supplier order matcher
-- [x] Attachment storage
-- [x] Fake analyzer
-- [x] Rule-based analyzer
-- [x] External analyzer placeholder
-- [x] AI analysis service
-- [x] Validation service
-- [x] Review service
-- [x] Jobs
+- [x] AI form extractor contract
+- [x] Fake extractor
+- [x] Rule-based extractor
+- [x] External extractor placeholder
+- [x] FormTemplateService
+- [x] Context builder
+- [x] Field normalization
+- [x] AI form extraction validation
+- [x] EmailFormAutofillService
+- [x] Field review service
+- [x] Export service
+- [x] Apply gate service
 - [x] FormRequests
 - [x] Policies
 - [x] Controllers
 - [x] Routes
 - [x] Views
-- [x] Config
+- [x] Email show update
+- [x] Seeders
 - [x] Tests
 - [x] Docs
 
 ## Tests And Checks
 
-- [x] ./scripts/check-no-dto.sh
-- [x] ./scripts/check-no-secrets.sh
-- [x] ./scripts/check-project-docs.sh
-- [x] php artisan migrate:fresh --seed
-- [x] php artisan test
-- [x] ./vendor/bin/pint, if available
-- [x] npm run build, if applicable
+- [x] ./scripts/check-no-dto.sh - passed
+- [x] ./scripts/check-no-secrets.sh - passed
+- [x] ./scripts/check-project-docs.sh - passed
+- [x] php artisan migrate:fresh --seed - passed with --env=testing
+- [x] php artisan test - passed with PAO_DISABLE=1, 333 tests / 1611 assertions
+- [x] ./vendor/bin/pint, if available - passed, fixed dirty files
+- [x] npm run build, if applicable - passed
 
 ## Failures
 
-None yet.
-
-## Check Results
-
-- composer install: passed; nothing to install, update or remove.
-- php artisan migrate:fresh --seed --env=testing: passed.
-- focused Task 8 tests: passed, 59 tests / 123 assertions.
-- php artisan test --compact --filter=EmailAiWorkflowTest: passed, 8 tests / 29 assertions.
-- ./vendor/bin/pint --dirty --format agent: passed; formatted dirty PHP files.
-- php artisan test --compact: passed, 314 tests / 1445 assertions.
-- ./scripts/check-no-dto.sh: passed; no forbidden DTO usage found.
-- ./scripts/check-no-secrets.sh: passed; no obvious secrets found.
-- ./scripts/check-project-docs.sh: passed; all required project documentation files exist.
-- npm run build: passed.
-- find app -iname "*DTO*" -o -path "app/Data": passed; no output.
+None.
 
 ## Blockers
 
-None yet.
+None.
 
 ## Commit
 
-- Commit hash: f4d2fe5
-- Push status: pushed to origin/main
+- Commit hash: reported in final response after commit hash is immutable
+- Push status: reported in final response after push attempt

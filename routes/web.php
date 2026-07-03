@@ -9,10 +9,12 @@ use App\Http\Controllers\Supply\ConvertProposalToSupplierOrderController;
 use App\Http\Controllers\Supply\EmailFormAutofillController;
 use App\Http\Controllers\Supply\EmailMessageController;
 use App\Http\Controllers\Supply\ExportDownloadController;
-use App\Http\Controllers\Supply\FormAutofillApplyController;
+use App\Http\Controllers\Supply\FormAutofillApplyGateController;
 use App\Http\Controllers\Supply\FormAutofillExportController;
 use App\Http\Controllers\Supply\FormAutofillFieldReviewController;
+use App\Http\Controllers\Supply\FormAutofillOutputDownloadController;
 use App\Http\Controllers\Supply\FormAutofillRunController;
+use App\Http\Controllers\Supply\FormAutofillRunValidationController;
 use App\Http\Controllers\Supply\FormTemplateController;
 use App\Http\Controllers\Supply\FormTemplateFieldController;
 use App\Http\Controllers\Supply\ImportController;
@@ -52,7 +54,7 @@ Route::middleware(['web'])
         Route::get('inbound-orders', [SupplySectionController::class, 'show'])->defaults('section', 'inbound-orders')->name('inbound-orders.index');
         Route::get('reservations', [SupplySectionController::class, 'show'])->defaults('section', 'reservations')->name('reservations.index');
         Route::get('calculations', [SupplySectionController::class, 'show'])->defaults('section', 'calculations')->name('calculations.index');
-        Route::get('form-autofill-runs', [SupplySectionController::class, 'show'])->defaults('section', 'form-autofill-runs')->name('form-autofill-runs.index');
+        Route::get('form-autofill-runs', [FormAutofillRunController::class, 'index'])->name('form-autofill-runs.index');
         Route::get('supplier-confirmations', [SupplySectionController::class, 'show'])->defaults('section', 'supplier-confirmations')->name('supplier-confirmations.index');
         Route::get('exports', [SupplySectionController::class, 'show'])->defaults('section', 'exports')->name('exports.index');
         Route::get('audit-logs', [SupplySectionController::class, 'show'])->defaults('section', 'audit-logs')->name('audit-logs.index');
@@ -100,15 +102,18 @@ Route::middleware(['web'])
         Route::get('forms/templates/create', [FormTemplateController::class, 'create'])->name('forms.templates.create');
         Route::post('forms/templates', [FormTemplateController::class, 'store'])->name('forms.templates.store');
         Route::get('forms/templates/{template}', [FormTemplateController::class, 'show'])->name('forms.templates.show');
+        Route::get('forms/templates/{template}/edit', [FormTemplateController::class, 'edit'])->name('forms.templates.edit');
+        Route::match(['put', 'patch'], 'forms/templates/{template}', [FormTemplateController::class, 'update'])->name('forms.templates.update');
         Route::post('forms/templates/{template}/fields', [FormTemplateFieldController::class, 'store'])->name('forms.templates.fields.store');
 
         Route::get('form-autofill-runs/{run}', [FormAutofillRunController::class, 'show'])->name('form-autofill-runs.show');
         Route::post('form-autofill-runs/{run}/fields/{field}/accept', [FormAutofillFieldReviewController::class, 'accept'])->name('form-autofill-runs.fields.accept');
         Route::post('form-autofill-runs/{run}/fields/{field}/update', [FormAutofillFieldReviewController::class, 'update'])->name('form-autofill-runs.fields.update');
         Route::post('form-autofill-runs/{run}/fields/{field}/reject', [FormAutofillFieldReviewController::class, 'reject'])->name('form-autofill-runs.fields.reject');
-        Route::post('form-autofill-runs/{run}/validate', [FormAutofillRunController::class, 'validateRun'])->name('form-autofill-runs.validate');
-        Route::post('form-autofill-runs/{run}/apply', FormAutofillApplyController::class)->name('form-autofill-runs.apply');
+        Route::post('form-autofill-runs/{run}/validate', [FormAutofillRunValidationController::class, 'store'])->name('form-autofill-runs.validate');
+        Route::post('form-autofill-runs/{run}/application-check', FormAutofillApplyGateController::class)->name('form-autofill-runs.application-check');
         Route::post('form-autofill-runs/{run}/export', FormAutofillExportController::class)->name('form-autofill-runs.export');
+        Route::get('form-autofill-outputs/{output}/download', FormAutofillOutputDownloadController::class)->name('form-autofill-outputs.download');
 
         Route::get('transport/quotes', [TransportQuoteController::class, 'index'])->name('transport.quotes.index');
         Route::get('transport/orders/{supplierOrder}/quotes', [TransportQuoteController::class, 'orderQuotes'])->name('transport.orders.quotes.index');

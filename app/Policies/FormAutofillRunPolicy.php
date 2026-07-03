@@ -44,8 +44,23 @@ class FormAutofillRunPolicy
 
     public function apply(User $user, FormAutofillRun $formAutofillRun): bool
     {
-        return $user->hasAnyRole([UserRole::Admin, UserRole::SupplyManager])
+        return $this->checkApplyGate($user, $formAutofillRun);
+    }
+
+    public function validateRun(User $user, FormAutofillRun $formAutofillRun): bool
+    {
+        return $this->review($user, $formAutofillRun);
+    }
+
+    public function checkApplyGate(User $user, FormAutofillRun $formAutofillRun): bool
+    {
+        return $user->hasAnyRole([UserRole::Admin])
             || $user->hasPermissionTo('apply_email_form_autofill');
+    }
+
+    public function reject(User $user, FormAutofillRun $formAutofillRun): bool
+    {
+        return $this->review($user, $formAutofillRun);
     }
 
     public function export(User $user, FormAutofillRun $formAutofillRun): bool

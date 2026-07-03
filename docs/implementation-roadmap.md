@@ -166,7 +166,10 @@ Result:
 * templates;
 * extracted/normalized/final values;
 * field review;
-* validation.
+* validation;
+* JSON/CSV export;
+* application-check gate;
+* no direct business mutation.
 
 ## Step 10. Supplier Confirmation
 

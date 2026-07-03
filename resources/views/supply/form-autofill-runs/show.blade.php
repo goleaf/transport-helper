@@ -12,10 +12,25 @@
         <header>
             <p><a href="{{ route('supply.emails.show', $run->emailMessage) }}">Back to email</a></p>
             <h1>Form Autofill Run {{ $run->id }}</h1>
+            <p>This stage does not apply business changes. Supplier confirmation, carrier quote and logistics application are handled in the next workflow stage.</p>
         </header>
 
         @if (session('status'))
             <p>{{ session('status') }}</p>
+        @endif
+
+        @if (session('application_gate'))
+            <section>
+                <h2>Application Readiness</h2>
+                <dl>
+                    <dt>Can apply later</dt>
+                    <dd>{{ session('application_gate.can_apply') ? 'Yes' : 'No' }}</dd>
+                    <dt>Target action</dt>
+                    <dd>{{ session('application_gate.target_action') }}</dd>
+                    <dt>Blocking reasons</dt>
+                    <dd>{{ implode(', ', session('application_gate.blocking_reasons', [])) }}</dd>
+                </dl>
+            </section>
         @endif
 
         @if ($errors->any())
@@ -26,11 +41,17 @@
             </ul>
         @endif
 
+        @include('supply.form-autofill-runs.partials.email-panel', ['run' => $run])
+
         <section>
             <h2>Status</h2>
             <dl>
+                <dt>Template</dt>
+                <dd>{{ $run->formTemplate?->name }}</dd>
+                <dt>Context</dt>
+                <dd>{{ $run->formTemplate?->context_type instanceof \BackedEnum ? $run->formTemplate->context_type->value : $run->formTemplate?->context_type }}</dd>
                 <dt>Status</dt>
-                <dd>{{ $run->status instanceof \BackedEnum ? $run->status->value : $run->status }}</dd>
+                <dd>@include('supply.form-autofill-runs.partials.status-badge', ['status' => $run->status])</dd>
                 <dt>Total confidence</dt>
                 <dd>{{ $run->confidence }}</dd>
                 <dt>Fields requiring review</dt>
@@ -42,99 +63,9 @@
             </dl>
         </section>
 
-        <section>
-            <h2>Original email</h2>
-            <dl>
-                <dt>Subject</dt>
-                <dd>{{ $run->emailMessage?->subject }}</dd>
-                <dt>From</dt>
-                <dd>{{ $run->emailMessage?->from_email }}</dd>
-            </dl>
-            <pre>{{ $run->emailMessage?->body_text }}</pre>
-            <h3>Attachments</h3>
-            <ul>
-                @forelse ($run->emailMessage?->attachments ?? [] as $attachment)
-                    <li>{{ $attachment->original_filename }}</li>
-                @empty
-                    <li>No attachments.</li>
-                @endforelse
-            </ul>
-        </section>
-
-        <section>
-            <h2>Form fields</h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Field</th>
-                        <th>Extracted value</th>
-                        <th>Normalized value</th>
-                        <th>Final value</th>
-                        <th>Confidence</th>
-                        <th>Source excerpt</th>
-                        <th>Warning</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @forelse ($run->fieldValues as $field)
-                        <tr>
-                            <td>{{ $field->field_key }}</td>
-                            <td>{{ $field->extracted_value }}</td>
-                            <td>{{ $field->normalized_value }}</td>
-                            <td>{{ $field->final_value }}</td>
-                            <td>{{ $field->confidence }}</td>
-                            <td>{{ $field->source_excerpt }}</td>
-                            <td>{{ $field->review_reason }}</td>
-                            <td>
-                                <form method="post" action="{{ route('supply.form-autofill-runs.fields.accept', [$run, $field]) }}">
-                                    @csrf
-                                    <button type="submit">Accept</button>
-                                </form>
-                                <form method="post" action="{{ route('supply.form-autofill-runs.fields.update', [$run, $field]) }}">
-                                    @csrf
-                                    <input name="final_value" value="{{ $field->final_value }}">
-                                    <button type="submit">Edit</button>
-                                </form>
-                                <form method="post" action="{{ route('supply.form-autofill-runs.fields.reject', [$run, $field]) }}">
-                                    @csrf
-                                    <button type="submit">Reject</button>
-                                </form>
-                            </td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="8">No fields.</td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </section>
-
-        <section>
-            <h2>Run actions</h2>
-            <form method="post" action="{{ route('supply.form-autofill-runs.validate', $run) }}">
-                @csrf
-                <button type="submit">Validate run</button>
-            </form>
-
-            @if ($canApply)
-                <form method="post" action="{{ route('supply.form-autofill-runs.apply', $run) }}">
-                    @csrf
-                    <button type="submit">Apply</button>
-                </form>
-            @endif
-
-            <form method="post" action="{{ route('supply.form-autofill-runs.export', $run) }}">
-                @csrf
-                <select name="format">
-                    <option value="json">JSON</option>
-                    <option value="csv">CSV</option>
-                    <option value="internal_html">Internal HTML</option>
-                </select>
-                <button type="submit">Export</button>
-            </form>
-        </section>
+        @include('supply.form-autofill-runs.partials.fields-table', ['run' => $run])
+        @include('supply.form-autofill-runs.partials.export-panel', ['run' => $run])
+        @include('supply.form-autofill-runs.partials.application-gate-panel', ['run' => $run])
 
         <section>
             <h2>Audit history</h2>

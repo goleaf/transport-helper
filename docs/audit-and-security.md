@@ -128,3 +128,24 @@ Task 8 writes audit logs for:
 
 Audit metadata records message ids, sender, subject, supplier/order links, matching methods, attachment count, provider, prompt version, confidence and review decision.
 Full email bodies, attachment contents, credentials and external provider secrets are not stored in audit metadata.
+
+## Email Form Autofill Audit Events
+
+Task 9 writes audit logs for:
+
+* `form_template_created`;
+* `form_template_updated`;
+* `form_template_field_created`;
+* `form_autofill_created`;
+* `form_autofill_failed`;
+* `form_autofill_field_accepted`;
+* `form_autofill_field_edited`;
+* `form_autofill_field_rejected`;
+* `form_autofill_run_validated`;
+* `form_autofill_run_validation_failed`;
+* `form_autofill_run_rejected`;
+* `form_autofill_exported`;
+* `form_autofill_apply_gate_checked`.
+
+Audit metadata records run ids, template ids, context type, extractor, confidence, field keys, old/new final values, review reasons, export formats and apply gate blocking reasons.
+Full email bodies, secrets and attachment contents are not stored in audit metadata.

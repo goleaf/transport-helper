@@ -76,3 +76,18 @@ Required when:
 * required field missing.
 
 Human review actions are accept, reject and mark needs-review.
+
+## Email Form Autofill Boundary
+
+Task 9 adds `AiEmailFormExtractorInterface`.
+Form extractors can suggest values with `source_excerpt` and field-level confidence.
+
+Each field stores:
+
+* `extracted_value`;
+* `normalized_value`;
+* `final_value`.
+
+Extractor output is never treated as final.
+User accept/edit/reject actions decide final values.
+Validated autofill runs can be exported or checked by the apply gate, but this stage does not mutate supplier confirmations, carrier quotes, logistics records or supplier order item quantities.

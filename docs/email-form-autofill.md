@@ -4,42 +4,49 @@
 
 The Email Form Autofill tool turns inbound email content into a reviewed form draft.
 
-## Flow
+## Main Flow
 
 1. User opens inbound email.
 2. User selects form template.
 3. Laravel builds context.
-4. AI suggests field values.
-5. Laravel validates every field.
+4. Extractor suggests field values.
+5. Laravel validates each field.
 6. System stores extracted_value, normalized_value and final_value separately.
 7. User accepts, edits or rejects fields.
 8. User validates the run.
-9. Validated run can be applied by a target-specific application service.
+9. Validated run can be exported.
+10. Validated run can pass apply gate.
+11. Target-specific application is implemented in later workflow stages.
+
+## AI Boundary
+
+AI or rule-based extractor suggests field values only.
+It cannot apply the form or mutate business records.
 
 ## Field Values
 
-extracted_value:
+- extracted_value: raw suggested value.
+- normalized_value: Laravel-normalized value.
+- final_value: user-approved or edited value.
 
-* raw AI suggestion.
+## Review
 
-normalized_value:
+Fields require review when:
 
-* Laravel-normalized value.
+- required value missing;
+- confidence low;
+- unknown SKU;
+- quantity mismatch;
+- invalid date;
+- ambiguous date;
+- unknown carrier;
+- validation rule fails.
 
-final_value:
+## Apply Gate
 
-* user-approved or edited value.
+Apply gate checks readiness only.
+It does not create supplier confirmations, carrier quotes or logistics updates.
 
-## Important Rule
+## Exports
 
-AI suggestion is not final.
-
-## Review Triggers
-
-* missing required field;
-* low confidence;
-* unknown SKU;
-* invalid date;
-* ambiguous date;
-* quantity mismatch;
-* unknown carrier.
+Validated run can be exported to JSON or CSV.

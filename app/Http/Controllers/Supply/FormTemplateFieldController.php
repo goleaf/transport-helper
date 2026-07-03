@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Supply;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Supply\StoreFormTemplateFieldRequest;
 use App\Models\FormTemplate;
-use App\Services\FormAutofill\FormTemplateService;
+use App\Services\Forms\FormTemplateService;
 use Illuminate\Http\RedirectResponse;
 
 class FormTemplateFieldController extends Controller
@@ -15,7 +15,7 @@ class FormTemplateFieldController extends Controller
         FormTemplate $template,
         FormTemplateService $templateService,
     ): RedirectResponse {
-        $templateService->createField($template, $request->validated());
+        $templateService->addField($template, $request->validated(), $request->user());
 
         return redirect()
             ->route('supply.forms.templates.show', $template)
