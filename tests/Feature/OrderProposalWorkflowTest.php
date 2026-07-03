@@ -95,7 +95,7 @@ it('prevents a viewer from approving an order proposal item', function () {
         ->assertForbidden();
 
     expect($fixture['item']->fresh()->status)->toBe(OrderProposalItemStatus::Draft)
-        ->and(AuditLog::query()->where('event_type', 'order_proposal_item.approved')->exists())->toBeFalse();
+        ->and(AuditLog::query()->where('event_type', 'order_quantity_approved')->exists())->toBeFalse();
 });
 
 it('allows a supply manager to approve an order proposal item', function () {
@@ -103,15 +103,17 @@ it('allows a supply manager to approve an order proposal item', function () {
     $manager = User::factory()->create(['role' => UserRole::SupplyManager]);
 
     $this->actingAs($manager)
-        ->post(route('supply.proposals.items.approve', [$fixture['proposal'], $fixture['item']]))
+        ->post(route('supply.proposals.items.approve', [$fixture['proposal'], $fixture['item']]), [
+            'confirmed_review' => true,
+        ])
         ->assertRedirect(route('supply.proposals.items.show', [$fixture['proposal'], $fixture['item']]));
 
     $item = $fixture['item']->fresh();
 
     expect($item->status)->toBe(OrderProposalItemStatus::Approved)
         ->and((float) $item->approved_quantity)->toBe(156.0)
-        ->and($item->requires_human_review)->toBeFalse()
-        ->and(AuditLog::query()->where('event_type', 'order_proposal_item.approved')->exists())->toBeTrue();
+        ->and($item->requires_human_review)->toBeTrue()
+        ->and(AuditLog::query()->where('event_type', 'order_quantity_approved')->exists())->toBeTrue();
 });
 
 it('rejects an adjustment without a reason', function () {
@@ -142,7 +144,7 @@ it('adjusts an item with a reason and writes an audit log', function () {
 
     $item = $fixture['item']->fresh();
     $auditLog = AuditLog::query()
-        ->where('event_type', 'order_proposal_item.adjusted')
+        ->where('event_type', 'order_quantity_adjusted')
         ->firstOrFail();
 
     expect($item->status)->toBe(OrderProposalItemStatus::Adjusted)
@@ -189,7 +191,7 @@ it('converts an approved proposal to a supplier order', function () {
         ->and($supplierOrder->items)->toHaveCount(1)
         ->and((float) $supplierOrder->items->first()->ordered_quantity)->toBe(156.0)
         ->and($fixture['proposal']->fresh()->status)->toBe(OrderProposalStatus::ConvertedToSupplierOrder)
-        ->and(AuditLog::query()->where('event_type', 'order_proposal.converted_to_supplier_order')->exists())->toBeTrue();
+        ->and(AuditLog::query()->where('event_type', 'order_proposal_converted_to_supplier_order')->exists())->toBeTrue();
 });
 
 it('shows all formula components on the item page', function () {

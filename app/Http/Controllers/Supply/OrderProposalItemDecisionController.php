@@ -4,30 +4,28 @@ namespace App\Http\Controllers\Supply;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Supply\AdjustOrderProposalItemRequest;
+use App\Http\Requests\Supply\ApproveOrderProposalItemRequest;
+use App\Http\Requests\Supply\RejectOrderProposalItemRequest;
 use App\Models\OrderProposal;
 use App\Models\OrderProposalItem;
-use App\Services\Supply\OrderProposalDecisionService;
+use App\Services\Supply\OrderProposals\OrderProposalDecisionService;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Gate;
 
 class OrderProposalItemDecisionController extends Controller
 {
     public function approve(
-        Request $request,
+        ApproveOrderProposalItemRequest $request,
         OrderProposal $proposal,
         OrderProposalItem $item,
         OrderProposalDecisionService $decisionService,
     ): RedirectResponse {
         $this->ensureItemBelongsToProposal($proposal, $item);
 
-        Gate::authorize('approve', $item);
-
-        $decisionService->approveItem($item, $request->user());
+        $result = $decisionService->approveItem($item, $request->user(), $request->validated());
 
         return redirect()
-            ->route('supply.proposals.items.show', [$proposal, $item])
-            ->with('status', 'Proposal item approved.');
+            ->route('supply.proposals.items.show', [$proposal, $result['item']])
+            ->with('status', $result['message']);
     }
 
     public function adjust(
@@ -38,28 +36,26 @@ class OrderProposalItemDecisionController extends Controller
     ): RedirectResponse {
         $this->ensureItemBelongsToProposal($proposal, $item);
 
-        $decisionService->adjustItem($item, $request->user(), $request->validated());
+        $result = $decisionService->adjustItem($item, $request->validated(), $request->user());
 
         return redirect()
-            ->route('supply.proposals.items.show', [$proposal, $item])
-            ->with('status', 'Proposal item adjusted.');
+            ->route('supply.proposals.items.show', [$proposal, $result['item']])
+            ->with('status', $result['message']);
     }
 
     public function reject(
-        Request $request,
+        RejectOrderProposalItemRequest $request,
         OrderProposal $proposal,
         OrderProposalItem $item,
         OrderProposalDecisionService $decisionService,
     ): RedirectResponse {
         $this->ensureItemBelongsToProposal($proposal, $item);
 
-        Gate::authorize('reject', $item);
-
-        $decisionService->rejectItem($item, $request->user());
+        $result = $decisionService->rejectItem($item, $request->validated(), $request->user());
 
         return redirect()
-            ->route('supply.proposals.items.show', [$proposal, $item])
-            ->with('status', 'Proposal item rejected.');
+            ->route('supply.proposals.items.show', [$proposal, $result['item']])
+            ->with('status', $result['message']);
     }
 
     private function ensureItemBelongsToProposal(OrderProposal $proposal, OrderProposalItem $item): void

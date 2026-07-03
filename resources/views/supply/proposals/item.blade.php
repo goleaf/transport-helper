@@ -3,7 +3,18 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Supply Proposal Item {{ $item->id }}</title>
+    <title>Order Proposal Item: {{ $item->product?->sku }}</title>
+    <style>
+        body { font-family: system-ui, sans-serif; margin: 0; color: #17202a; }
+        main { max-width: 1180px; margin: 0 auto; padding: 24px; }
+        section { margin: 24px 0; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { border-bottom: 1px solid #d7dde5; padding: 10px; text-align: left; vertical-align: top; }
+        textarea, input, button { font: inherit; padding: 8px; width: 100%; box-sizing: border-box; }
+        form { border: 1px solid #d7dde5; padding: 12px; margin: 12px 0; display: grid; gap: 10px; }
+        pre { white-space: pre-wrap; overflow-wrap: anywhere; background: #f7f9fb; padding: 12px; }
+        .warning { border-left: 4px solid #b25b00; background: #fff8ed; padding: 12px; }
+    </style>
 </head>
 <body>
     <main>
@@ -11,7 +22,14 @@
 
         <header>
             <p><a href="{{ route('supply.proposals.show', $proposal) }}">Back to proposal</a></p>
-            <h1>{{ $item->product?->sku }} - {{ $item->product?->name }}</h1>
+            <h1>Order Proposal Item: {{ $item->product?->sku }}</h1>
+            <p>{{ $item->product?->name }} · {{ $proposal->supplier?->name }} · Proposal #{{ $proposal->id }}</p>
+            <p>
+                @include('supply.proposals.partials.status-badge', ['status' => $item->status])
+                @if ($item->requires_human_review)
+                    <strong>Human review required</strong>
+                @endif
+            </p>
         </header>
 
         @if (session('status'))
@@ -19,7 +37,7 @@
         @endif
 
         @if ($errors->any())
-            <section>
+            <section class="warning">
                 <h2>Errors</h2>
                 <ul>
                     @foreach ($errors->all() as $error)
@@ -29,83 +47,22 @@
             </section>
         @endif
 
-        <section>
-            <h2>T0/T1/T2/T3 timeline</h2>
-            <dl>
-                <dt>T0</dt>
-                <dd>{{ $item->t0_date?->toDateString() }}</dd>
-
-                <dt>T1</dt>
-                <dd>{{ $item->t1_date?->toDateString() }}</dd>
-
-                <dt>T2</dt>
-                <dd>{{ $item->t2_date?->toDateString() }}</dd>
-
-                <dt>T3</dt>
-                <dd>{{ $item->t3_date?->toDateString() }}</dd>
-            </dl>
-        </section>
+        @include('supply.proposals.partials.timeline', ['item' => $item])
+        @include('supply.proposals.partials.formula-summary', ['item' => $item])
 
         <section>
-            <h2>Formula components</h2>
-            <table>
-                <tbody>
-                    <tr>
-                        <th>trend</th>
-                        <td>{{ $item->trend }}</td>
-                    </tr>
-                    <tr>
-                        <th>need_t0_t1</th>
-                        <td>{{ $item->need_t0_t1 }}</td>
-                    </tr>
-                    <tr>
-                        <th>stock_t1</th>
-                        <td>{{ $item->stock_t1 }}</td>
-                    </tr>
-                    <tr>
-                        <th>need_t1_t2</th>
-                        <td>{{ $item->need_t1_t2 }}</td>
-                    </tr>
-                    <tr>
-                        <th>safety_stock</th>
-                        <td>{{ $item->safety_stock }}</td>
-                    </tr>
-                    <tr>
-                        <th>inbound_until_t1</th>
-                        <td>{{ $item->inbound_until_t1 }}</td>
-                    </tr>
-                    <tr>
-                        <th>inbound_t1_t3</th>
-                        <td>{{ $item->inbound_t1_t3 }}</td>
-                    </tr>
-                    <tr>
-                        <th>reserved_quantity</th>
-                        <td>{{ $item->reserved_quantity }}</td>
-                    </tr>
-                    <tr>
-                        <th>raw_need</th>
-                        <td>{{ $item->raw_need }}</td>
-                    </tr>
-                    <tr>
-                        <th>recommended_quantity</th>
-                        <td>{{ $item->recommended_quantity }}</td>
-                    </tr>
-                    <tr>
-                        <th>approved_quantity</th>
-                        <td>{{ $item->approved_quantity }}</td>
-                    </tr>
-                </tbody>
-            </table>
+            <h2>Explanation</h2>
+            @include('supply.proposals.partials.explanation', ['explanation' => $item->explanation_json ?? []])
         </section>
 
         <section>
             <h2>Warnings</h2>
             @if ($item->requires_human_review)
-                <p>Human review required.</p>
+                <p class="warning">Human review required.</p>
             @endif
             <ul>
                 @forelse (($item->warnings_json ?? []) as $warning)
-                    <li>{{ is_scalar($warning) ? $warning : json_encode($warning) }}</li>
+                    <li>{{ is_scalar($warning) ? $warning : json_encode($warning, JSON_UNESCAPED_SLASHES) }}</li>
                 @empty
                     <li>No warnings.</li>
                 @endforelse
@@ -113,38 +70,43 @@
         </section>
 
         <section>
-            <h2>Explanation</h2>
-            <pre>{{ json_encode($item->explanation_json ?? [], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) }}</pre>
+            <h2>Actions</h2>
+            @include('supply.proposals.partials.item-actions', [
+                'proposal' => $proposal,
+                'item' => $item,
+                'canApproveItem' => $canApproveItem,
+                'canAdjustItem' => $canAdjustItem,
+                'canRejectItem' => $canRejectItem,
+                'isConverted' => $isConverted,
+            ])
         </section>
 
         <section>
-            <h2>Decisions</h2>
-            @if ($canApproveItem)
-                <form method="post" action="{{ route('supply.proposals.items.approve', [$proposal, $item]) }}">
-                    @csrf
-                    <button type="submit">Approve</button>
-                </form>
-            @endif
-
-            @if ($canAdjustItem)
-                <form method="post" action="{{ route('supply.proposals.items.adjust', [$proposal, $item]) }}">
-                    @csrf
-                    <label for="quantity">Adjusted quantity</label>
-                    <input id="quantity" name="quantity" type="number" min="0" step="0.001" value="{{ old('quantity', $item->approved_quantity ?? $item->recommended_quantity) }}">
-
-                    <label for="reason">Adjustment reason</label>
-                    <textarea id="reason" name="reason">{{ old('reason') }}</textarea>
-
-                    <button type="submit">Adjust</button>
-                </form>
-            @endif
-
-            @if ($canRejectItem)
-                <form method="post" action="{{ route('supply.proposals.items.reject', [$proposal, $item]) }}">
-                    @csrf
-                    <button type="submit">Reject</button>
-                </form>
-            @endif
+            <h2>Audit history</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Event</th>
+                        <th>User</th>
+                        <th>Metadata</th>
+                        <th>Created at</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse ($auditLogs as $auditLog)
+                        <tr>
+                            <td>{{ $auditLog->event_type }}</td>
+                            <td>{{ $auditLog->user?->name }}</td>
+                            <td><pre>{{ json_encode($auditLog->metadata_json ?? [], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) }}</pre></td>
+                            <td>{{ $auditLog->created_at?->toDateTimeString() }}</td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="4">No audit events yet.</td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
         </section>
     </main>
 </body>

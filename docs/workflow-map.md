@@ -24,6 +24,8 @@ Processing:
 * support safe rollback for rollback-safe records;
 * write audit logs.
 
+Task 5 verifies CSV imports, dry-runs, duplicate checksum blocking, row-level failures and safe rollback.
+
 Output:
 
 * import batch;
@@ -68,13 +70,24 @@ Output:
 
 User can:
 
+* open proposal list;
+* open proposal detail;
+* open proposal item detail;
+* review T0/T1/T2/T3 timeline;
+* review deterministic formula components;
+* review explanation_json and warnings_json;
 * approve quantity;
 * adjust quantity with reason;
 * reject line with reason.
+* approve whole proposal after every item is resolved;
+* convert approved proposal to supplier order.
 
 Output:
 
 * approved proposal;
+* draft supplier order after conversion;
+* supplier order items for approved/adjusted positive lines;
+* planned logistics record;
 * audit log.
 
 ## 4. Supplier Order

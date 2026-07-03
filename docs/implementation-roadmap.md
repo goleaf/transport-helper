@@ -66,7 +66,7 @@ Next recommended step:
 
 ## Step 5. Import System
 
-Status: implemented in Stage 3.
+Status: implemented and verified in Task 5.
 
 Result:
 
@@ -92,15 +92,28 @@ Result:
 * import type persisters created;
 * ImportBatchService lifecycle implemented;
 * Blade import screens and routes created;
-* base import tests created.
+* base import tests created;
+* Task 5 added coverage for CSV header maps, localized date/boolean normalization and placeholder adapter exceptions.
 
 ## Step 6. Order Proposal Workflow
+
+Status: implemented in Stage 4.
 
 Result:
 
 * proposal review;
 * approve/adjust/reject;
 * conversion to supplier order.
+
+Implementation:
+
+* proposal list, proposal detail and item detail Blade screens;
+* T0/T1/T2/T3 timeline partial;
+* formula, explanation and warning display;
+* item approve/adjust/reject services and FormRequests;
+* proposal approval service;
+* conversion to draft supplier order, items and planned logistics record;
+* audit events and focused tests.
 
 ## Step 7. Supplier Order Export And Email
 

@@ -8,6 +8,13 @@
 * rejected
 * converted_to_supplier_order
 
+Transitions:
+
+* draft -> approved only when all items are resolved and at least one orderable line exists;
+* needs_review -> approved only when all items are resolved and at least one orderable line exists;
+* approved -> converted_to_supplier_order;
+* converted_to_supplier_order is terminal for proposal review.
+
 ## OrderProposalItem
 
 * draft
@@ -15,6 +22,18 @@
 * approved
 * adjusted
 * rejected
+
+Transitions:
+
+* draft -> approved;
+* draft -> adjusted;
+* draft -> rejected;
+* needs_review -> approved with review note or confirmation;
+* needs_review -> adjusted;
+* needs_review -> rejected;
+* approved -> adjusted before proposal conversion;
+* adjusted -> approved before proposal conversion;
+* any resolved status cannot be changed after proposal conversion.
 
 ## SupplierOrder
 

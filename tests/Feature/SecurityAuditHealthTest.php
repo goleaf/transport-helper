@@ -172,7 +172,7 @@ it('writes an audit log when quantity is adjusted', function () {
     ]);
 
     expect(AuditLog::query()
-        ->where('event_type', 'order_proposal_item.adjusted')
+        ->where('event_type', 'order_quantity_adjusted')
         ->where('auditable_id', $fixture['item']->getKey())
         ->where('user_id', $fixture['user']->getKey())
         ->exists())->toBeTrue();

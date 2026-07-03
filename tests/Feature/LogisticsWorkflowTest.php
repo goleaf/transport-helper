@@ -162,7 +162,7 @@ it('creates a logistics record when a supplier order is created', function () {
     expect($record)->not->toBeNull()
         ->and($record->supplier_id)->toBe($fixture['supplier']->getKey())
         ->and($record->status)->toBe(LogisticsStatus::Planned)
-        ->and(AuditLog::query()->where('event_type', 'logistics_record.created_or_ensured')->exists())->toBeTrue();
+        ->and(AuditLog::query()->where('event_type', 'logistics_record_created')->exists())->toBeTrue();
 });
 
 it('updates logistics dates from supplier confirmation', function () {

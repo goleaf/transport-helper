@@ -117,7 +117,7 @@ it('creates a supplier order from an approved proposal', function () {
         ->and((float) $supplierOrder->items->first()->ordered_quantity)->toBe(156.0)
         ->and($fixture['proposal']->fresh()->status)->toBe(OrderProposalStatus::ConvertedToSupplierOrder)
         ->and(LogisticsRecord::query()->whereBelongsTo($supplierOrder)->exists())->toBeTrue()
-        ->and(AuditLog::query()->where('event_type', 'supplier_order.created_from_proposal')->exists())->toBeTrue();
+        ->and(AuditLog::query()->where('event_type', 'supplier_order_created')->exists())->toBeTrue();
 });
 
 it('does not create a supplier order from a draft proposal', function () {

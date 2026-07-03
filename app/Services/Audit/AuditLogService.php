@@ -254,7 +254,7 @@ class AuditLogService
      */
     public function logOrderQuantityAdjusted(OrderProposalItem $item, ?User $user, array $oldValues = [], array $newValues = [], array $metadata = [], ?int $companyId = null): AuditLog
     {
-        return $this->write('order_proposal_item.adjusted', $item, $user, $oldValues, $newValues, $metadata, $companyId);
+        return $this->write('order_quantity_adjusted', $item, $user, $oldValues, $newValues, $metadata, $companyId);
     }
 
     /**

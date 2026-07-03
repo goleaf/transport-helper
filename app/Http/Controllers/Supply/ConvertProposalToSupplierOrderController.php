@@ -3,25 +3,26 @@
 namespace App\Http\Controllers\Supply;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Supply\ConvertOrderProposalRequest;
 use App\Models\OrderProposal;
-use App\Services\Supply\ConvertProposalToSupplierOrderService;
+use App\Services\Supply\OrderProposals\SupplierOrderCreationService;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Gate;
 
 class ConvertProposalToSupplierOrderController extends Controller
 {
     public function __invoke(
-        Request $request,
+        ConvertOrderProposalRequest $request,
         OrderProposal $proposal,
-        ConvertProposalToSupplierOrderService $conversionService,
+        SupplierOrderCreationService $supplierOrderCreationService,
     ): RedirectResponse {
-        Gate::authorize('convertToSupplierOrder', $proposal);
-
-        $supplierOrder = $conversionService->convert($proposal, $request->user());
+        $result = $supplierOrderCreationService->createFromApprovedProposal(
+            $proposal,
+            $request->user(),
+            $request->validated(),
+        );
 
         return redirect()
             ->route('supply.proposals.show', $proposal)
-            ->with('status', "Supplier order {$supplierOrder->order_number} created.");
+            ->with('status', "Supplier order {$result['supplier_order']->order_number} created.");
     }
 }

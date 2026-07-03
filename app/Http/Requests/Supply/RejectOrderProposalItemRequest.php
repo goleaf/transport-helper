@@ -4,11 +4,16 @@ namespace App\Http\Requests\Supply;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class AdjustOrderProposalItemRequest extends FormRequest
+class RejectOrderProposalItemRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return $this->user()?->can('adjust', $this->route('item')) ?? false;
+        $user = $this->user();
+        $item = $this->route('item');
+
+        return $user !== null && (
+            $user->can('approve', $item) || $user->can('adjust', $item)
+        );
     }
 
     /**
@@ -17,7 +22,6 @@ class AdjustOrderProposalItemRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'quantity' => ['required', 'numeric', 'min:0'],
             'reason' => ['required', 'string', 'min:3', 'max:5000'],
         ];
     }

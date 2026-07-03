@@ -18,6 +18,7 @@ use App\Http\Controllers\Supply\LogisticsController;
 use App\Http\Controllers\Supply\LogisticsExportController;
 use App\Http\Controllers\Supply\LogisticsGoogleSheetsSyncController;
 use App\Http\Controllers\Supply\ManualCarrierQuoteController;
+use App\Http\Controllers\Supply\OrderProposalApprovalController;
 use App\Http\Controllers\Supply\OrderProposalController;
 use App\Http\Controllers\Supply\OrderProposalItemDecisionController;
 use App\Http\Controllers\Supply\SupplierOrderController;
@@ -65,7 +66,7 @@ Route::middleware(['web'])
         Route::post('proposals/{proposal}/items/{item}/approve', [OrderProposalItemDecisionController::class, 'approve'])->name('proposals.items.approve');
         Route::post('proposals/{proposal}/items/{item}/adjust', [OrderProposalItemDecisionController::class, 'adjust'])->name('proposals.items.adjust');
         Route::post('proposals/{proposal}/items/{item}/reject', [OrderProposalItemDecisionController::class, 'reject'])->name('proposals.items.reject');
-        Route::post('proposals/{proposal}/approve', [OrderProposalController::class, 'approve'])->name('proposals.approve');
+        Route::post('proposals/{proposal}/approve', [OrderProposalApprovalController::class, 'approve'])->name('proposals.approve');
         Route::post('proposals/{proposal}/convert-to-supplier-order', ConvertProposalToSupplierOrderController::class)->name('proposals.convert-to-supplier-order');
 
         Route::get('supplier-orders', [SupplierOrderController::class, 'index'])->name('supplier-orders.index');
