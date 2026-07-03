@@ -67,7 +67,7 @@ Supplier Confirmations
                     <td>{{ $confirmation->discrepancy_summary }}</td>
                     <td>{{ $confirmation->appliedBy?->name }}</td>
                     <td>{{ $confirmation->applied_at?->toDateTimeString() }}</td>
-                    <td><a href="{{ route('supply.supplier-confirmations.show', $confirmation) }}">Open</a></td>
+                    <td><x-supply.table-action :href="route('supply.supplier-confirmations.show', $confirmation)" label="Open" /></td>
                 </tr>
             @empty
                 <tr>

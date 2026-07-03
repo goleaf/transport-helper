@@ -33,11 +33,11 @@ Carrier
         <tbody>
             @forelse ($carrier->quotes as $quote)
                 <tr>
-                    <td><a href="{{ route('supply.transport.quotes.show', $quote) }}">{{ $quote->id }}</a></td>
+                    <td><x-supply.table-action :href="route('supply.transport.quotes.show', $quote)" :label="'Quote #'.$quote->id" /></td>
                     <td>{{ $quote->supplier_order_id }}</td>
                     <td>{{ $quote->price }} {{ $quote->currency }}</td>
                     <td>{{ $quote->delivery_date?->toDateString() }}</td>
-                    <td>{{ $quote->status instanceof \BackedEnum ? $quote->status->value : $quote->status }}</td>
+                    <td><x-supply.status-badge :status="$quote->status" /></td>
                 </tr>
             @empty
                 <tr>

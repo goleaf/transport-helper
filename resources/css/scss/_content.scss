@@ -1,0 +1,367 @@
+@use 'sass:map';
+@use './abstracts/tokens';
+@use './abstracts/mixins';
+
+@mixin status-group($group) {
+    $selectors: map.get($group, selectors);
+
+    @each $selector in $selectors {
+        #{$selector} {
+            border-color: tokens.token(map.get($group, border));
+            background: tokens.token(map.get($group, background));
+            color: tokens.token(map.get($group, color));
+        }
+    }
+}
+
+@mixin styles {
+    .app-content {
+        > header,
+        > section,
+        > form,
+        > dl,
+        > table,
+        > .pagination,
+        > nav {
+            margin-top: tokens.space(xl);
+        }
+
+        > header:first-child,
+        > section:first-child,
+        > form:first-child {
+            margin-top: 0;
+        }
+
+        header {
+            @include mixins.cluster(tokens.space(lg-plus), space-between, flex-end);
+            @include mixins.panel(tokens.space(xl-plus), tokens.gradient(content-header));
+        }
+
+        h1,
+        h2,
+        h3 {
+            margin: 0;
+            color: tokens.token(text-main);
+            letter-spacing: 0;
+        }
+
+        h1 {
+            width: 100%;
+            @include mixins.text(h1);
+        }
+
+        h2 {
+            @include mixins.text(h2);
+        }
+
+        h3 {
+            margin-top: tokens.space(xl);
+            @include mixins.text(h3);
+        }
+
+        p {
+            color: tokens.token(text-muted);
+        }
+
+        section {
+            @include mixins.panel;
+
+            + section {
+                margin-top: tokens.space(xl);
+            }
+
+            > h2:first-child {
+                margin-bottom: tokens.space(lg);
+            }
+        }
+
+        form {
+            @include mixins.form-grid;
+            @include mixins.panel(tokens.space(lg-plus), tokens.token(surface-white), tokens.token(border), none);
+
+            + form {
+                margin-top: tokens.space(lg-minus);
+            }
+
+            + table {
+                margin-top: tokens.space(xl);
+            }
+        }
+
+        label {
+            @include mixins.stack(tokens.space(md-minus));
+
+            color: tokens.token(text-label);
+            @include mixins.text(label, false);
+
+            &:has(input[type='checkbox']),
+            &:has(input[type='radio']) {
+                @include mixins.cluster(tokens.space(md));
+            }
+        }
+
+        dl {
+            @include mixins.definition-grid;
+
+            dt,
+            dd {
+                padding: tokens.space(lg-minus) tokens.space(lg);
+            }
+        }
+
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            table-layout: auto;
+            @include mixins.panel(0, tokens.token(surface-white));
+
+            + nav,
+            + div,
+            + p {
+                margin-top: tokens.space(xl);
+            }
+        }
+
+        thead {
+            background: tokens.token(bg-table-head);
+        }
+
+        th,
+        td {
+            border-bottom: 1px solid tokens.token(border);
+            padding: tokens.space(table-y) tokens.space(lg);
+            text-align: left;
+            vertical-align: top;
+            overflow-wrap: anywhere;
+            white-space: normal;
+        }
+
+        th {
+            color: tokens.token(text-row-heading);
+            @include mixins.overline(table-heading);
+        }
+
+        td {
+            color: tokens.token(text-strong);
+            @include mixins.text(table-cell, false);
+        }
+
+        td form,
+        .table-action-form {
+            display: inline-flex;
+            width: auto;
+            align-items: center;
+            gap: tokens.space(md-minus);
+            margin: 0;
+            border: 0;
+            background: transparent;
+            padding: 0;
+            box-shadow: none;
+        }
+
+        .table-actions {
+            @include mixins.cluster(tokens.space(md-minus), flex-start, center);
+        }
+
+        .table-action-button {
+            min-height: tokens.size(nav-child-link-height);
+            padding: tokens.space(md-minus) tokens.space(lg-minus);
+            white-space: nowrap;
+            @include mixins.button-token-variant(surface-white, border-strong, text-main);
+
+            &:hover {
+                @include mixins.button-token-variant(accent-soft, accent, accent-strong);
+            }
+        }
+
+        tbody {
+            tr {
+                &:hover {
+                    background: tokens.token(bg-elevated);
+                }
+
+                &:last-child td {
+                    border-bottom: 0;
+                }
+            }
+        }
+
+        ul,
+        ol {
+            color: tokens.token(text-muted);
+        }
+
+        > p,
+        section > p:first-child,
+        [role='alert'],
+        .warning {
+            border: 1px solid tokens.token(warning-soft);
+            border-radius: tokens.token(radius);
+            background: tokens.token(warning-panel);
+            color: tokens.token(warning-text);
+            padding: tokens.space(lg-minus) tokens.space(lg);
+        }
+
+        [data-status],
+        .status-badge {
+            @include mixins.status-pill;
+        }
+
+        @each $name, $group in tokens.$status-groups {
+            @include status-group($group);
+        }
+
+        nav[role='navigation'] {
+            margin-top: tokens.space(xl);
+
+            > div {
+                width: 100%;
+            }
+
+            > div:first-child {
+                @include mixins.cluster(tokens.space(md), space-between);
+            }
+
+            > div:nth-child(2) {
+                display: none;
+            }
+
+            p {
+                margin: 0;
+                color: tokens.token(text-muted);
+                @include mixins.text(body-small);
+            }
+
+            a,
+            > span,
+            span[aria-disabled] > span,
+            span[aria-current] > span {
+                @include mixins.pagination-item;
+            }
+
+            a {
+                &:hover {
+                    border-color: tokens.token(accent-hover-border);
+                    background: tokens.token(accent-hover-bg);
+                    color: tokens.token(accent-strong);
+                    text-decoration: none;
+                }
+
+                &:focus-visible {
+                    @include mixins.focus-ring;
+                }
+            }
+
+            > span,
+            span[aria-disabled] > span {
+                @include mixins.pagination-disabled;
+            }
+
+            span[aria-current] > span {
+                @include mixins.pagination-current;
+            }
+
+            span[aria-disabled] > span:not([aria-hidden='true']) {
+                cursor: default;
+            }
+
+            svg {
+                width: tokens.size(icon-max);
+                height: tokens.size(icon-max);
+            }
+
+            @include mixins.respond(mobile) {
+                > div:first-child {
+                    display: flex;
+                }
+            }
+
+            @include mixins.respond-up(mobile) {
+                > div:first-child {
+                    display: none;
+                }
+
+                > div:nth-child(2) {
+                    @include mixins.cluster(tokens.space(lg), space-between);
+
+                    > div:last-child > span {
+                        @include mixins.cluster(tokens.space(none));
+
+                        align-items: stretch;
+                    }
+                }
+            }
+        }
+
+        svg {
+            max-width: tokens.size(icon-max);
+        }
+
+        .grid {
+            @include mixins.responsive-grid(tokens.size(grid-min));
+        }
+
+        .metric {
+            @include mixins.stack(tokens.space(md-minus));
+            @include mixins.panel(tokens.space(lg-plus), tokens.token(surface-white));
+
+            span {
+                color: tokens.token(text-soft);
+                @include mixins.overline;
+            }
+
+            strong {
+                color: tokens.token(text-main);
+                @include mixins.text(metric);
+            }
+        }
+
+        .detail-title,
+        .section-heading > div {
+            @include mixins.stack(tokens.space(md));
+        }
+
+        .detail-title p,
+        .section-intro {
+            margin: 0;
+        }
+
+        .page-actions,
+        .form-actions {
+            @include mixins.cluster(tokens.space(md), flex-end);
+        }
+
+        .inline-code {
+            display: inline-flex;
+            border: 1px solid tokens.token(border-soft);
+            border-radius: tokens.token(radius);
+            background: tokens.token(bg-code);
+            color: tokens.token(text-strong);
+            padding: tokens.space(xs) tokens.space(md);
+            @include mixins.text(code, false);
+        }
+
+        .muted-cell,
+        .form-help {
+            color: tokens.token(text-muted);
+        }
+
+        .form-help,
+        .form-error {
+            @include mixins.text(body-small);
+        }
+
+        .form-error {
+            color: tokens.token(danger);
+        }
+
+        .form-field-wide {
+            grid-column: 1 / -1;
+        }
+
+        .checkbox-field {
+            align-self: center;
+        }
+    }
+}

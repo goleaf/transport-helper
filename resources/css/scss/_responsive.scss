@@ -1,0 +1,110 @@
+@use './abstracts/tokens';
+@use './abstracts/mixins';
+
+@mixin styles {
+    @include mixins.respond(shell) {
+        .app-shell {
+            grid-template-columns: 1fr;
+        }
+
+        .app-sidebar {
+            position: static;
+            height: auto;
+            max-height: none;
+            border-right: 0;
+            border-bottom: 1px solid tokens.token(border);
+        }
+
+        .nav-list {
+            @include mixins.responsive-grid(tokens.size(nav-grid-min));
+        }
+
+        .app-content {
+            table,
+            thead,
+            tbody,
+            tr,
+            th,
+            td {
+                display: block;
+                width: 100%;
+            }
+
+            table {
+                table-layout: auto;
+            }
+
+            thead {
+                display: none;
+            }
+
+            tbody tr {
+                padding: tokens.space(md);
+                border-bottom: 1px solid tokens.token(border);
+
+                &:last-child {
+                    border-bottom: 0;
+                }
+            }
+
+            th,
+            td {
+                border-bottom: 0;
+            }
+
+            td + td {
+                border-top: 1px solid tokens.token(border-soft);
+            }
+        }
+    }
+
+    @include mixins.respond(mobile) {
+        .app-main {
+            padding: tokens.space(lg-plus) tokens.space(lg) tokens.space(xxxl);
+        }
+
+        .app-content header,
+        .hero-actions,
+        .section-heading,
+        .auth-card {
+            align-items: stretch;
+            flex-direction: column;
+        }
+
+        .mini-pills {
+            justify-content: flex-start;
+        }
+
+        .app-content {
+            section,
+            form,
+            header {
+                padding: tokens.space(mobile-panel);
+            }
+
+            dl,
+            .structured-data {
+                grid-template-columns: 1fr;
+            }
+
+            dt:not(:first-child) {
+                border-top: 1px solid tokens.token(border);
+            }
+
+            th,
+            td {
+                padding: tokens.space(md-plus) tokens.space(lg-minus);
+            }
+        }
+
+        .auth-card {
+            grid-template-columns: 1fr;
+            padding: tokens.space(mobile-panel);
+        }
+
+        .auth-shell {
+            align-items: stretch;
+            padding: tokens.space(lg);
+        }
+    }
+}

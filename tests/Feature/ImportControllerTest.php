@@ -1,8 +1,10 @@
 <?php
 
+use App\Enums\UserRole;
 use App\Models\Company;
 use App\Models\Product;
 use App\Models\SalesHistory;
+use App\Models\User;
 use App\Services\Import\ImportBatchService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
@@ -31,28 +33,38 @@ function stage3ControllerCsvFile(array $rows): string
     return $path;
 }
 
+function stage3ImportUser(): User
+{
+    return User::factory()->create(['role' => UserRole::SupplyManager]);
+}
+
 it('import index page loads', function () {
-    $this->get(route('supply.imports.index'))->assertOk();
+    $this->actingAs(stage3ImportUser())
+        ->get(route('supply.imports.index'))
+        ->assertOk();
 });
 
 it('import create page loads', function () {
     Company::factory()->create();
 
-    $this->get(route('supply.imports.create'))->assertOk();
+    $this->actingAs(stage3ImportUser())
+        ->get(route('supply.imports.create'))
+        ->assertOk();
 });
 
 it('user can upload sales history csv', function () {
     $company = Company::factory()->create();
     Product::factory()->for($company)->create(['sku' => 'SKU-1001']);
 
-    $response = $this->post(route('supply.imports.store'), [
-        'company_id' => $company->getKey(),
-        'import_type' => 'sales_history',
-        'adapter' => 'csv',
-        'delimiter' => ',',
-        'has_header' => '1',
-        'file' => stage3UploadFile("sku,sales_date,quantity\nSKU-1001,2026-07-01,12\n"),
-    ]);
+    $response = $this->actingAs(stage3ImportUser())
+        ->post(route('supply.imports.store'), [
+            'company_id' => $company->getKey(),
+            'import_type' => 'sales_history',
+            'adapter' => 'csv',
+            'delimiter' => ',',
+            'has_header' => '1',
+            'file' => stage3UploadFile("sku,sales_date,quantity\nSKU-1001,2026-07-01,12\n"),
+        ]);
 
     $response->assertRedirect();
     expect(SalesHistory::query()->count())->toBe(1);
@@ -66,7 +78,8 @@ it('show page displays failed rows', function () {
     ]);
     $batch = app(ImportBatchService::class)->run('sales_history', 'csv', ['file_path' => $path], ['company_id' => $company->getKey()])['batch'];
 
-    $this->get(route('supply.imports.show', $batch))
+    $this->actingAs(stage3ImportUser())
+        ->get(route('supply.imports.show', $batch))
         ->assertOk()
         ->assertSee('SKU not found');
 });
@@ -80,7 +93,9 @@ it('rollback route updates the batch', function () {
     ]);
     $batch = app(ImportBatchService::class)->run('sales_history', 'csv', ['file_path' => $path], ['company_id' => $company->getKey()])['batch'];
 
-    $this->post(route('supply.imports.rollback', $batch))->assertRedirect();
+    $this->actingAs(stage3ImportUser())
+        ->post(route('supply.imports.rollback', $batch))
+        ->assertRedirect();
 
     expect($batch->refresh()->status->value)->toBe('rolled_back')
         ->and(SalesHistory::query()->count())->toBe(0);

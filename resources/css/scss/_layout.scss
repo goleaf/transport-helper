@@ -1,0 +1,201 @@
+@use './abstracts/tokens';
+@use './abstracts/mixins';
+
+@mixin styles {
+    .skip-link {
+        position: fixed;
+        top: tokens.space(lg);
+        left: tokens.space(lg);
+        z-index: 100;
+        transform: translateY(-140%);
+        border-radius: tokens.token(radius);
+        background: tokens.token(accent);
+        color: tokens.token(surface-white);
+        padding: tokens.space(md) tokens.space(lg);
+        font-weight: tokens.type-prop(overline, weight);
+
+        &:focus {
+            transform: translateY(0);
+        }
+    }
+
+    .app-shell {
+        display: grid;
+        min-height: 100vh;
+        grid-template-columns: tokens.size(sidebar) minmax(0, 1fr);
+    }
+
+    .app-sidebar {
+        position: sticky;
+        top: 0;
+        align-self: start;
+        @include mixins.stack(tokens.space(xl-plus));
+
+        min-height: 100vh;
+        overflow: visible;
+        border-right: 1px solid tokens.token(border);
+        background: tokens.token(surface-white);
+        padding: tokens.space(xl-plus) tokens.space(lg-plus);
+    }
+
+    .brand-lockup {
+        @include mixins.cluster(tokens.space(lg));
+
+        padding: tokens.space(sm) tokens.space(md-minus) tokens.space(lg-plus);
+        border-bottom: 1px solid tokens.token(border);
+    }
+
+    .brand-mark {
+        @include mixins.flex-center;
+
+        width: tokens.size(brand-mark);
+        height: tokens.size(brand-mark);
+        border-radius: tokens.token(radius);
+        background: tokens.token(accent);
+        color: tokens.token(surface-white);
+        font-weight: tokens.type-prop(overline-strong, weight);
+        letter-spacing: 0;
+
+        &:hover {
+            color: tokens.token(surface-white);
+            text-decoration: none;
+        }
+    }
+
+    .brand-eyebrow,
+    .nav-section-title {
+        margin: 0;
+        color: tokens.token(text-soft);
+        @include mixins.overline(overline-tight);
+    }
+
+    .brand-name {
+        margin: tokens.space(hairline) 0 0;
+        color: tokens.token(text-main);
+        @include mixins.text(brand, false);
+    }
+
+    .supply-nav {
+        @include mixins.stack(tokens.space(lg-minus));
+    }
+
+    .nav-list,
+    .nav-child-list {
+        @include mixins.bare-list;
+        @include mixins.stack;
+    }
+
+    .nav-list {
+        gap: tokens.space(xs);
+    }
+
+    .nav-child-list {
+        gap: tokens.space(xxs);
+        margin: tokens.space(sm) 0 tokens.space(md) tokens.space(nav-child-indent);
+    }
+
+    .nav-link,
+    .nav-child-link {
+        @include mixins.interactive-transition;
+
+        display: flex;
+        min-height: tokens.size(nav-link-height);
+        align-items: center;
+        gap: tokens.space(md-plus);
+        border-radius: tokens.token(radius);
+        color: tokens.token(text-row-heading);
+        padding: tokens.space(md) tokens.space(lg-minus);
+        @include mixins.text(nav, false);
+
+        &:hover {
+            background: tokens.token(bg-soft);
+            color: tokens.token(accent-strong);
+            text-decoration: none;
+        }
+    }
+
+    .nav-link {
+        &[aria-current='page'] {
+            background: tokens.token(accent-soft);
+            color: tokens.token(accent-strong);
+
+            .nav-dot {
+                background: tokens.token(accent);
+            }
+        }
+    }
+
+    .nav-dot {
+        @include mixins.dot;
+    }
+
+    .nav-child-link {
+        min-height: tokens.size(nav-child-link-height);
+        padding: tokens.space(md-minus) tokens.space(md-plus);
+        @include mixins.text(nav-child, false);
+    }
+
+    .app-main {
+        min-width: 0;
+        padding: tokens.space(xxl) tokens.layout(main-padding-x-fluid) tokens.space(page-bottom);
+    }
+
+    .sidebar-logout {
+        margin: 0;
+        padding-top: tokens.space(lg);
+        border-top: 1px solid tokens.token(border);
+
+        button {
+            width: 100%;
+            min-height: tokens.size(nav-link-height);
+        }
+    }
+
+    .app-content {
+        width: 100%;
+        max-width: none;
+        margin: 0;
+    }
+
+    .auth-shell {
+        @include mixins.flex-center;
+
+        min-height: 100vh;
+        padding: tokens.space(xxl) tokens.layout(main-padding-x-fluid);
+    }
+
+    .auth-card {
+        display: grid;
+        width: min(100%, 980px);
+        grid-template-columns: minmax(0, 1.1fr) minmax(320px, 0.9fr);
+        gap: tokens.space(xl-plus);
+        @include mixins.panel(tokens.space(xxl), tokens.token(surface-white));
+    }
+
+    .auth-copy {
+        @include mixins.stack(tokens.space(lg));
+
+        align-content: center;
+
+        p {
+            max-width: 62ch;
+        }
+    }
+
+    .auth-demo {
+        @include mixins.definition-grid(118px, 160px, structured-heading);
+
+        max-width: 430px;
+    }
+
+    .auth-form {
+        @include mixins.stack(tokens.space(lg));
+        @include mixins.panel(tokens.space(xl-plus), tokens.token(bg-elevated), tokens.token(border), none);
+
+        align-content: start;
+    }
+
+    .auth-check {
+        align-items: center;
+    }
+}

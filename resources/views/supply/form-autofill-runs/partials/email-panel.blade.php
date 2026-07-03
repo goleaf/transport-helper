@@ -12,7 +12,7 @@
         <dt>Supplier order</dt>
         <dd>{{ $run->emailMessage?->relatedSupplierOrder?->order_number }}</dd>
     </dl>
-    <pre>{{ $run->emailMessage?->body_text }}</pre>
+    <div class="message-body">{{ $run->emailMessage?->body_text }}</div>
 
     <h3>Attachments</h3>
     <ul>

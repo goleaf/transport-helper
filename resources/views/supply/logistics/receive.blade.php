@@ -44,15 +44,14 @@ Record Goods Receipt
         </thead>
         <tbody>
             @forelse ($order?->items ?? [] as $index => $item)
-                @php($expectedQuantity = $item->confirmed_quantity ?? $item->ordered_quantity)
                 <tr>
                     <td>{{ $item->product?->sku }}<input type="hidden" name="items[{{ $index }}][product_id]" value="{{ $item->product_id }}"></td>
                     <td>{{ $item->product?->name }}</td>
                     <td>{{ $item->ordered_quantity }}</td>
                     <td>{{ $item->confirmed_quantity }}</td>
-                    <td>{{ $expectedQuantity }}</td>
+                    <td>{{ $item->expected_receipt_quantity }}</td>
                     <td>{{ $item->received_quantity }}</td>
-                    <td><input type="number" step="0.001" name="items[{{ $index }}][received_quantity]" value="{{ old('items.'.$index.'.received_quantity', $expectedQuantity) }}" required></td>
+                    <td><input type="number" step="0.001" name="items[{{ $index }}][received_quantity]" value="{{ old('items.'.$index.'.received_quantity', $item->expected_receipt_quantity) }}" required></td>
                     <td><input type="number" step="0.001" name="items[{{ $index }}][damaged_quantity]" value="{{ old('items.'.$index.'.damaged_quantity', 0) }}"></td>
                     <td><input type="text" name="items[{{ $index }}][notes]" value="{{ old('items.'.$index.'.notes') }}"></td>
                 </tr>

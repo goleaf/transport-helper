@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<html lang="{{ $htmlLocale }}">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -9,10 +9,10 @@
     @fonts
 
     @if (file_exists(public_path('build/manifest.json')) || file_exists(public_path('hot')))
-        @vite(['resources/css/app.css', 'resources/js/app.js'])
+        @vite(['resources/css/daisy.css', 'resources/css/app.scss', 'resources/js/app.js'])
     @endif
 </head>
-<body>
+<body data-theme="transport">
     <a class="skip-link" href="#content">Skip to content</a>
 
     <div class="app-shell">
@@ -26,21 +26,16 @@
             </div>
 
             <x-supply.navigation />
+
+            @auth
+                <form method="post" action="{{ route('logout') }}" class="sidebar-logout">
+                    @csrf
+                    <button type="submit" class="button-secondary">Sign out</button>
+                </form>
+            @endauth
         </aside>
 
         <main id="content" class="app-main">
-            <div class="app-main-bar" aria-label="Portal context">
-                <div>
-                    <p class="app-kicker">Laravel controlled workflow</p>
-                    <p class="app-context">Imports, replenishment, approvals, supplier email, AI review and logistics</p>
-                </div>
-                <div class="app-guardrails" aria-label="Core guardrails">
-                    <span>Light UI</span>
-                    <span>Human approval</span>
-                    <span>Audit first</span>
-                </div>
-            </div>
-
             <div class="app-content">
                 @yield('content')
             </div>

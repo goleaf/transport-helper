@@ -105,7 +105,7 @@ Logistics Record {{ $record->id }}
         <label for="status">Status</label>
         <select id="status" name="status">
             @forelse ($statuses as $status)
-                <option value="{{ $status->value }}" @selected($record->status instanceof \BackedEnum && $record->status->value === $status->value)>{{ $status->value }}</option>
+                <option value="{{ $status->value }}" @selected($record->status_value === $status->value)>{{ $status->value }}</option>
             @empty
                 <option value="" disabled>No statuses.</option>
             @endforelse

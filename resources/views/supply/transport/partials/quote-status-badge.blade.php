@@ -1,2 +1,1 @@
-@php($value = $status instanceof \BackedEnum ? $status->value : (string) $status)
-<span>{{ str($value)->replace('_', ' ')->title() }}</span>
+<x-supply.quote-status-label :status="$status" />

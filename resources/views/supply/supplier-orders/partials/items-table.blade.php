@@ -26,7 +26,7 @@
                     <td>{{ $item->received_quantity }}</td>
                     <td>{{ $item->unit_price }}</td>
                     <td>{{ $item->currency }}</td>
-                    <td>{{ $item->status }}</td>
+                    <td><x-supply.status-badge :status="$item->status" /></td>
                     <td>{{ $item->notes }}</td>
                 </tr>
             @empty

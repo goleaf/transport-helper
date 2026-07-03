@@ -10,6 +10,7 @@ use App\Services\AI\Email\RuleBasedAiEmailAnalyzer;
 use App\Services\AI\Forms\RuleBasedAiEmailFormExtractor;
 use App\Services\AI\NullAiEmailReplyDraftGenerator;
 use App\Services\Email\Senders\LogEmailSender;
+use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -30,6 +31,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        View::composer(['layouts.app', 'layouts.auth'], function ($view): void {
+            $view->with('htmlLocale', str_replace('_', '-', app()->getLocale()));
+        });
     }
 }

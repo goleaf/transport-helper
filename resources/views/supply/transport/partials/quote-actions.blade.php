@@ -2,7 +2,7 @@
     @csrf
     <input type="hidden" name="confirmation" value="1">
     <input type="hidden" name="confirm_selection" value="1">
-    @if (($quote->status instanceof \BackedEnum ? $quote->status->value : $quote->status) === 'needs_review')
+    @if ($quote->needs_review)
         <label><input type="checkbox" name="override_needs_review" value="1"> Override needs review</label>
         <label>Reason <input name="override_reason"></label>
     @endif

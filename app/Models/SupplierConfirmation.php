@@ -3,7 +3,9 @@
 namespace App\Models;
 
 use App\Enums\SupplierConfirmationStatus;
+use App\Support\DisplayValue;
 use Database\Factories\SupplierConfirmationFactory;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -85,5 +87,10 @@ class SupplierConfirmation extends Model
     public function items(): HasMany
     {
         return $this->hasMany(SupplierConfirmationItem::class);
+    }
+
+    protected function statusValue(): Attribute
+    {
+        return Attribute::get(fn (): string => DisplayValue::statusValue($this->status));
     }
 }

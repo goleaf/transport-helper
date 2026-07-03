@@ -17,8 +17,8 @@
     <form method="post" action="{{ route('supply.form-autofill-runs.export', $run) }}">
         @csrf
         <select name="format">
-            <option value="json">JSON</option>
-            <option value="csv">CSV</option>
+            <option value="json">Structured data</option>
+            <option value="csv">Spreadsheet</option>
         </select>
         <label>
             <input type="checkbox" name="include_review_fields" value="1">
@@ -31,7 +31,7 @@
     <ul>
         @forelse ($run->outputs as $output)
             <li>
-                {{ $output->output_type }} {{ $output->filename }}
+                <x-supply.human-label :value="$output->output_type" /> {{ $output->filename }}
                 @if ($output->stored_path)
                     <a href="{{ route('supply.form-autofill-outputs.download', $output) }}">Download</a>
                 @endif

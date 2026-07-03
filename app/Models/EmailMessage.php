@@ -3,8 +3,10 @@
 namespace App\Models;
 
 use App\Enums\EmailDirection;
+use App\Support\DisplayValue;
 use Database\Factories\EmailMessageFactory;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -108,5 +110,30 @@ class EmailMessage extends Model
     public function scopeForCompany(Builder $query, Company|int $company): Builder
     {
         return $query->where('company_id', $company instanceof Company ? $company->getKey() : $company);
+    }
+
+    protected function directionValue(): Attribute
+    {
+        return Attribute::get(fn (): string => DisplayValue::statusValue($this->direction));
+    }
+
+    protected function isInbound(): Attribute
+    {
+        return Attribute::get(fn (): bool => $this->direction_value === EmailDirection::Inbound->value);
+    }
+
+    protected function recipientsText(): Attribute
+    {
+        return Attribute::get(fn (): string => DisplayValue::inlineList($this->to_json));
+    }
+
+    protected function ccText(): Attribute
+    {
+        return Attribute::get(fn (): string => DisplayValue::inlineList($this->cc_json));
+    }
+
+    protected function bodyPreview(): Attribute
+    {
+        return Attribute::get(fn (): string => DisplayValue::preview($this->body_text));
     }
 }

@@ -1,31 +1,3 @@
-@props(['items' => null])
-
-@php
-    $items ??= collect(\App\Support\SupplyNavigation::items())
-        ->map(function (array $item): array {
-            $children = collect($item['children'] ?? [])
-                ->map(fn (array $child): array => [
-                    'label' => $child['label'],
-                    'href' => route($child['route']).'#'.$child['fragment'],
-                ])
-                ->all();
-
-            if ($item['key'] === 'logistics') {
-                $children[] = ['label' => 'Notifications', 'href' => route('supply.notifications.index')];
-                $children[] = ['label' => 'Health', 'href' => route('supply.health.index')];
-            }
-
-            return [
-                'label' => $item['label'],
-                'href' => route($item['route']).(isset($item['fragment']) ? '#'.$item['fragment'] : ''),
-                'is_active' => request()->routeIs($item['active']),
-                'show_children' => request()->routeIs($item['active']) && $children !== [],
-                'children' => $children,
-            ];
-        })
-        ->all();
-@endphp
-
 <nav class="supply-nav" aria-label="Supply navigation">
     <div class="nav-section-title">Workspace</div>
     <ul class="nav-list">

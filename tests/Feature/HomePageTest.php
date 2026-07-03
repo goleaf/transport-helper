@@ -8,7 +8,7 @@ test('home page is an operational supply console', function () {
         ->assertViewIs('welcome')
         ->assertSeeText('Supply / Procurement Agent')
         ->assertSeeText('Deterministic replenishment')
-        ->assertSeeText('Human approval required')
+        ->assertSeeText('Manual review required')
         ->assertSeeText('AI suggestions stay separate')
         ->assertSeeText('Open Supply Dashboard')
         ->assertSee(route('supply.dashboard'), false)

@@ -1,0 +1,345 @@
+@use 'sass:map';
+@use 'sass:string';
+
+$tokens: (
+    font-sans: string.unquote(
+            "'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji'"
+        ),
+    surface-white: var(--color-base-100),
+    bg-page: var(--color-base-200),
+    bg-panel: var(--color-base-100),
+    bg-soft: color-mix(in oklch, var(--color-primary) 10%, var(--color-base-100)),
+    bg-muted: color-mix(in oklch, var(--color-base-content) 7%, var(--color-base-100)),
+    bg-subtle: color-mix(in oklch, var(--color-primary) 4%, var(--color-base-100)),
+    bg-elevated: color-mix(in oklch, var(--color-base-100) 94%, var(--color-base-200)),
+    bg-code: color-mix(in oklch, var(--color-base-content) 4%, var(--color-base-100)),
+    bg-table-head: color-mix(in oklch, var(--color-primary) 7%, var(--color-base-100)),
+    bg-disabled: color-mix(in oklch, var(--color-base-content) 12%, var(--color-base-100)),
+    bg-glass: color-mix(in srgb, var(--color-base-100) 82%, transparent),
+    bg-overlay: color-mix(in srgb, var(--color-base-100) 72%, transparent),
+    text-main: var(--color-base-content),
+    text-strong: color-mix(in oklch, var(--color-base-content) 88%, var(--color-neutral)),
+    text-muted: color-mix(in oklch, var(--color-base-content) 62%, var(--color-base-100)),
+    text-soft: color-mix(in oklch, var(--color-base-content) 48%, var(--color-base-100)),
+    text-label: color-mix(in oklch, var(--color-base-content) 78%, var(--color-base-100)),
+    text-row-heading: color-mix(in oklch, var(--color-base-content) 72%, var(--color-base-100)),
+    border: var(--color-base-300),
+    border-soft: color-mix(in oklch, var(--color-base-300) 70%, var(--color-base-100)),
+    border-strong: color-mix(in oklch, var(--color-base-content) 18%, var(--color-base-100)),
+    accent: var(--color-primary),
+    accent-strong: color-mix(in oklch, var(--color-primary) 78%, var(--color-neutral)),
+    accent-soft: color-mix(in oklch, var(--color-primary) 14%, var(--color-base-100)),
+    accent-hover: color-mix(in oklch, var(--color-primary) 64%, var(--color-neutral)),
+    accent-hover-border: color-mix(in oklch, var(--color-primary) 38%, var(--color-base-100)),
+    accent-hover-bg: color-mix(in oklch, var(--color-primary) 5%, var(--color-base-100)),
+    danger: var(--color-error),
+    danger-soft: color-mix(in oklch, var(--color-error) 14%, var(--color-base-100)),
+    warning: var(--color-warning),
+    warning-soft: color-mix(in oklch, var(--color-warning) 18%, var(--color-base-100)),
+    warning-panel: color-mix(in oklch, var(--color-warning) 8%, var(--color-base-100)),
+    warning-text: color-mix(in oklch, var(--color-warning) 62%, var(--color-neutral)),
+    success: var(--color-success),
+    success-soft: color-mix(in oklch, var(--color-success) 14%, var(--color-base-100)),
+    info: var(--color-info),
+    info-soft: color-mix(in oklch, var(--color-info) 13%, var(--color-base-100)),
+    status-default-bg: color-mix(in oklch, var(--color-base-content) 5%, var(--color-base-100)),
+    status-default-text: color-mix(in oklch, var(--color-base-content) 66%, var(--color-base-100)),
+    success-border: color-mix(in oklch, var(--color-success) 32%, var(--color-base-100)),
+    warning-border: color-mix(in oklch, var(--color-warning) 34%, var(--color-base-100)),
+    danger-border: color-mix(in oklch, var(--color-error) 28%, var(--color-base-100)),
+    info-border: color-mix(in oklch, var(--color-info) 25%, var(--color-base-100)),
+    guardrail-success-bg: color-mix(in oklch, var(--color-success) 9%, var(--color-base-100)),
+    guardrail-success-border: color-mix(in oklch, var(--color-success) 26%, var(--color-base-100)),
+    guardrail-warning-bg: color-mix(in oklch, var(--color-warning) 8%, var(--color-base-100)),
+    guardrail-warning-border: color-mix(in oklch, var(--color-warning) 31%, var(--color-base-100)),
+    guardrail-info-bg: color-mix(in oklch, var(--color-info) 8%, var(--color-base-100)),
+    guardrail-info-border: color-mix(in oklch, var(--color-info) 24%, var(--color-base-100)),
+    hero-end: color-mix(in oklch, var(--color-accent) 12%, var(--color-base-100)),
+    nav-dot: color-mix(in oklch, var(--color-base-content) 28%, var(--color-base-100)),
+    radius: 8px,
+    shadow-soft: 0 1px 2px rgb(16 24 40 / 0.05),
+    shadow-inset: inset 0 1px 1px rgb(16 24 40 / 0.03),
+) !default;
+
+@function require-key($source, $name, $group) {
+    @if not map.has-key($source, $name) {
+        @error 'Unknown #{$group} token: #{$name}.';
+    }
+
+    @return map.get($source, $name);
+}
+
+@function token($name) {
+    @return value($name);
+}
+
+@function value($name) {
+    @return require-key($tokens, $name, 'css');
+}
+
+@function gradient($name) {
+    @return require-key($gradients, $name, 'gradient');
+}
+
+$space: (
+    none: 0,
+    hairline: 1px,
+    xxs: 2px,
+    xs: 3px,
+    sm: 4px,
+    sm-plus: 5px,
+    md-minus: 6px,
+    md: 8px,
+    md-plus: 9px,
+    lg-minus: 10px,
+    table-y: 11px,
+    lg: 12px,
+    mobile-panel: 13px,
+    lg-plus: 14px,
+    xl: 16px,
+    xl-plus: 18px,
+    xxl: 22px,
+    nav-child-indent: 25px,
+    xxxl: 30px,
+    page-bottom: 40px,
+) !default;
+
+$sizes: (
+    min-viewport: 320px,
+    sidebar: 280px,
+    brand-mark: 38px,
+    button-height: 38px,
+    nav-link-height: 36px,
+    nav-child-link-height: 30px,
+    nav-grid-min: 170px,
+    badge-height: 24px,
+    checkbox: 16px,
+    textarea-min-height: 96px,
+    timeline-node-min-height: 118px,
+    form-grid-min: 210px,
+    grid-min: 160px,
+    nav-dot: 7px,
+    icon-max: 20px,
+) !default;
+
+$layout: (
+    main-padding-x-fluid: clamp(16px, 2vw, 30px),
+    definition-label-min: 140px,
+    definition-label-max: 220px,
+    structured-label-min: 110px,
+    structured-label-max: 180px,
+) !default;
+
+$motion: (
+    fast: 160ms ease,
+) !default;
+
+$type: (
+    body: (
+        size: 15px,
+        line: 1.5,
+    ),
+    code: (
+        size: 13px,
+    ),
+    label: (
+        size: 13px,
+        weight: 680,
+    ),
+    brand: (
+        size: 16px,
+        weight: 750,
+    ),
+    nav: (
+        size: 14px,
+        weight: 650,
+    ),
+    nav-child: (
+        size: 13px,
+        weight: 600,
+    ),
+    h1: (
+        size: clamp(26px, 3vw, 38px),
+        line: 1.08,
+        weight: 760,
+    ),
+    h2: (
+        size: 19px,
+        line: 1.2,
+        weight: 730,
+    ),
+    h3: (
+        size: 15px,
+        line: 1.25,
+        weight: 720,
+    ),
+    body-large: (
+        size: 16px,
+        line: 1.65,
+    ),
+    body-small: (
+        size: 13px,
+        line: 1.55,
+    ),
+    card-title: (
+        size: 14px,
+        weight: 760,
+    ),
+    metric: (
+        size: 24px,
+        line: 1.1,
+    ),
+    overline: (
+        size: 12px,
+        weight: 750,
+        tracking: 0.04em,
+    ),
+    overline-tight: (
+        size: 11px,
+        weight: 750,
+        tracking: 0.08em,
+    ),
+    structured-heading: (
+        size: 11px,
+        weight: 780,
+    ),
+    overline-strong: (
+        size: 12px,
+        weight: 800,
+        tracking: 0.08em,
+    ),
+    table-heading: (
+        size: 12px,
+        weight: 780,
+        tracking: 0.04em,
+    ),
+    table-cell: (
+        size: 14px,
+    ),
+    badge: (
+        size: 12px,
+        weight: 760,
+    ),
+    mini-pill: (
+        size: 12px,
+        weight: 750,
+    ),
+    number-pill: (
+        size: 11px,
+        weight: 800,
+    ),
+) !default;
+
+@function space($name) {
+    @return require-key($space, $name, 'space');
+}
+
+@function size($name) {
+    @return require-key($sizes, $name, 'size');
+}
+
+@function layout($name) {
+    @return require-key($layout, $name, 'layout');
+}
+
+@function motion($name) {
+    @return require-key($motion, $name, 'motion');
+}
+
+@function type-prop($name, $prop) {
+    $definition: require-key($type, $name, 'type');
+
+    @return map.get($definition, $prop);
+}
+
+$breakpoints: (
+    shell: 1080px,
+    mobile: 720px,
+) !default;
+
+$gradients: (
+    body: linear-gradient(180deg, token(surface-white) 0, token(bg-page) 260px),
+    content-header: linear-gradient(180deg, token(surface-white) 0%, token(bg-subtle) 100%),
+    portal-hero: linear-gradient(135deg, token(surface-white) 0%, token(accent-hover-bg) 55%, token(hero-end) 100%),
+    timeline-node: linear-gradient(180deg, token(surface-white) 0%, token(bg-subtle) 100%),
+) !default;
+
+$grid-patterns: (
+    guardrail-grid: 220px,
+    workflow-grid: 230px,
+    workflow-grid-compact: 260px,
+    approval-grid: 190px,
+    process-grid: 190px,
+    proposal-timeline: 190px,
+    proposal-periods: 180px,
+) !default;
+
+$guardrail-card-variants: (
+    1: (
+        border: guardrail-success-border,
+        background: guardrail-success-bg,
+    ),
+    2: (
+        border: guardrail-warning-border,
+        background: guardrail-warning-bg,
+    ),
+    3: (
+        border: guardrail-info-border,
+        background: guardrail-info-bg,
+    ),
+) !default;
+
+$status-groups: (
+    success: (
+        selectors: (
+            "[data-status*='approved']",
+            "[data-status='accepted']",
+            "[data-status='confirmed']",
+            "[data-status='completed']",
+            "[data-status='validated']",
+            "[data-status='selected']",
+            "[data-status='active']",
+        ),
+        border: success-border,
+        background: success-soft,
+        color: success,
+    ),
+    warning: (
+        selectors: (
+            "[data-status*='review']",
+            "[data-status='draft']",
+            "[data-status='pending']",
+            "[data-status='received']",
+            "[data-status='open']",
+            "[data-status='required']",
+        ),
+        border: warning-border,
+        background: warning-soft,
+        color: warning,
+    ),
+    danger: (
+        selectors: (
+            "[data-status='rejected']",
+            "[data-status='failed']",
+            "[data-status='cancelled']",
+            "[data-status='delayed']",
+            "[data-status='inactive']",
+            "[data-status*='mismatch']",
+        ),
+        border: danger-border,
+        background: danger-soft,
+        color: danger,
+    ),
+    info: (
+        selectors: (
+            "[data-status='sent']",
+            "[data-status='exported']",
+            "[data-status='in_transit']",
+            "[data-status='pickup_scheduled']",
+            "[data-status='optional']",
+        ),
+        border: info-border,
+        background: info-soft,
+        color: info,
+    ),
+) !default;

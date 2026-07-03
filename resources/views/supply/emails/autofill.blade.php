@@ -1,15 +1,4 @@
-<!doctype html>
-<html lang="en">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Autofill Form From Email</title>
-</head>
-<body>
-    <main>
-        <x-supply.navigation />
-
-        <header>
+<header>
             <p><a href="{{ route('supply.emails.show', $email) }}">Back to email</a></p>
             <h1>Autofill Form From Email</h1>
         </header>
@@ -36,7 +25,7 @@
                 <dt>Possible supplier order</dt>
                 <dd>{{ $email->relatedSupplierOrder?->order_number }}</dd>
             </dl>
-            <p>{{ \Illuminate\Support\Str::limit((string) $email->body_text, 500) }}</p>
+            <p>{{ $email->body_preview }}</p>
         </section>
 
         <form method="post" action="{{ route('supply.emails.autofill.preview', $email) }}">
@@ -44,7 +33,7 @@
             <label for="form_template_id">Form template</label>
             <select id="form_template_id" name="form_template_id">
                 @forelse ($templates as $template)
-                    <option value="{{ $template->id }}">{{ $template->name }} {{ $template->context_type instanceof \BackedEnum ? $template->context_type->value : $template->context_type }}</option>
+                    <option value="{{ $template->id }}">{{ $template->autofill_option_label }}</option>
                 @empty
                     <option value="">No active templates</option>
                 @endforelse
@@ -69,6 +58,3 @@
 
             <button type="submit">Generate autofill preview</button>
         </form>
-    </main>
-</body>
-</html>

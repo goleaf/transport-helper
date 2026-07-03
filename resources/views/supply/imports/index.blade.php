@@ -1,78 +1,72 @@
-<!doctype html>
-<html lang="en">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Supply Imports</title>
-</head>
-<body>
-    <main>
-        <x-supply.navigation />
+@extends('layouts.app')
 
-        <header>
-            <h1>Supply Imports</h1>
-            <a href="{{ route('supply.imports.create') }}">Create import</a>
-        </header>
+@section('title')
+Supply Imports
+@endsection
 
-        <form method="GET" action="{{ route('supply.imports.index') }}">
-            <label>
-                Status
-                <input name="status" value="{{ $filters['status'] ?? '' }}">
-            </label>
-            <label>
-                Import type
-                <input name="import_type" value="{{ $filters['import_type'] ?? '' }}">
-            </label>
-            <button type="submit">Filter</button>
-            <a href="{{ route('supply.imports.index') }}">Clear</a>
-        </form>
+@section('content')
+<header>
+    <h1>Supply Imports</h1>
+    <a href="{{ route('supply.imports.create') }}">Create import</a>
+</header>
 
-        <table>
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Company</th>
-                    <th>Import type</th>
-                    <th>Source</th>
-                    <th>Adapter</th>
-                    <th>Filename</th>
-                    <th>Status</th>
-                    <th>Total</th>
-                    <th>Successful</th>
-                    <th>Failed</th>
-                    <th>Rows</th>
-                    <th>Started</th>
-                    <th>Finished</th>
-                    <th></th>
-                </tr>
-            </thead>
-            <tbody>
-                @forelse ($batches as $batch)
-                    <tr>
-                        <td>{{ $batch->id }}</td>
-                        <td>{{ $batch->company?->name }}</td>
-                        <td>{{ $batch->import_type }}</td>
-                        <td>{{ $batch->source_type }}</td>
-                        <td>{{ $batch->adapter }}</td>
-                        <td>{{ $batch->original_filename }}</td>
-                        <td>{{ $batch->status instanceof \BackedEnum ? $batch->status->value : $batch->status }}</td>
-                        <td>{{ $batch->total_rows }}</td>
-                        <td>{{ $batch->successful_rows }}</td>
-                        <td>{{ $batch->failed_rows }}</td>
-                        <td>{{ $batch->rows_count }}</td>
-                        <td>{{ $batch->started_at }}</td>
-                        <td>{{ $batch->finished_at }}</td>
-                        <td><a href="{{ route('supply.imports.show', $batch) }}">Open</a></td>
-                    </tr>
-                @empty
-                    <tr>
-                        <td colspan="13">No imports yet.</td>
-                    </tr>
-                @endforelse
-            </tbody>
-        </table>
+<form method="GET" action="{{ route('supply.imports.index') }}">
+    <label>
+        Status
+        <input name="status" value="{{ $filters['status'] ?? '' }}">
+    </label>
+    <label>
+        Import type
+        <input name="import_type" value="{{ $filters['import_type'] ?? '' }}">
+    </label>
+    <button type="submit">Filter</button>
+    <a href="{{ route('supply.imports.index') }}">Clear</a>
+</form>
 
-        {{ $batches->links() }}
-    </main>
-</body>
-</html>
+<table>
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Company</th>
+            <th>Import type</th>
+            <th>Source</th>
+            <th>Adapter</th>
+            <th>Filename</th>
+            <th>Status</th>
+            <th>Total</th>
+            <th>Successful</th>
+            <th>Failed</th>
+            <th>Rows</th>
+            <th>Started</th>
+            <th>Finished</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @forelse ($batches as $batch)
+            <tr>
+                <td>{{ $batch->id }}</td>
+                <td>{{ $batch->company?->name }}</td>
+                <td><x-supply.human-label :value="$batch->import_type" /></td>
+                <td>{{ $batch->source_type }}</td>
+                <td><x-supply.human-label :value="$batch->adapter" /></td>
+                <td>{{ $batch->original_filename }}</td>
+                <td><x-supply.status-badge :status="$batch->status" /></td>
+                <td>{{ $batch->total_rows }}</td>
+                <td>{{ $batch->successful_rows }}</td>
+                <td>{{ $batch->failed_rows }}</td>
+                <td>{{ $batch->rows_count }}</td>
+                <td>{{ $batch->started_at }}</td>
+                <td>{{ $batch->finished_at }}</td>
+                <td><x-supply.table-action :href="route('supply.imports.show', $batch)" label="Open" /></td>
+            </tr>
+        @empty
+            <tr>
+                <td colspan="13">No imports yet.</td>
+            </tr>
+        @endforelse
+    </tbody>
+</table>
+
+{{ $batches->links() }}
+@endsection

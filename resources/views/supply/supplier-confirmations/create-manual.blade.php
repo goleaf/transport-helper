@@ -30,7 +30,7 @@ Create Manual Confirmation
         <dt>Supplier</dt>
         <dd>{{ $order->supplier?->name }}</dd>
         <dt>Status</dt>
-        <dd>{{ $order->status instanceof \BackedEnum ? $order->status->value : $order->status }}</dd>
+        <dd><x-supply.status-badge :status="$order->status" /></dd>
     </dl>
 </section>
 

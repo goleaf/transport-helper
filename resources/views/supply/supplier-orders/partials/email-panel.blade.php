@@ -12,9 +12,9 @@
             <label>
                 Attachment format
                 <select name="auto_export_format">
-                    <option value="excel_csv">Excel CSV</option>
-                    <option value="csv">CSV</option>
-                    <option value="json">JSON</option>
+                    <option value="excel_csv">Excel spreadsheet</option>
+                    <option value="csv">Spreadsheet</option>
+                    <option value="json">Structured data</option>
                 </select>
             </label>
             <label>
@@ -40,13 +40,13 @@
     @if ($emailMessage)
         <dl>
             <dt>Recipients</dt>
-            <dd>{{ implode(', ', $emailMessage->to_json ?? []) }}</dd>
+            <dd>{{ $emailMessage->recipients_text }}</dd>
             <dt>CC</dt>
-            <dd>{{ implode(', ', $emailMessage->cc_json ?? []) }}</dd>
+            <dd>{{ $emailMessage->cc_text }}</dd>
             <dt>Subject</dt>
             <dd>{{ $emailMessage->subject }}</dd>
             <dt>Status</dt>
-            <dd>{{ $emailMessage->status }}</dd>
+            <dd><x-supply.status-badge :status="$emailMessage->status" /></dd>
             <dt>Message ID</dt>
             <dd>{{ $emailMessage->message_id }}</dd>
             <dt>Sent at</dt>
@@ -54,7 +54,7 @@
         </dl>
 
         <h3>Body</h3>
-        <pre>{{ $emailMessage->body_text }}</pre>
+        <div class="message-body">{{ $emailMessage->body_text }}</div>
 
         <h3>Attachments</h3>
         <ul>

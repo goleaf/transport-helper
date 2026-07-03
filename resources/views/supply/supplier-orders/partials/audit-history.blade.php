@@ -14,7 +14,7 @@
                 <tr>
                     <td>{{ $auditLog->event_type }}</td>
                     <td>{{ $auditLog->user?->name }}</td>
-                    <td><pre>{{ json_encode($auditLog->metadata_json, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) }}</pre></td>
+                    <td><x-supply.structured-value :value="$auditLog->metadata_json" /></td>
                     <td>{{ $auditLog->created_at?->toDateTimeString() }}</td>
                 </tr>
             @empty

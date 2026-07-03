@@ -1,0 +1,200 @@
+@use 'sass:map';
+@use './abstracts/tokens';
+@use './abstracts/mixins';
+
+@mixin styles {
+    .structured-data {
+        @include mixins.definition-grid(
+            tokens.layout(structured-label-min),
+            tokens.layout(structured-label-max),
+            structured-heading
+        );
+
+        width: 100%;
+        max-width: none;
+
+        .structured-data,
+        .structured-list & {
+            margin-top: tokens.space(md-minus);
+            border-color: tokens.token(border-soft);
+            background: tokens.token(bg-elevated);
+        }
+
+        dt,
+        dd {
+            padding: tokens.space(md) tokens.space(lg-minus);
+        }
+        dd {
+            min-width: 0;
+            overflow-wrap: anywhere;
+            white-space: normal;
+        }
+    }
+
+    .structured-list {
+        @include mixins.stack(tokens.space(md));
+        @include mixins.bare-list;
+
+        > li {
+            @include mixins.panel(
+                tokens.space(md) tokens.space(lg-minus),
+                tokens.token(bg-elevated),
+                tokens.token(border),
+                none
+            );
+        }
+    }
+
+    .empty-value {
+        color: tokens.token(text-soft);
+        font-style: italic;
+    }
+
+    .message-body {
+        width: 100%;
+        max-width: none;
+        white-space: pre-wrap;
+        overflow-wrap: anywhere;
+        border: 1px solid tokens.token(border);
+        border-radius: tokens.token(radius);
+        background: tokens.token(bg-elevated);
+        color: tokens.token(text-main);
+        padding: tokens.space(lg);
+    }
+
+    .portal-hero {
+        align-items: center;
+        background: tokens.gradient(portal-hero);
+
+        > div {
+            max-width: none;
+        }
+
+        p {
+            max-width: none;
+            margin: tokens.space(lg-plus) 0 0;
+            color: tokens.token(text-muted);
+            @include mixins.text(body-large);
+        }
+    }
+
+    .portal-eyebrow {
+        margin: 0 0 tokens.space(md);
+        color: tokens.token(accent-strong);
+        @include mixins.overline(overline-strong);
+    }
+
+    .hero-actions,
+    .actions {
+        @include mixins.cluster(tokens.space(lg-minus));
+    }
+
+    .section-heading {
+        @include mixins.cluster(tokens.space(xl), space-between, flex-start);
+
+        align-items: flex-start;
+        margin-bottom: tokens.space(lg-plus);
+
+        h2 {
+            margin-top: 0;
+        }
+    }
+
+    @each $class, $min in tokens.$grid-patterns {
+        .#{$class} {
+            @include mixins.responsive-grid($min);
+        }
+    }
+
+    .guardrail-card,
+    .workflow-card,
+    .approval-grid a,
+    .process-grid li,
+    .proposal-timeline-node,
+    .proposal-period {
+        min-width: 0;
+        @include mixins.panel(tokens.space(lg-plus));
+    }
+
+    .proposal-periods {
+        margin-top: tokens.space(lg);
+    }
+
+    .guardrail-card {
+        span {
+            @include mixins.number-pill;
+        }
+
+        h2,
+        p {
+            margin-top: tokens.space(lg-minus);
+        }
+    }
+
+    @each $index, $variant in tokens.$guardrail-card-variants {
+        .guardrail-card:nth-child(#{$index}) {
+            border-color: tokens.token(map.get($variant, border));
+            background: tokens.token(map.get($variant, background));
+        }
+    }
+
+    .workflow-card,
+    .approval-grid a {
+        @include mixins.card-link;
+    }
+
+    .workflow-card,
+    .approval-grid,
+    .process-grid,
+    .proposal-timeline-node {
+        strong {
+            color: tokens.token(text-main);
+            @include mixins.text(card-title, false);
+        }
+    }
+
+    .workflow-card span,
+    .approval-grid span,
+    .process-grid p,
+    .proposal-timeline-node p,
+    .proposal-period {
+        color: tokens.token(text-muted);
+        @include mixins.text(body-small);
+    }
+
+    .mini-pills {
+        @include mixins.cluster(tokens.space(md-minus), flex-end);
+
+        span {
+            @include mixins.pill;
+            padding: tokens.space(sm-plus) tokens.space(md-plus);
+            @include mixins.text(mini-pill, false);
+        }
+    }
+
+    .process-grid {
+        @include mixins.bare-list;
+
+        li > span {
+            @include mixins.number-pill;
+        }
+
+        p {
+            margin-top: tokens.space(lg-minus);
+        }
+    }
+
+    .proposal-timeline {
+        margin-top: tokens.space(lg-plus);
+    }
+
+    .proposal-timeline-node {
+        min-height: tokens.size(timeline-node-min-height);
+        background: tokens.gradient(timeline-node);
+    }
+
+    .proposal-timeline-node p,
+    .proposal-period {
+        margin: tokens.space(md-minus) 0 0;
+    }
+}

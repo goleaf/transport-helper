@@ -1,51 +1,102 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Supply / Procurement Agent
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Laravel SSR portal for procurement operations: imports, deterministic replenishment, order proposal approval, supplier orders, supplier email workflow, inbound email analysis, form autofill review, carrier quotes, logistics records, notifications and audit logs.
 
-## Supply Agent Architecture
+## Local Login
 
-Project documentation:
+The seeded local administrator is:
 
-* AGENTS.md
-* .codex/skills/
-* docs/architecture.md
-* docs/domain-model.md
-* docs/workflow-map.md
-* docs/decision-log.md
-* docs/calculation-engine.md
-* docs/email-ai-boundary.md
-* docs/email-form-autofill.md
-* docs/import-export-adapters.md
-* docs/status-machines.md
-* docs/audit-and-security.md
-* docs/backup-plan.md
-* docs/implementation-roadmap.md
-* docs/next-codex-prompts.md
+```text
+Email: test@example.com
+Password: password
+```
 
-Core rules:
+Open the portal at:
 
-* Laravel owns business logic.
-* AI is only used for email/text/form extraction and draft suggestions.
-* Deterministic calculation engine calculates order quantities.
-* Human approval is required for critical actions.
-* Audit logs are required.
-* DTO classes are forbidden.
+```bash
+https://transport-helper.test/login
+```
+
+Guests are redirected to the login page before entering `/supply/*`. A `403 Forbidden` response is reserved for authenticated users who are logged in but do not have permission for the attempted action.
+
+## Setup
+
+```bash
+composer install
+npm install
+php artisan migrate:fresh --seed
+npm run build
+```
+
+For local development with Herd, use:
+
+```bash
+https://transport-helper.test
+```
+
+For Artisan's built-in server:
+
+```bash
+php artisan serve
+```
+
+## Verification
+
+Run the project checks before handing off code:
+
+```bash
+vendor/bin/pint --dirty
+php artisan test --compact
+npm run build
+php artisan view:cache
+php artisan view:clear
+```
+
+Optional project guard:
+
+```bash
+./scripts/agent-guard.sh
+```
+
+## Architecture Rules
+
+- Laravel owns all business logic.
+- Blade is server-side rendered only.
+- Eloquent models are the query layer.
+- DTO classes are forbidden.
+- AI may extract or suggest from email/form content, but must not calculate orders, approve quantities, send email, choose carriers or mutate logistics directly.
+- Manual approval is required for quantity approval, supplier email sending, AI extraction acceptance, form autofill application, supplier confirmation application, carrier selection and mismatch resolution.
+- Audit logs are required for imports, calculations, approvals, adjustments, supplier order creation, email sending, inbound email processing, AI review, carrier selection, logistics status changes, settings and integrations.
+
+## Documentation
+
+Main project documents:
+
+- `AGENTS.md`
+- `docs/architecture.md`
+- `docs/domain-model.md`
+- `docs/workflow-map.md`
+- `docs/status-machines.md`
+- `docs/audit-and-security.md`
+- `docs/email-ai-boundary.md`
+- `docs/email-form-autofill.md`
+- `docs/transport-workflow.md`
+- `docs/implementation-roadmap.md`
+
+## Test Safety
+
+Tests must not call real AI providers, email providers or external APIs. Use fakes and the test database.
 
 ## Supply Agent Production Checks
 
 Important docs:
 
-* docs/architecture.md
-* docs/workflow-map.md
-* docs/production-readiness.md
-* docs/deployment/local-deployment.md
-* docs/deployment/production-checklist.md
-* docs/deployment/backup-and-restore.md
+- `docs/architecture.md`
+- `docs/workflow-map.md`
+- `docs/production-readiness.md`
+- `docs/deployment/local-deployment.md`
+- `docs/deployment/production-checklist.md`
+- `docs/deployment/backup-and-restore.md`
 
 Useful commands:
 
@@ -62,94 +113,8 @@ php artisan supply:production-readiness
 
 Core safety rules:
 
-* Laravel owns business logic.
-* AI only reads, extracts or suggests.
-* Human approval is required for critical actions.
-* DTOs are forbidden.
-* No secrets in git.
-
-## Codex Execution Rules
-
-This repository uses strict Codex task execution rules.
-
-Main files:
-
-* AGENTS.md
-* .codex/skills/
-* docs/current-task-template.md
-* docs/current-task-progress-template.md
-* scripts/agent-guard.sh
-* scripts/check-no-dto.sh
-* scripts/check-no-secrets.sh
-* scripts/check-project-docs.sh
-
-Before starting a new task:
-
-1. Copy docs/current-task-template.md to docs/current-task.md.
-2. Fill the task requirements.
-3. Ask Codex to read AGENTS.md and docs/current-task.md.
-4. Codex must work in a loop until checks pass.
-
-Required checks:
-
-```bash
-./scripts/agent-guard.sh
-```
-
-Core rules:
-
-* no DTO;
-* no app/Data;
-* no secrets;
-* no real external calls in tests;
-* no fake "done" without test results.
-
-## About Laravel
-
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
-
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
-
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
-
-## Learning Laravel
-
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
-
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
-
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
-
-## Agentic Development
-
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
-
-```bash
-composer require laravel/boost --dev
-
-php artisan boost:install
-```
-
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
-
-## Contributing
-
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
-
-## Code of Conduct
-
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
-
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
-
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+- Laravel owns business logic.
+- AI only reads, extracts or suggests.
+- Human approval is required for critical actions.
+- DTOs are forbidden.
+- No secrets in git.

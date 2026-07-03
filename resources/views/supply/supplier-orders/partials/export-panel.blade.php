@@ -4,11 +4,11 @@
     @if ($canExport)
         <form method="post" action="{{ route('supply.supplier-orders.export', $order) }}">
             @csrf
-            <button type="submit" name="format" value="csv">Export CSV</button>
-            <button type="submit" name="format" value="json">Export JSON</button>
-            <button type="submit" name="format" value="excel_csv">Export Excel CSV</button>
-            <button type="submit" name="format" value="pdf">PDF export placeholder</button>
-            <button type="submit" name="format" value="supplier_custom_template">Supplier custom template placeholder</button>
+            <button type="submit" name="format" value="csv">Export spreadsheet</button>
+            <button type="submit" name="format" value="json">Export structured data</button>
+            <button type="submit" name="format" value="excel_csv">Export Excel spreadsheet</button>
+            <button type="submit" name="format" value="pdf">Export PDF draft</button>
+            <button type="submit" name="format" value="supplier_custom_template">Export supplier template draft</button>
         </form>
     @endif
 
@@ -27,11 +27,11 @@
             @forelse ($exportFiles as $exportFile)
                 <tr>
                     <td>{{ $exportFile->filename }}</td>
-                    <td>{{ $exportFile->export_type }}</td>
-                    <td>{{ $exportFile->status }}</td>
+                    <td><x-supply.human-label :value="$exportFile->export_type" /></td>
+                    <td><x-supply.status-badge :status="$exportFile->status" /></td>
                     <td>{{ $exportFile->createdBy?->name }}</td>
                     <td>{{ $exportFile->created_at?->toDateTimeString() }}</td>
-                    <td><a href="{{ route('supply.exports.download', $exportFile) }}">Download</a></td>
+                    <td><x-supply.table-action :href="route('supply.exports.download', $exportFile)" label="Download" /></td>
                 </tr>
             @empty
                 <tr>

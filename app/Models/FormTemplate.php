@@ -4,7 +4,9 @@ namespace App\Models;
 
 use App\Enums\FormTemplateContextType;
 use App\Enums\FormTemplateFormatType;
+use App\Support\DisplayValue;
 use Database\Factories\FormTemplateFactory;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -74,5 +76,25 @@ class FormTemplate extends Model
     public function autofillRuns(): HasMany
     {
         return $this->hasMany(FormAutofillRun::class);
+    }
+
+    protected function contextTypeValue(): Attribute
+    {
+        return Attribute::get(fn (): string => DisplayValue::statusValue($this->context_type));
+    }
+
+    protected function contextTypeLabel(): Attribute
+    {
+        return Attribute::get(fn (): string => DisplayValue::humanLabel($this->context_type));
+    }
+
+    protected function formatTypeValue(): Attribute
+    {
+        return Attribute::get(fn (): string => DisplayValue::statusValue($this->format_type));
+    }
+
+    protected function autofillOptionLabel(): Attribute
+    {
+        return Attribute::get(fn (): string => trim($this->name.' '.$this->context_type_value));
     }
 }

@@ -83,51 +83,9 @@ AI Email Extraction {{ $extraction->id }}
             ])
         </section>
 
-        <section>
-            <h2>Apply as supplier confirmation</h2>
-            @php
-                $output = is_array($extraction->output_json ?? null) ? $extraction->output_json : [];
-                $emailType = $output['email_type'] ?? null;
-                $hasConfirmationData = in_array($emailType, ['supplier_confirmation', 'date_update', 'quantity_mismatch'], true)
-                    || ! empty($output['confirmed_items']);
-            @endphp
-            @if ($extraction->accepted_at && ! $extraction->rejected_at && $hasConfirmationData && $canApplySupplierConfirmation)
-                <form method="POST" action="{{ route('supply.ai-extractions.apply-supplier-confirmation', $extraction) }}">
-                    @csrf
-                    <label>Supplier order ID <input type="number" name="supplier_order_id" value="{{ $extraction->emailMessage?->related_supplier_order_id }}"></label>
-                    <label><input type="checkbox" name="update_inbound" value="1" checked> Update inbound</label>
-                    <label><input type="checkbox" name="update_logistics" value="1" checked> Update logistics</label>
-                    <label><input type="checkbox" name="allow_missing_items" value="1"> Allow missing items</label>
-                    <label><input type="checkbox" name="allow_over_confirmation" value="1"> Allow over confirmation</label>
-                    <label><input type="checkbox" name="confirm_apply" value="1" required> Confirm apply</label>
-                    <button type="submit">Apply supplier confirmation</button>
-                </form>
-            @elseif (! $extraction->accepted_at)
-                <p>Accept extraction before applying it.</p>
-            @else
-                <p>This extraction is not ready to apply as supplier confirmation.</p>
-            @endif
-        </section>
-
-        <section>
-            <h2>Apply as carrier quote</h2>
-            @php
-                $output = is_array($extraction->output_json ?? null) ? $extraction->output_json : [];
-                $hasCarrierQuoteData = ($output['email_type'] ?? null) === 'transport_quote' || ! empty($output['carrier_quote']);
-            @endphp
-            @if ($extraction->accepted_at && ! $extraction->rejected_at && $hasCarrierQuoteData && $canApplyCarrierQuote)
-                <form method="POST" action="{{ route('supply.ai-extractions.apply-carrier-quote', $extraction) }}">
-                    @csrf
-                    <label>Supplier order ID <input type="number" name="supplier_order_id" value="{{ $extraction->emailMessage?->related_supplier_order_id }}"></label>
-                    <label><input type="checkbox" name="allow_missing_delivery_date" value="1"> Allow missing delivery date</label>
-                    <label><input type="checkbox" name="allow_zero_price" value="1"> Allow zero price</label>
-                    <label><input type="checkbox" name="confirm_apply" value="1" required> Confirm apply</label>
-                    <button type="submit">Create carrier quote candidate</button>
-                </form>
-            @elseif (! $extraction->accepted_at)
-                <p>Accept extraction first.</p>
-            @else
-                <p>This extraction is not compatible with carrier quote application.</p>
-            @endif
-        </section>
+        <x-supply.ai-extraction-applications
+            :extraction="$extraction"
+            :can-apply-supplier-confirmation="$canApplySupplierConfirmation"
+            :can-apply-carrier-quote="$canApplyCarrierQuote"
+        />
 @endsection

@@ -26,9 +26,9 @@
                 <td>{{ $quote->transit_days }}</td>
                 <td>{{ $quote->reliability_score }}</td>
                 <td>{{ $quote->calculated_score }}</td>
-                <td>{{ implode(', ', $quote->warnings_json ?? []) }}</td>
+                <td>{{ $quote->warnings_text }}</td>
                 <td>@include('supply.transport.partials.quote-status-badge', ['status' => $quote->status])</td>
-                <td>{{ ($quote->status instanceof \BackedEnum ? $quote->status->value : $quote->status) === 'selected' ? 'Yes' : 'No' }}</td>
+                <td>{{ $quote->is_selected ? 'Yes' : 'No' }}</td>
                 <td>@include('supply.transport.partials.quote-actions', ['quote' => $quote])</td>
             </tr>
         @empty

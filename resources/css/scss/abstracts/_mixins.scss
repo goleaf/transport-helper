@@ -1,0 +1,261 @@
+@use 'sass:map';
+@use 'tokens';
+
+@mixin respond($breakpoint) {
+    @media (max-width: map.get(tokens.$breakpoints, $breakpoint)) {
+        @content;
+    }
+}
+
+@mixin respond-up($breakpoint) {
+    @media (min-width: (map.get(tokens.$breakpoints, $breakpoint) + 1px)) {
+        @content;
+    }
+}
+
+@mixin flex-center($gap: null) {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    @if $gap != null {
+        gap: $gap;
+    }
+}
+
+@mixin cluster($gap: tokens.space(md), $justify: flex-start, $align: center) {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: $align;
+    justify-content: $justify;
+    gap: $gap;
+}
+
+@mixin stack($gap: tokens.space(md)) {
+    display: grid;
+    gap: $gap;
+}
+
+@mixin interactive-transition {
+    transition:
+        background-color tokens.motion(fast),
+        border-color tokens.motion(fast),
+        color tokens.motion(fast),
+        box-shadow tokens.motion(fast);
+}
+
+@mixin focus-ring {
+    outline: 2px solid color-mix(in srgb, #{tokens.token(accent)} 70%, white);
+    outline-offset: 2px;
+}
+
+@mixin panel(
+    $padding: tokens.space(xl),
+    $background: tokens.token(bg-panel),
+    $border: tokens.token(border),
+    $shadow: tokens.token(shadow-soft)
+) {
+    border: 1px solid $border;
+    border-radius: tokens.token(radius);
+    background: $background;
+    padding: $padding;
+    box-shadow: $shadow;
+}
+
+@mixin bare-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+@mixin pill($background: tokens.token(bg-muted), $color: tokens.token(text-row-heading), $border: tokens.token(border)) {
+    border: 1px solid $border;
+    border-radius: 999px;
+    background: $background;
+    color: $color;
+}
+
+@mixin button-base($background: tokens.token(accent), $border: tokens.token(accent), $color: tokens.token(surface-white)) {
+    @include flex-center(tokens.space(md));
+    @include interactive-transition;
+
+    min-height: tokens.size(button-height);
+    border: 1px solid $border;
+    border-radius: tokens.token(radius);
+    background: $background;
+    color: $color;
+    padding: tokens.space(md) tokens.space(lg-plus);
+    @include text(nav, false);
+
+    text-align: center;
+    cursor: pointer;
+}
+
+@mixin button-variant($background, $border: $background, $color: tokens.token(surface-white)) {
+    border-color: $border;
+    background: $background;
+    color: $color;
+}
+
+@mixin button-token-variant($background, $border: $background, $color: surface-white) {
+    @include button-variant(tokens.token($background), tokens.token($border), tokens.token($color));
+}
+
+@mixin form-control {
+    width: 100%;
+    border: 1px solid tokens.token(border-strong);
+    border-radius: tokens.token(radius);
+    background: tokens.token(surface-white);
+    color: tokens.token(text-main);
+    padding: tokens.space(md-plus) tokens.space(lg-minus);
+    box-shadow: tokens.token(shadow-inset);
+}
+
+@mixin definition-grid(
+    $label-min: tokens.layout(definition-label-min),
+    $label-max: tokens.layout(definition-label-max),
+    $label-type: overline
+) {
+    display: grid;
+    grid-template-columns: minmax($label-min, $label-max) minmax(0, 1fr);
+    gap: tokens.space(none);
+    overflow: visible;
+    border: 1px solid tokens.token(border);
+    border-radius: tokens.token(radius);
+    background: tokens.token(surface-white);
+
+    dt,
+    dd {
+        margin: 0;
+        border-bottom: 1px solid tokens.token(border);
+    }
+
+    dt {
+        background: tokens.token(bg-subtle);
+        color: tokens.token(text-soft);
+        @include overline($label-type);
+    }
+
+    dd {
+        color: tokens.token(text-main);
+    }
+
+    dt:last-of-type,
+    dd:last-of-type {
+        border-bottom: 0;
+    }
+}
+
+@mixin responsive-grid($min, $gap: tokens.space(lg)) {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax($min, 1fr));
+    gap: $gap;
+}
+
+@mixin form-grid($min: tokens.size(form-grid-min), $gap: tokens.space(lg)) {
+    @include responsive-grid($min, $gap);
+
+    align-items: end;
+}
+
+@mixin text($name, $with-line: true) {
+    font-size: tokens.type-prop($name, size);
+
+    @if tokens.type-prop($name, weight) != null {
+        font-weight: tokens.type-prop($name, weight);
+    }
+
+    @if $with-line and tokens.type-prop($name, line) != null {
+        line-height: tokens.type-prop($name, line);
+    }
+}
+
+@mixin overline($name: overline) {
+    @include text($name, false);
+
+    letter-spacing: tokens.type-prop($name, tracking);
+    text-transform: uppercase;
+}
+
+@mixin status-pill {
+    display: inline-flex;
+    min-height: tokens.size(badge-height);
+    align-items: center;
+    border: 1px solid tokens.token(border-strong);
+    border-radius: 999px;
+    background: tokens.token(status-default-bg);
+    color: tokens.token(status-default-text);
+    padding: tokens.space(xs) tokens.space(md-plus);
+    @include text(badge, false);
+
+    text-transform: capitalize;
+    white-space: nowrap;
+}
+
+@mixin number-pill {
+    @include flex-center;
+
+    display: inline-flex;
+    min-height: tokens.size(badge-height);
+    border-radius: 999px;
+    background: tokens.token(bg-overlay);
+    color: tokens.token(text-soft);
+    padding: tokens.space(xxs) tokens.space(md);
+    @include text(number-pill, false);
+}
+
+@mixin dot($size: tokens.size(nav-dot), $background: tokens.token(nav-dot)) {
+    display: inline-block;
+    width: $size;
+    height: $size;
+    border-radius: 999px;
+    background: $background;
+}
+
+@mixin glass-panel($padding: tokens.space(lg) tokens.space(lg-plus)) {
+    @include panel($padding, tokens.token(bg-glass));
+
+    backdrop-filter: blur(10px);
+}
+
+@mixin card-link {
+    @include stack(tokens.space(md));
+    @include interactive-transition;
+
+    color: tokens.token(text-main);
+
+    &:hover {
+        border-color: tokens.token(accent-hover-border);
+        background: tokens.token(accent-hover-bg);
+        color: tokens.token(accent-strong);
+        text-decoration: none;
+    }
+}
+
+@mixin pagination-item($padding: tokens.space(md) tokens.space(lg)) {
+    @include cluster(tokens.space(md-minus));
+    @include interactive-transition;
+    @include text(body-small, false);
+
+    min-height: tokens.size(nav-child-link-height);
+    border: 1px solid tokens.token(border-strong);
+    border-radius: tokens.token(radius);
+    background: tokens.token(surface-white);
+    color: tokens.token(text-row-heading);
+    padding: $padding;
+    font-weight: tokens.type-prop(mini-pill, weight);
+    line-height: 1.2;
+    white-space: nowrap;
+}
+
+@mixin pagination-current {
+    border-color: tokens.token(accent);
+    background: tokens.token(accent-soft);
+    color: tokens.token(accent-strong);
+}
+
+@mixin pagination-disabled {
+    background: tokens.token(bg-muted);
+    color: tokens.token(text-soft);
+    cursor: not-allowed;
+}

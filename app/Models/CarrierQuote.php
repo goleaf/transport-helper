@@ -3,8 +3,10 @@
 namespace App\Models;
 
 use App\Enums\CarrierQuoteStatus;
+use App\Support\DisplayValue;
 use Database\Factories\CarrierQuoteFactory;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -115,5 +117,25 @@ class CarrierQuote extends Model
             CarrierQuoteStatus::Received->value,
             CarrierQuoteStatus::NeedsReview->value,
         ]);
+    }
+
+    protected function statusValue(): Attribute
+    {
+        return Attribute::get(fn (): string => DisplayValue::statusValue($this->status));
+    }
+
+    protected function needsReview(): Attribute
+    {
+        return Attribute::get(fn (): bool => $this->status_value === CarrierQuoteStatus::NeedsReview->value);
+    }
+
+    protected function isSelected(): Attribute
+    {
+        return Attribute::get(fn (): bool => $this->status_value === CarrierQuoteStatus::Selected->value);
+    }
+
+    protected function warningsText(): Attribute
+    {
+        return Attribute::get(fn (): string => DisplayValue::inlineList($this->warnings_json));
     }
 }

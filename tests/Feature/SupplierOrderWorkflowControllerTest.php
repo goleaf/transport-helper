@@ -32,7 +32,7 @@ it('loads supplier order show with export and email panels', function () {
     $this->actingAs($fixture['user'])
         ->get(route('supply.supplier-orders.show', $fixture['order']))
         ->assertSuccessful()
-        ->assertSee('Export CSV')
+        ->assertSee('Export spreadsheet')
         ->assertSee('Email workflow')
         ->assertSee('Axle Bearing 150');
 });

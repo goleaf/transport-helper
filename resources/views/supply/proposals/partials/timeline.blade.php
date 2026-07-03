@@ -1,11 +1,5 @@
 <section>
     <h2>T0/T1/T2/T3 timeline</h2>
-    <style>
-        .proposal-timeline { display: grid; grid-template-columns: repeat(4, minmax(120px, 1fr)); gap: 10px; margin: 14px 0; }
-        .proposal-timeline-node { border: 1px solid #b8c2cc; padding: 12px; min-height: 96px; }
-        .proposal-periods { display: grid; grid-template-columns: repeat(3, minmax(140px, 1fr)); gap: 10px; margin-top: 10px; }
-        .proposal-period { background: #f3f6f9; padding: 10px; }
-    </style>
 
     <div class="proposal-timeline" aria-label="T0 T1 T2 T3 timeline">
         <div class="proposal-timeline-node">

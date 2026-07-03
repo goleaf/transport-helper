@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Supply;
 
+use App\Enums\FormFieldType;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Supply\StoreFormTemplateRequest;
 use App\Models\Company;
@@ -9,11 +10,14 @@ use App\Models\FormTemplate;
 use App\Services\Forms\FormTemplateService;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Gate;
 
 class FormTemplateController extends Controller
 {
     public function index(): View
     {
+        Gate::authorize('viewAny', FormTemplate::class);
+
         $templates = FormTemplate::query()
             ->select(['id', 'company_id', 'name', 'code', 'context_type', 'format_type', 'version', 'is_active', 'created_at'])
             ->with('company:id,name')
@@ -29,6 +33,8 @@ class FormTemplateController extends Controller
 
     public function create(): View
     {
+        Gate::authorize('create', FormTemplate::class);
+
         return view('supply.forms.templates.create', [
             'companies' => Company::query()->select(['id', 'name'])->orderBy('name')->get(),
         ]);
@@ -36,6 +42,8 @@ class FormTemplateController extends Controller
 
     public function store(StoreFormTemplateRequest $request, FormTemplateService $templateService): RedirectResponse
     {
+        Gate::authorize('create', FormTemplate::class);
+
         $template = $templateService->createTemplate($request->validated(), $request->user())['template'];
 
         return redirect()
@@ -45,15 +53,27 @@ class FormTemplateController extends Controller
 
     public function show(FormTemplate $template): View
     {
-        $template->load(['company:id,name', 'fields']);
+        Gate::authorize('view', $template);
+
+        $template
+            ->load([
+                'company:id,name',
+                'supplier:id,name',
+                'carrier:id,name',
+                'fields:id,form_template_id,field_key,label,field_type,is_required,ai_extraction_hint,sort_order',
+            ])
+            ->loadCount(['fields', 'autofillRuns']);
 
         return view('supply.forms.templates.show', [
             'template' => $template,
+            'fieldTypes' => FormFieldType::cases(),
         ]);
     }
 
     public function edit(FormTemplate $template): View
     {
+        Gate::authorize('update', $template);
+
         $template->load(['company:id,name', 'fields']);
 
         return view('supply.forms.templates.edit', [
@@ -64,6 +84,8 @@ class FormTemplateController extends Controller
 
     public function update(StoreFormTemplateRequest $request, FormTemplate $template, FormTemplateService $templateService): RedirectResponse
     {
+        Gate::authorize('update', $template);
+
         $template = $templateService->updateTemplate($template, $request->validated(), $request->user())['template'];
 
         return redirect()

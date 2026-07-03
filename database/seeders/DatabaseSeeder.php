@@ -24,6 +24,7 @@ class DatabaseSeeder extends Seeder
             DemoCarrierSeeder::class,
             DemoProductSeeder::class,
             DemoFormTemplateSeeder::class,
+            ComprehensiveProcurementDemoSeeder::class,
         ]);
 
         $user = User::query()->updateOrCreate(

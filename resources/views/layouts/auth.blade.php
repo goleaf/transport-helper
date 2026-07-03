@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<html lang="{{ $htmlLocale }}">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -9,10 +9,10 @@
     @fonts
 
     @if (file_exists(public_path('build/manifest.json')) || file_exists(public_path('hot')))
-        @vite(['resources/css/app.scss', 'resources/js/app.js'])
+        @vite(['resources/css/daisy.css', 'resources/css/app.scss', 'resources/js/app.js'])
     @endif
 </head>
-<body>
+<body data-theme="transport">
     <a class="skip-link" href="#content">Skip to content</a>
 
     <main id="content" class="auth-shell">

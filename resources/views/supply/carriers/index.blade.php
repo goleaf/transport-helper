@@ -36,7 +36,7 @@ Carriers
                     <td>{{ $carrier->reliability_score }}</td>
                     <td>{{ $carrier->is_active ? 'Yes' : 'No' }}</td>
                     <td>{{ $carrier->quotes_count }}</td>
-                    <td><a href="{{ route('supply.carriers.show', $carrier) }}">Open</a></td>
+                    <td><x-supply.table-action :href="route('supply.carriers.show', $carrier)" label="Open" /></td>
                 </tr>
             @empty
                 <tr>

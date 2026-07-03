@@ -1,0 +1,12 @@
+@use './scss/abstracts/tokens';
+@use './scss/base';
+@use './scss/layout';
+@use './scss/content';
+@use './scss/components';
+@use './scss/responsive';
+
+@include base.styles;
+@include layout.styles;
+@include content.styles;
+@include components.styles;
+@include responsive.styles;

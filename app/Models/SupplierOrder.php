@@ -3,8 +3,10 @@
 namespace App\Models;
 
 use App\Enums\SupplierOrderStatus;
+use App\Support\DisplayValue;
 use Database\Factories\SupplierOrderFactory;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -116,5 +118,10 @@ class SupplierOrder extends Model
     public function scopeSent(Builder $query): Builder
     {
         return $query->where('status', SupplierOrderStatus::Sent->value);
+    }
+
+    protected function statusValue(): Attribute
+    {
+        return Attribute::get(fn (): string => DisplayValue::statusValue($this->status));
     }
 }

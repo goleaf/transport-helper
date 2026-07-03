@@ -3,8 +3,10 @@
 namespace App\Models;
 
 use App\Enums\FormAutofillRunStatus;
+use App\Support\DisplayValue;
 use Database\Factories\FormAutofillRunFactory;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -112,5 +114,15 @@ class FormAutofillRun extends Model
     public function scopeValidated(Builder $query): Builder
     {
         return $query->where('status', FormAutofillRunStatus::Validated->value);
+    }
+
+    protected function statusValue(): Attribute
+    {
+        return Attribute::get(fn (): string => DisplayValue::statusValue($this->status));
+    }
+
+    protected function fieldsRequiringReviewCount(): Attribute
+    {
+        return Attribute::get(fn (): int => $this->fieldValues->where('requires_review', true)->count());
     }
 }

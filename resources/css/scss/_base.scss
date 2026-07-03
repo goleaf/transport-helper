@@ -1,0 +1,182 @@
+@use 'sass:map';
+@use './abstracts/tokens';
+@use './abstracts/mixins';
+
+$named-button-variants: (
+    "[name='decision'][value='reject']": (
+        background: danger,
+    ),
+    "[name='format']": (
+        background: surface-white,
+        border: border-strong,
+        color: text-main,
+    ),
+) !default;
+
+$form-action-button-variants: (
+    danger: (
+        actions: ('reject', 'rollback'),
+        background: danger,
+    ),
+    neutral: (
+        actions: ('export', 'validate', 'application-check'),
+        background: surface-white,
+        border: border-strong,
+        color: text-main,
+    ),
+) !default;
+
+@mixin token-button-variant($variant) {
+    $background: map.get($variant, background);
+    $border: $background;
+    $color: surface-white;
+
+    @if map.has-key($variant, border) {
+        $border: map.get($variant, border);
+    }
+
+    @if map.has-key($variant, color) {
+        $color: map.get($variant, color);
+    }
+
+    @include mixins.button-token-variant($background, $border, $color);
+}
+
+@mixin styles {
+    * {
+        box-sizing: border-box;
+    }
+
+    html {
+        min-width: tokens.size(min-viewport);
+        scroll-behavior: smooth;
+    }
+
+    body {
+        margin: 0;
+        min-height: 100vh;
+        background:
+            tokens.gradient(body),
+            tokens.token(bg-page);
+        color: tokens.token(text-main);
+        font-family: tokens.token(font-sans);
+        @include mixins.text(body);
+
+        text-rendering: optimizeLegibility;
+        -webkit-font-smoothing: antialiased;
+    }
+
+    a {
+        color: tokens.token(accent-strong);
+        text-decoration: none;
+
+        &:hover {
+            color: tokens.token(accent-hover);
+            text-decoration: underline;
+            text-underline-offset: tokens.space(xs);
+        }
+
+        &:focus-visible {
+            @include mixins.focus-ring;
+        }
+    }
+
+    button,
+    input,
+    select,
+    textarea {
+        font: inherit;
+        max-width: 100%;
+    }
+
+    button,
+    [type='submit'],
+    [type='button'],
+    .button,
+    .btn {
+        @include mixins.button-base;
+
+        &:hover {
+            @include mixins.button-token-variant(accent-strong);
+
+            text-decoration: none;
+        }
+
+        &:focus-visible {
+            @include mixins.focus-ring;
+        }
+    }
+
+    .button-secondary {
+        @include mixins.button-token-variant(surface-white, border-strong, text-main);
+
+        &:hover {
+            @include mixins.button-token-variant(accent-soft, accent, accent-strong);
+        }
+    }
+
+    button {
+        &:disabled,
+        &[disabled] {
+            @include mixins.button-token-variant(bg-disabled, border-strong, text-soft);
+
+            cursor: not-allowed;
+        }
+
+        @each $selector, $variant in $named-button-variants {
+            &#{$selector} {
+                @include token-button-variant($variant);
+            }
+        }
+    }
+
+    form {
+        @each $name, $variant in $form-action-button-variants {
+            @each $action in map.get($variant, actions) {
+                &[action*='#{$action}'] {
+                    button {
+                        @include token-button-variant($variant);
+                    }
+                }
+            }
+        }
+    }
+
+    input,
+    select,
+    textarea {
+        @include mixins.form-control;
+
+        &:focus {
+            @include mixins.focus-ring;
+        }
+    }
+
+    textarea {
+        min-height: tokens.size(textarea-min-height);
+        resize: vertical;
+    }
+
+    input {
+        &[type='checkbox'],
+        &[type='radio'] {
+            width: tokens.size(checkbox);
+            min-width: tokens.size(checkbox);
+            height: tokens.size(checkbox);
+            accent-color: tokens.token(accent);
+        }
+    }
+
+    pre {
+        max-width: 100%;
+        overflow-x: visible;
+        white-space: pre-wrap;
+        overflow-wrap: anywhere;
+        border: 1px solid tokens.token(border);
+        border-radius: tokens.token(radius);
+        background: tokens.token(bg-code);
+        color: tokens.token(text-strong);
+        padding: tokens.space(lg);
+        @include mixins.text(code, false);
+    }
+}

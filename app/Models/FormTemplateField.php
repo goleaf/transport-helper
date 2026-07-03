@@ -3,7 +3,9 @@
 namespace App\Models;
 
 use App\Enums\FormFieldType;
+use App\Support\DisplayValue;
 use Database\Factories\FormTemplateFieldFactory;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -47,5 +49,10 @@ class FormTemplateField extends Model
     public function formTemplate(): BelongsTo
     {
         return $this->belongsTo(FormTemplate::class);
+    }
+
+    protected function fieldTypeValue(): Attribute
+    {
+        return Attribute::get(fn (): string => DisplayValue::statusValue($this->field_type));
     }
 }

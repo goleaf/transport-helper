@@ -1,0 +1,54 @@
+@import "tailwindcss" source(none);
+
+@source "../views/**/*.blade.php";
+@source "../../app/View/Components/**/*.php";
+@source inline("btn btn-primary btn-secondary btn-accent btn-neutral btn-info btn-success btn-warning btn-error btn-outline btn-soft btn-ghost btn-link btn-sm btn-md btn-lg btn-wide btn-block");
+@source inline("badge badge-primary badge-secondary badge-accent badge-neutral badge-info badge-success badge-warning badge-error badge-outline badge-soft badge-sm badge-md badge-lg");
+@source inline("alert alert-info alert-success alert-warning alert-error card card-body card-title table table-zebra table-pin-rows");
+@source inline("input input-bordered input-primary input-sm select select-bordered select-primary textarea textarea-bordered textarea-primary checkbox checkbox-primary radio radio-primary");
+@source inline("menu navbar breadcrumbs tabs tab tab-active join join-item dropdown dropdown-content modal modal-box modal-action collapse collapse-title collapse-content");
+@source inline("stats stat stat-title stat-value stat-desc steps step timeline toast tooltip loading loading-spinner skeleton divider indicator avatar");
+
+@plugin "daisyui" {
+    themes: false;
+    root: ":root";
+    exclude: rootscrollgutter;
+    logs: false;
+}
+
+@plugin "daisyui/theme" {
+    name: "transport";
+    default: true;
+    prefersdark: false;
+    color-scheme: light;
+
+    --color-base-100: oklch(100% 0 0);
+    --color-base-200: oklch(98.4% 0.006 174);
+    --color-base-300: oklch(94.4% 0.01 174);
+    --color-base-content: oklch(20.5% 0.023 174);
+    --color-primary: oklch(47.5% 0.09 178);
+    --color-primary-content: oklch(98.5% 0.01 178);
+    --color-secondary: oklch(53% 0.05 210);
+    --color-secondary-content: oklch(98% 0.01 210);
+    --color-accent: oklch(62% 0.095 164);
+    --color-accent-content: oklch(98% 0.01 164);
+    --color-neutral: oklch(29% 0.025 174);
+    --color-neutral-content: oklch(96% 0.01 174);
+    --color-info: oklch(55% 0.16 255);
+    --color-info-content: oklch(98% 0.01 255);
+    --color-success: oklch(50% 0.13 154);
+    --color-success-content: oklch(98% 0.01 154);
+    --color-warning: oklch(58% 0.13 66);
+    --color-warning-content: oklch(18% 0.025 66);
+    --color-error: oklch(52% 0.19 29);
+    --color-error-content: oklch(98% 0.01 29);
+
+    --radius-selector: 0.5rem;
+    --radius-field: 0.5rem;
+    --radius-box: 0.5rem;
+    --size-selector: 0.25rem;
+    --size-field: 0.25rem;
+    --border: 1px;
+    --depth: 0;
+    --noise: 0;
+}

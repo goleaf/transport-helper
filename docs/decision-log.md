@@ -17,9 +17,9 @@ Order quantities are calculated by deterministic PHP/Laravel services.
 DTO classes are forbidden.
 Use arrays, Eloquent models, FormRequest validation and JSON columns.
 
-## D-005 Human Approval
+## D-005 Manual Approval
 
-Human approval is required for:
+Manual approval is required for:
 
 * order quantity approval;
 * quantity adjustment;
