@@ -7,6 +7,8 @@
 </head>
 <body>
     <main>
+        <x-supply.navigation />
+
         <header>
             <p><a href="{{ route('supply.emails.show', $extraction->emailMessage) }}">Back to email</a></p>
             <h1>AI Email Extraction {{ $extraction->id }}</h1>

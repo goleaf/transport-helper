@@ -7,6 +7,8 @@
 </head>
 <body>
     <main>
+        <x-supply.navigation />
+
         <header>
             <h1>Supply Imports</h1>
             <a href="{{ route('supply.imports.create') }}">Create import</a>

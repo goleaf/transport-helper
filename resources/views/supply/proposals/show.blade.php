@@ -7,6 +7,8 @@
 </head>
 <body>
     <main>
+        <x-supply.navigation />
+
         <header>
             <p><a href="{{ route('supply.proposals.index') }}">Back to proposals</a></p>
             <h1>Supply Proposal {{ $proposal->id }}</h1>

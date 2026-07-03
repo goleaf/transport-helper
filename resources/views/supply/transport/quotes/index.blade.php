@@ -7,6 +7,8 @@
 </head>
 <body>
     <main>
+        <x-supply.navigation />
+
         <header>
             <h1>Carrier Quotes</h1>
             @if ($supplierOrder)

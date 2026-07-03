@@ -22,6 +22,8 @@ use App\Http\Controllers\Supply\OrderProposalItemDecisionController;
 use App\Http\Controllers\Supply\SupplierOrderController;
 use App\Http\Controllers\Supply\SupplierOrderEmailController;
 use App\Http\Controllers\Supply\SupplierOrderExportController;
+use App\Http\Controllers\Supply\SupplyDashboardController;
+use App\Http\Controllers\Supply\SupplySectionController;
 use App\Http\Controllers\Supply\TransportQuoteController;
 use Illuminate\Support\Facades\Route;
 
@@ -33,6 +35,23 @@ Route::middleware(['web'])
     ->prefix('supply')
     ->name('supply.')
     ->group(function (): void {
+        Route::get('/', SupplyDashboardController::class)->name('dashboard');
+        Route::get('dashboard', SupplyDashboardController::class)->name('dashboard.show');
+        Route::get('products', [SupplySectionController::class, 'show'])->defaults('section', 'products')->name('products.index');
+        Route::get('suppliers', [SupplySectionController::class, 'show'])->defaults('section', 'suppliers')->name('suppliers.index');
+        Route::get('stock', [SupplySectionController::class, 'show'])->defaults('section', 'stock')->name('stock.index');
+        Route::get('sales-history', [SupplySectionController::class, 'show'])->defaults('section', 'sales-history')->name('sales-history.index');
+        Route::get('inbound-orders', [SupplySectionController::class, 'show'])->defaults('section', 'inbound-orders')->name('inbound-orders.index');
+        Route::get('reservations', [SupplySectionController::class, 'show'])->defaults('section', 'reservations')->name('reservations.index');
+        Route::get('calculations', [SupplySectionController::class, 'show'])->defaults('section', 'calculations')->name('calculations.index');
+        Route::get('ai-extractions', [SupplySectionController::class, 'show'])->defaults('section', 'ai-extractions')->name('ai-extractions.index');
+        Route::get('form-autofill-runs', [SupplySectionController::class, 'show'])->defaults('section', 'form-autofill-runs')->name('form-autofill-runs.index');
+        Route::get('supplier-confirmations', [SupplySectionController::class, 'show'])->defaults('section', 'supplier-confirmations')->name('supplier-confirmations.index');
+        Route::get('exports', [SupplySectionController::class, 'show'])->defaults('section', 'exports')->name('exports.index');
+        Route::get('audit-logs', [SupplySectionController::class, 'show'])->defaults('section', 'audit-logs')->name('audit-logs.index');
+        Route::get('settings', [SupplySectionController::class, 'show'])->defaults('section', 'settings')->name('settings.index');
+        Route::get('integrations', [SupplySectionController::class, 'show'])->defaults('section', 'integrations')->name('integrations.index');
+
         Route::get('imports', [ImportBatchController::class, 'index'])->name('imports.index');
         Route::get('imports/create', [ImportBatchController::class, 'create'])->name('imports.create');
         Route::post('imports', [ImportBatchController::class, 'store'])->name('imports.store');

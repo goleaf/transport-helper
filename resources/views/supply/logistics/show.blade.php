@@ -7,6 +7,8 @@
 </head>
 <body>
     <main>
+        <x-supply.navigation />
+
         <header>
             <p><a href="{{ route('supply.logistics.index') }}">Back to logistics</a></p>
             <h1>Logistics Record {{ $record->id }}</h1>

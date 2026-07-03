@@ -7,6 +7,8 @@
 </head>
 <body>
     <main>
+        <x-supply.navigation />
+
         <header>
             <h1>Form Templates</h1>
             <a href="{{ route('supply.forms.templates.create') }}">Create template</a>

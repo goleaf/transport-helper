@@ -7,6 +7,8 @@
 </head>
 <body>
     <main>
+        <x-supply.navigation />
+
         <header>
             <p><a href="{{ route('supply.emails.show', $email) }}">Back to email</a></p>
             <h1>Autofill Form From Email</h1>

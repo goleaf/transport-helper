@@ -7,6 +7,8 @@
 </head>
 <body>
     <main>
+        <x-supply.navigation />
+
         <header>
             <p><a href="{{ route('supply.emails.index') }}">Back to emails</a></p>
             <h1>{{ $email->subject }}</h1>

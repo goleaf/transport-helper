@@ -7,6 +7,8 @@
 </head>
 <body>
     <main>
+        <x-supply.navigation />
+
         <header>
             <p><a href="{{ route('supply.supplier-orders.index') }}">Back to supplier orders</a></p>
             <h1>Supplier Order {{ $order->order_number }}</h1>
