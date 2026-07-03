@@ -5,37 +5,33 @@
 * [x] AGENTS.md read
 * [x] docs/current-task.md read from first line to last line
 * [x] .codex/skills read
+* [x] docs/current-task-template.md read
+* [x] docs/current-task-progress-template.md read
 
 ## Implementation Checklist
 
-* [x] Inspect repository state
+* [x] Create current task file
 
-  * Files: docs/repository-control-setup-notes.md
-  * Tests: n/a
-  * Status: Laravel/PHP versions, required folders/files, remote, and branch recorded.
+  * Files: docs/current-task.md
+  * Tests: ./scripts/check-project-docs.sh
+  * Status: Created from the template and filled for Task 2.
 
-* [x] Create strict root and skill rules
+* [x] Create read confirmation and progress files
 
-  * Files: AGENTS.md, .codex/skills/*.md
-  * Tests: tests/Feature/RepositoryControlFilesTest.php
+  * Files: docs/current-task-read-confirmation.md, docs/current-task-progress.md
+  * Tests: ./scripts/check-project-docs.sh
+  * Status: Created for Task 2.
+
+* [x] Create architecture bootstrap docs
+
+  * Files: docs/supply-agent-architecture-bootstrap.md, docs/decisions/ADR-002-supply-agent-architecture-bootstrap.md
+  * Tests: php artisan test, ./scripts/agent-guard.sh
   * Status: Implemented.
 
-* [x] Create task templates and blocker placeholder
+* [x] Update README links
 
-  * Files: docs/current-task-template.md, docs/current-task-progress-template.md, docs/current-task-read-confirmation.example.md, docs/blockers/.gitkeep
-  * Tests: tests/Feature/RepositoryControlFilesTest.php
-  * Status: Implemented.
-
-* [x] Create/update guard scripts
-
-  * Files: scripts/agent-guard.sh, scripts/check-no-dto.sh, scripts/check-no-secrets.sh, scripts/check-project-docs.sh
-  * Tests: tests/Unit/NoDtoRuleScriptTest.php, tests/Unit/NoSecretsScriptTest.php
-  * Status: Implemented.
-
-* [x] Update README and CI
-
-  * Files: README.md, .github/workflows/tests.yml
-  * Tests: php artisan test
+  * Files: README.md, docs/architecture.md, docs/implementation-roadmap.md
+  * Tests: php artisan test, ./scripts/agent-guard.sh
   * Status: Implemented.
 
 ## Tests And Checks
@@ -50,10 +46,7 @@
 
 ## Failures
 
-* php artisan test initially failed in tests/Unit/NoDtoRuleScriptTest.php because the assertion used a brittle shell-escape spelling for Spatie\\LaravelData.
-* Fixed the assertion to check Spatie and LaravelData separately.
-* ./scripts/check-no-secrets.sh initially flagged a known AWS documentation sample value in tracked local skill docs.
-* Fixed the script placeholder allow-list for that known fake value.
+None.
 
 ## Blockers
 

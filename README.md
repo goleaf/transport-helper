@@ -43,6 +43,17 @@ Core rules:
 * no real external calls in tests;
 * no fake "done" without test results.
 
+## Supply Agent Architecture
+
+Start here before implementing supply modules:
+
+* [Supply Agent Architecture Bootstrap](docs/supply-agent-architecture-bootstrap.md)
+* [Architecture](docs/architecture.md)
+* [Domain Model](docs/domain-model.md)
+* [Calculation Engine](docs/calculation-engine.md)
+* [Email AI Boundary](docs/email-ai-boundary.md)
+* [Architecture Decision Records](docs/decisions/)
+
 ## About Laravel
 
 Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:

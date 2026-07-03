@@ -18,6 +18,12 @@ Current baseline:
 4. Avoid DTO classes and `app/Data`; use arrays, models, requests, resources, services, or value-specific domain objects already present in the codebase.
 5. Commit only after the required project checks pass.
 
+## Architecture Bootstrap
+
+Before adding new supply schema or runtime modules, read [Supply Agent Architecture Bootstrap](supply-agent-architecture-bootstrap.md) and [ADR-002](decisions/ADR-002-supply-agent-architecture-bootstrap.md).
+
+The first code-producing implementation task should follow the bootstrap sequence and start with core schema/enums/factories only after the task file, progress file, and guard checks are ready.
+
 ## Required Verification Gates
 
 Every implementation task must run:

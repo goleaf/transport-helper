@@ -2,6 +2,8 @@
 
 This project is a Laravel-centered Supply / Procurement Agent. Laravel owns all business rules, validation, approval, audit, and state transitions. AI and external systems can propose data, but they cannot directly mutate procurement business records.
 
+Start with [Supply Agent Architecture Bootstrap](supply-agent-architecture-bootstrap.md) before implementing new supply modules. It defines the first implementation sequence and the non-negotiable boundaries for schema, services, AI, carrier selection, tests, and audit.
+
 ## Layer Map
 
 ### 1. UI Layer

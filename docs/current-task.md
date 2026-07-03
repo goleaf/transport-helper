@@ -2,17 +2,17 @@
 
 ## Task Title
 
-Create strict Codex execution control system.
+Create architecture bootstrap documentation for the Laravel Supply Agent.
 
 ## Task Goal
 
-Create repository-level rules and guardrails so every future Codex task is executed strictly, with reading confirmation, progress checklist, tests, guard scripts, no DTO rule, no secrets rule, and no fake "done" answers.
+Create the first real current task file and implement the architecture documentation bootstrap for the Laravel Supply Agent project using the strict Codex execution workflow created in Task 1.
+
+This task is documentation and architecture only.
 
 ## Required Reading
 
 * AGENTS.md
-* docs/implementation-roadmap.md
-* docs/current-task.md
 * .codex/skills/00-global-rules.md
 * .codex/skills/01-task-execution-loop.md
 * .codex/skills/02-no-dto-rule.md
@@ -20,130 +20,106 @@ Create repository-level rules and guardrails so every future Codex task is execu
 * .codex/skills/04-testing-and-checks.md
 * .codex/skills/05-git-commit-push.md
 * .codex/skills/06-blockers-and-not-complete.md
+* docs/current-task-template.md
+* docs/current-task-progress-template.md
 
 ## Non-Negotiable Rules
 
-* Do not implement business modules in this task.
-* Do not create database schema for supply modules in this task.
-* Do not create UI modules in this task.
-* Do not create DTO classes.
+* Read this task from start to end.
+* Do not create supply database migrations.
+* Do not create supply models.
+* Do not create services.
+* Do not create controllers.
+* Do not create UI.
+* Do not create DTO.
 * Do not create app/Data.
 * Do not call external APIs.
 * Do not call real AI.
 * Do not call real email providers.
-* Do not finish until required checks pass.
+* Do not claim success without checks.
 
 ## Scope
 
-This task is only about:
-
-* AGENTS.md
-* .codex/skills
-* docs/current-task-template.md
-* docs/current-task-progress-template.md
-* docs/blockers/.gitkeep
-* scripts/agent-guard.sh
-* scripts/check-no-dto.sh
-* scripts/check-no-secrets.sh
-* scripts/check-project-docs.sh
-* optional GitHub Actions test workflow if project already has CI or it is safe
-* README links
-* tests for scripts if practical
-* commit and push
+* Replace this file with the first real implementation task.
+* Create docs/current-task-read-confirmation.md for this task.
+* Create docs/current-task-progress.md for this task.
+* Create architecture bootstrap documentation.
+* Add an ADR or architecture decision note when useful.
+* Update README links to the new architecture docs.
+* Run required guard scripts and tests.
+* Commit and push when checks pass.
 
 ## Out Of Scope
 
-* Business workflow modules.
-* Supply module database schema.
-* UI modules.
-* DTO classes.
-* app/Data.
-* External AI, email, Google, carrier, or ERP API calls.
-
-## Repository Inspection Required
-
-Before creating files, inspect:
-
-1. Laravel version.
-2. PHP version.
-3. Is there AGENTS.md?
-4. Is there .codex folder?
-5. Is there docs folder?
-6. Is there scripts folder?
-7. Is there README.md?
-8. Is there .github/workflows?
-9. Is there package.json?
-10. Is there artisan?
-11. Is there vendor?
-12. Is there tests folder?
-13. Is there .env.example?
-14. Is there git remote?
-15. Current branch.
-
-Record this in docs/repository-control-setup-notes.md.
+* Supply database migrations.
+* Supply Eloquent models.
+* Application services or actions.
+* Controllers, routes, Blade, Filament, or UI.
+* External API integrations.
+* Real AI or email provider calls.
+* DTO classes or app/Data.
 
 ## Required Implementation
 
-* Create or update AGENTS.md with the strict project, AI boundary, no DTO, mandatory work loop, required checks, blocker, and final-response rules.
-* Create .codex/skills files 00 through 06 for global rules, task loop, no DTO, no secrets, testing/checks, git commit/push, and blockers.
-* Create docs/current-task-template.md.
-* Create docs/current-task-progress-template.md.
-* Create docs/blockers/.gitkeep.
-* Create docs/current-task-read-confirmation.example.md.
-* Create or update check-no-dto, check-no-secrets, check-project-docs, and agent-guard scripts.
-* Update README.md with Codex execution rules.
-* Keep or update GitHub Actions if safe for this project.
+* Create a bootstrap architecture document that explains module boundaries, implementation order, and guardrails for future work.
+* Keep Laravel as the only source of business logic.
+* Make the AI boundary explicit: AI may suggest/extract/draft but never mutate records.
+* Make the deterministic calculation boundary explicit: PHP/Laravel formulas only.
+* Define the first implementation sequence without creating code.
+* Link related existing docs so future tasks can navigate architecture before coding.
+* Update README with architecture documentation links.
 
 ## Required Tests
 
-* Create tests/Feature/RepositoryControlFilesTest.php if tests are configured.
-* Create tests/Unit/NoDtoRuleScriptTest.php if tests are configured.
-* Create tests/Unit/NoSecretsScriptTest.php if tests are configured.
-* Do not make tests fragile.
-* Do not call real external services.
+* No new tests are required for documentation-only changes unless existing project checks require them.
+* Run php artisan test because tests are available.
+* Run ./scripts/agent-guard.sh.
 
 ## Required Documentation
 
-* docs/repository-control-setup-notes.md
-* docs/current-task-template.md
-* docs/current-task-progress-template.md
-* docs/current-task-read-confirmation.example.md
-* README.md Codex Execution Rules section
-* docs/current-task-read-confirmation.md for this task
-* docs/current-task-progress.md for this task
+* docs/current-task.md
+* docs/current-task-read-confirmation.md
+* docs/current-task-progress.md
+* docs/supply-agent-architecture-bootstrap.md
+* docs/decisions/ADR-002-supply-agent-architecture-bootstrap.md
+* README.md architecture links
 
 ## Acceptance Criteria
 
-* [ ] AGENTS.md created or updated.
-* [ ] Skills files created.
-* [ ] Templates created.
-* [ ] docs/blockers/.gitkeep created.
-* [ ] Scripts created or updated and executable.
-* [ ] README updated.
-* [ ] CI created or skipped with reason.
-* [ ] Tests created or skipped with reason.
-* [ ] no DTO.
-* [ ] no app/Data.
-* [ ] no secrets.
-* [ ] no real external calls.
-* [ ] check-no-dto passed.
-* [ ] check-no-secrets passed.
-* [ ] check-project-docs passed.
+* [ ] AGENTS.md read.
+* [ ] Required .codex/skills files read.
+* [ ] docs/current-task-template.md read.
+* [ ] docs/current-task-progress-template.md read.
+* [ ] docs/current-task.md created from the template and filled with this task.
+* [ ] docs/current-task-read-confirmation.md created for this task.
+* [ ] docs/current-task-progress.md created for this task.
+* [ ] Architecture bootstrap docs created.
+* [ ] README links updated.
+* [ ] No supply migrations created.
+* [ ] No supply models created.
+* [ ] No services created.
+* [ ] No controllers created.
+* [ ] No UI created.
+* [ ] No DTO created.
+* [ ] No app/Data created.
+* [ ] No external APIs called.
+* [ ] No real AI called.
+* [ ] No real email providers called.
+* [ ] ./scripts/check-no-dto.sh passed.
+* [ ] ./scripts/check-no-secrets.sh passed.
+* [ ] ./scripts/check-project-docs.sh passed.
 * [ ] php artisan test passed.
-* [ ] npm build passed, if package.json exists.
-* [ ] formatter passed, if Pint exists.
+* [ ] Formatter passed, if available.
+* [ ] npm build passed, if applicable.
+* [ ] ./scripts/agent-guard.sh passed.
 * [ ] git status reviewed.
 * [ ] git diff --stat reviewed.
-* [ ] commit created.
-* [ ] push attempted.
+* [ ] Commit created.
+* [ ] Push attempted.
 
 ## Required Commands
 
 ```bash
-chmod +x scripts/check-no-dto.sh
-chmod +x scripts/check-no-secrets.sh
-chmod +x scripts/check-project-docs.sh
-chmod +x scripts/agent-guard.sh
 ./scripts/check-no-dto.sh
 ./scripts/check-no-secrets.sh
 ./scripts/check-project-docs.sh
@@ -156,5 +132,5 @@ npm run build
 ## Commit Message
 
 ```text
-Add Codex execution guardrails and task workflow
+Add supply agent architecture bootstrap task
 ```
