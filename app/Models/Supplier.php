@@ -1,0 +1,90 @@
+<?php
+
+namespace App\Models;
+
+use App\Enums\SupplierType;
+use Database\Factories\SupplierFactory;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+
+class Supplier extends Model
+{
+    /** @use HasFactory<SupplierFactory> */
+    use HasFactory;
+
+    /**
+     * @var list<string>
+     */
+    protected $fillable = [
+        'company_id',
+        'name',
+        'code',
+        'type',
+        'default_language',
+        'default_currency',
+        'default_lead_time_days',
+        'is_active',
+        'notes',
+    ];
+
+    protected function casts(): array
+    {
+        return [
+            'type' => SupplierType::class,
+            'default_lead_time_days' => 'integer',
+            'is_active' => 'boolean',
+        ];
+    }
+
+    public function company(): BelongsTo
+    {
+        return $this->belongsTo(Company::class);
+    }
+
+    public function contacts(): HasMany
+    {
+        return $this->hasMany(SupplierContact::class);
+    }
+
+    public function productRules(): HasMany
+    {
+        return $this->hasMany(SupplierProductRule::class);
+    }
+
+    public function inboundOrders(): HasMany
+    {
+        return $this->hasMany(InboundOrder::class);
+    }
+
+    public function calculationRuns(): HasMany
+    {
+        return $this->hasMany(CalculationRun::class);
+    }
+
+    public function orderProposals(): HasMany
+    {
+        return $this->hasMany(OrderProposal::class);
+    }
+
+    public function supplierOrders(): HasMany
+    {
+        return $this->hasMany(SupplierOrder::class);
+    }
+
+    public function emailMessages(): HasMany
+    {
+        return $this->hasMany(EmailMessage::class, 'related_supplier_id');
+    }
+
+    public function logisticsRecords(): HasMany
+    {
+        return $this->hasMany(LogisticsRecord::class);
+    }
+
+    public function formTemplates(): HasMany
+    {
+        return $this->hasMany(FormTemplate::class);
+    }
+}
