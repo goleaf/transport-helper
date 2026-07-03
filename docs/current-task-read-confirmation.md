@@ -1,50 +1,72 @@
-# Current Task Read Confirmation
+Current Task Read Confirmation
 
-## Files Read
+Files Read
 
-- AGENTS.md
-- .codex/skills/00-global-rules.md
-- .codex/skills/01-task-execution-loop.md
-- .codex/skills/02-no-dto-rule.md
-- .codex/skills/03-no-secrets-rule.md
-- .codex/skills/04-testing-and-checks.md
-- .codex/skills/05-git-commit-push.md
-- .codex/skills/06-blockers-and-not-complete.md
-- docs/current-task-template.md
-- docs/current-task-progress-template.md
+AGENTS.md
+.codex/skills/00-global-rules.md
+.codex/skills/01-task-execution-loop.md
+.codex/skills/02-no-dto-rule.md
+.codex/skills/03-no-secrets-rule.md
+.codex/skills/04-testing-and-checks.md
+.codex/skills/05-git-commit-push.md
+.codex/skills/06-blockers-and-not-complete.md
+docs/current-task.md
 
-## Headings Found In Current Task
+Headings Found In Current Task
 
-1. Current Task
-2. Task Title
-3. Task Goal
-4. Required Reading
-5. Non-Negotiable Rules
-6. Scope
-7. Out Of Scope
-8. Required Implementation
-9. Required Tests
-10. Required Documentation
-11. Acceptance Criteria
-12. Required Commands
-13. Commit Message
+- Current Task
+- Task Title
+- Task Goal
+- Required Reading
+- Non-Negotiable Rules
+- Scope
+- Out Of Scope
+- Required Implementation
+- Required Tests
+- Required Documentation
+- Acceptance Criteria
+- Required Commands
+- Commit Message
 
-## Understanding
+Understanding
 
-- Task Title: create the Supply Agent architecture bootstrap documentation.
-- Task Goal: prepare repository memory for later implementation tasks without adding business code.
-- Required Reading: AGENTS, all control skills, and the task templates must be read before implementation.
-- Non-Negotiable Rules: create read/progress files first, avoid DTO/app/Data, avoid migrations/services/external services/AI, and prove work with checks.
-- Scope: create or update architecture, workflow, decision, calculation, AI, import/export, status, audit/security, backup, roadmap, prompt, notes, and README docs.
-- Out Of Scope: no migrations, models, factories, seeders, services, controllers, routes, UI, providers, import logic, calculation services, supplier order, transport, or logistics implementation.
-- Required Implementation: explain Laravel business ownership, AI boundaries, deterministic calculation, human approval, audit, no DTO, adapter data sources, and supported supply workflows.
-- Required Tests: add tests/Feature/ArchitectureDocsExistTest.php because Pest tests are configured.
-- Required Documentation: all files listed in Scope must exist and be updated.
-- Acceptance Criteria: every checklist item must pass or a blocker must be documented.
-- Required Commands: run the guard scripts, test suite, formatter if available, and npm build if applicable.
-- Commit Message: use Add supply agent architecture bootstrap task.
+Task Title
+This task is the Supply Agent Architecture Bootstrap task.
 
-## Acceptance Criteria Copied
+Task Goal
+The goal is to create base repository architecture memory for the Laravel Supply / Procurement Agent without implementing business code.
+
+Required Reading
+The task requires reading AGENTS.md, all strict .codex skill files, and current task templates before work continues.
+
+Non-Negotiable Rules
+The task must create read confirmation and progress files first, avoid DTO/app/Data, avoid migrations/services, avoid external services and AI, and prove completion with checks.
+
+Scope
+The task scope is architecture documentation, workflow documentation, roadmap documentation, README links, and architecture documentation tests.
+
+Out Of Scope
+Runtime implementation is out of scope: no migrations, models, factories, seeders, services, controllers, routes, UI, providers, imports, calculations, supplier orders, transport, or logistics workflows.
+
+Required Implementation
+The docs must explain Laravel business ownership, AI boundaries, deterministic calculation, human approval, audit, no DTO, adapter data sources, and support for supplier order, email, confirmation, transport, and logistics workflows.
+
+Required Tests
+Because the project has tests configured, tests/Feature/ArchitectureDocsExistTest.php must exist and assert required docs exist.
+
+Required Documentation
+All documentation files listed in Scope must be created or updated.
+
+Acceptance Criteria
+Every checklist item in docs/current-task.md must be copied and completed or a blocker must be documented.
+
+Required Commands
+The required commands are the no-DTO, no-secrets, project-docs checks and php artisan test, with Pint and npm build as optional checks when available.
+
+Commit Message
+The task commit message is Add supply agent architecture bootstrap task.
+
+Acceptance Criteria Copied
 
 - [ ] AGENTS.md read.
 - [ ] docs/current-task.md created.
