@@ -10,17 +10,19 @@
 
 - [x] Migrations/models
 - [x] Enums/constants
-- [x] Sales series service
-- [x] Sales exclusion service
-- [x] Seasonality factor service
-- [x] Trend override service
-- [x] Replenishment profile service
-- [x] Rule resolver
-- [x] Refined input builder
-- [x] Scenario simulation
-- [x] Scenario comparison
-- [x] Scenario export
-- [x] Optional scenario-to-proposal service skipped and documented
+- [x] Supplier product price service
+- [x] Order value estimation
+- [x] Currency service
+- [x] Policy service/resolver
+- [x] Budget service
+- [x] Budget availability service
+- [x] Approval requirement service
+- [x] Approval workflow service
+- [x] Exception service
+- [x] Supplier order rule service
+- [x] Compliance service
+- [x] Gate service
+- [x] Report service
 - [x] FormRequests
 - [x] Policies
 - [x] Controllers/routes/views
@@ -30,28 +32,25 @@
 
 ## Tests And Checks
 
-- [x] composer install
-- [x] npm install
-- [x] ./scripts/check-no-dto.sh
-- [x] ./scripts/check-no-secrets.sh
-- [x] ./scripts/check-project-docs.sh
-- [x] php artisan migrate:fresh --seed
-- [x] php artisan supply:run-scenario --help
-- [x] php artisan supply:forecast-refinement-audit
-- [x] php artisan test
-- [x] ./vendor/bin/pint, if available
-- [x] npm run build, if applicable
-- [x] find app -iname "*DTO*" -o -path "app/Data"
+- [x] ./scripts/check-no-dto.sh - passed
+- [x] ./scripts/check-no-secrets.sh - passed
+- [x] ./scripts/check-project-docs.sh - passed
+- [x] php artisan migrate:fresh --seed - passed
+- [x] php artisan supply:procurement-rules-audit - passed with configuration warnings for missing active procurement seed data
+- [x] php artisan supply:budget-status - passed
+- [x] php artisan test - passed, 849 tests / 3682 assertions
+- [x] ./vendor/bin/pint, if available - passed after formatting procurement tests
+- [x] npm run build, if applicable - passed
 
 ## Failures
 
-Optional `./scripts/run-supply-checks.sh` was run and exited 1 because seeded demo readiness data still reports Supply Health warnings and Production Readiness integrations ERROR. Required Task 18 checks passed.
+- Full test run initially found procurement Blade data-preparation calls and missing navigation registration in the active navigation service. Fixed and reran successfully.
 
 ## Blockers
 
-None yet.
+None.
 
 ## Commit
 
-- Commit hash: pending final commit
-- Push status: pending final push
+- Commit hash: 65af552
+- Push status: pending

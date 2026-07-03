@@ -273,3 +273,17 @@ System:
 * runs versioned calculation scenarios without mutating proposals or supplier orders;
 * compares scenario variants and exports scenario output;
 * writes audit events for profiles, exclusions, overrides, scenarios, comparison and exports.
+
+## 19. Procurement Rules And Budget Controls
+
+System:
+
+* estimates proposal and supplier order value deterministically;
+* resolves procurement policy in advisory or enforced mode;
+* checks active budgets, committed amounts, spent amounts and available amounts;
+* detects missing prices, over-budget orders, approval thresholds and supplier rule violations;
+* records approval requests and manager decisions;
+* records exception requests and approvals;
+* runs procurement gates before proposal approval, supplier-order conversion and supplier email actions;
+* exports procurement reports to private files;
+* does not approve proposals, create supplier orders, approve/send email, select carriers, mutate logistics, call AI or call external APIs automatically.

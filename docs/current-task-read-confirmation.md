@@ -18,9 +18,12 @@
 - docs/decision-log.md
 - docs/calculation-engine.md
 - docs/order-proposal-workflow.md
+- docs/supplier-order-email-workflow.md
+- docs/supplier-confirmation-workflow.md
+- docs/transport-workflow.md
+- docs/logistics-workflow.md
 - docs/analytics/overview.md
-- docs/analytics/forecast-accuracy.md
-- docs/analytics/stockout-risk.md
+- docs/forecasting/overview.md
 - docs/audit-and-security.md
 - docs/production-readiness.md
 
@@ -42,53 +45,29 @@
 
 ## Understanding
 
-### Task Title
+Task Title: Implement Procurement Rules And Budget Controls as the next deterministic supply workflow layer.
 
-The active task is Forecast And Replenishment Refinement.
+Task Goal: Add policies, budgets, supplier prices, approval thresholds, exceptions, gates, reports, UI, commands, tests and docs without replacing replenishment logic.
 
-### Task Goal
+Required Reading: The work must be grounded in AGENTS.md, current task rules, workflow docs, calculation docs, proposal/order/email boundaries, audit/security and production readiness.
 
-Build deterministic, auditable forecast refinement around the existing Laravel calculation engine without replacing the v1 formula. The work includes profiles, exclusions, seasonality, manual overrides, scenarios, comparison, exports, UI, commands, tests and docs.
+Non-Negotiable Rules: No DTO/app/Data, no AI/external/email/carrier calls, no automatic approval/order/email/carrier action, no hidden budget or approval requirements, and no success claim without checks.
 
-### Required Reading
+Scope: Create procurement database tables, models, enums, services, requests, policies, controllers, views, routes, commands, tests and documentation.
 
-The required project rules, workflow files and domain documents were read before implementation. Optional analytics and production docs were read where present.
+Out Of Scope: Accounting, payment/invoice posting, live exchange APIs, ERP sync, autonomous approvals/sending/carrier selection, forecasting changes and formula changes are excluded.
 
-### Non-Negotiable Rules
+Required Implementation: Users must manage policies, budgets, budget lines, prices, approvals, exceptions, gates, reports and exports while seeing audit logs.
 
-No DTO/app/Data, no AI, no external API calls, no email/provider calls, no automatic approval, no supplier order creation from scenarios and no silent formula replacement are allowed.
+Required Tests: Service, controller, command, boundary and no-DTO tests must cover value estimation, currency, budgets, approvals, exceptions, rules, gates and reports.
 
-### Scope
+Required Documentation: New procurement docs must explain budgets, approvals, supplier rules, exceptions, gates and implementation notes, with existing workflow/security/readiness docs updated.
 
-The scope includes new forecasting models, enums, services, requests, policies, controllers, routes, Blade views, commands, tests, configuration and documentation.
+Acceptance Criteria: The checklist requires implementation, safety boundaries, docs, tests, checks, commit and push.
 
-### Out Of Scope
+Required Commands: Run no-DTO, no-secrets, project-docs, migrate:fresh --seed, procurement commands and php artisan test, plus optional formatter/build.
 
-External AI forecasting, ML providers, real integrations, autonomous replenishment, analytics redesign, UI/UX design system and command palette are outside this task.
-
-### Required Implementation
-
-Users must be able to manage profiles, exclusions and trend overrides, run deterministic scenario simulations, compare scenarios, export scenario results and review audit logs.
-
-### Required Tests
-
-Service, feature, command, controller, boundary and no-DTO tests are required for forecasting behavior and safety boundaries.
-
-### Required Documentation
-
-Forecasting docs must be created and core calculation/workflow/readiness/README docs must be updated.
-
-### Acceptance Criteria
-
-The checklist defines the full delivery contract including code, UI, tests, docs, commands, checks, commit and push.
-
-### Required Commands
-
-The task requires no-DTO, no-secrets, docs, migration/seed, forecasting commands, full tests, formatter and build where applicable.
-
-### Commit Message
-
-The requested commit message is `Add deterministic forecast refinement and scenario simulation`.
+Commit Message: Commit with "Add procurement rules and budget controls".
 
 ## Acceptance Criteria Copied
 
@@ -97,58 +76,58 @@ The requested commit message is `Add deterministic forecast refinement and scena
 - [ ] docs/current-task.md read from start to end.
 - [ ] docs/current-task-read-confirmation.md created.
 - [ ] docs/current-task-progress.md created.
-- [ ] Forecast/refinement/scenario migrations created if missing.
-- [ ] ReplenishmentProfile model created.
-- [ ] SalesExclusionRule model created.
-- [ ] TrendOverride model created.
-- [ ] CalculationScenario model created.
-- [ ] CalculationScenarioItem model created.
-- [ ] Forecasting enums/constants created.
-- [ ] SalesSeriesService created.
-- [ ] SalesExclusionService created.
-- [ ] SeasonalityFactorService created.
-- [ ] TrendOverrideService created.
-- [ ] ReplenishmentProfileService created.
-- [ ] ReplenishmentRuleResolver created.
-- [ ] RefinedCalculationInputBuilder created.
-- [ ] ScenarioSimulationService created.
-- [ ] ScenarioComparisonService created.
-- [ ] ScenarioExportService created.
-- [ ] Optional ScenarioProposalService created or skipped with documented reason.
-- [ ] Promotions can be excluded from trend.
-- [ ] Anomalies can be excluded from trend.
-- [ ] Sales exclusion rule requires reason.
-- [ ] Manual trend override requires reason.
-- [ ] Manual trend override requires approval before use.
-- [ ] Rejected trend override cannot be used.
-- [ ] Seasonality factor calculated deterministically.
-- [ ] Category-level safety rules resolved.
-- [ ] Product-level rules override category rules.
-- [ ] Supplier-specific rules override company defaults where appropriate.
-- [ ] Refined calculation input includes applied exclusions/rules/overrides in explanation.
-- [ ] Scenario simulation does not mutate order proposals.
-- [ ] Scenario simulation does not create supplier orders.
-- [ ] Scenario simulation writes CalculationScenario and CalculationScenarioItems.
-- [ ] Scenario comparison shows differences in recommended quantities.
-- [ ] Scenario export creates ExportFile.
-- [ ] FormRequests created.
-- [ ] Policies created.
-- [ ] Controllers/routes/views created with existing/simple layout.
+- [ ] Procurement migrations created if missing.
+- [ ] Procurement models created.
+- [ ] Procurement enums/constants created.
+- [ ] SupplierProductPriceService created.
+- [ ] OrderValueEstimationService created.
+- [ ] ProcurementCurrencyService created.
+- [ ] ProcurementPolicyService created.
+- [ ] ProcurementPolicyResolver created.
+- [ ] BudgetService created.
+- [ ] BudgetAvailabilityService created.
+- [ ] ApprovalRequirementService created.
+- [ ] ProcurementApprovalWorkflowService created.
+- [ ] ProcurementExceptionService created.
+- [ ] SupplierOrderRuleService created.
+- [ ] ProcurementComplianceService created.
+- [ ] ProcurementGateService created.
+- [ ] ProcurementReportService created.
+- [ ] Price lookup implemented.
+- [ ] Missing price creates warning/needs_review.
+- [ ] Budget availability check implemented.
+- [ ] Budget overrun detection implemented.
+- [ ] Approval threshold detection implemented.
+- [ ] Supplier minimum rule implemented.
+- [ ] Supplier maximum rule implemented.
+- [ ] Supplier order frequency rule implemented.
+- [ ] Exception workflow implemented.
+- [ ] Manager approval workflow implemented.
+- [ ] Procurement gate advisory/enforced modes implemented.
+- [ ] Gate does not auto-approve anything.
+- [ ] Gate does not create supplier orders automatically.
+- [ ] Gate does not send emails.
+- [ ] Gate does not select carrier.
+- [ ] UI/routes/controllers created.
+- [ ] Policies/FormRequests created.
 - [ ] Commands created.
+- [ ] Reports/export created.
 - [ ] Audit events written.
 - [ ] Tests created.
 - [ ] Boundary test confirms no AI/external/email/carrier calls.
-- [ ] Boundary test confirms no business mutation except scenario/report/export records.
+- [ ] Boundary test confirms no automatic approvals.
+- [ ] Boundary test confirms no business mutation except procurement records/audit/export.
 - [ ] No DTO test updated.
-- [ ] docs/forecasting/* created.
-- [ ] docs/calculation-engine.md updated.
+- [ ] docs/procurement/* created.
 - [ ] docs/workflow-map.md updated.
-- [ ] docs/implementation-roadmap.md updated.
+- [ ] docs/status-machines.md updated.
+- [ ] docs/audit-and-security.md updated.
 - [ ] docs/production-readiness.md updated.
+- [ ] docs/implementation-roadmap.md updated.
 - [ ] README.md updated.
 - [ ] php artisan migrate:fresh --seed passed or blocker documented.
-- [ ] php artisan supply:run-scenario --help or equivalent command passed.
-- [ ] php artisan supply:forecast-refinement-audit passed or blocker documented.
+- [ ] php artisan supply:procurement-rules-audit passed or blocker documented.
+- [ ] php artisan supply:budget-status passed or blocker documented.
 - [ ] ./scripts/check-no-dto.sh passed.
 - [ ] ./scripts/check-no-secrets.sh passed.
 - [ ] ./scripts/check-project-docs.sh passed.
@@ -157,7 +136,7 @@ The requested commit message is `Add deterministic forecast refinement and scena
 - [ ] npm build passed if applicable.
 - [ ] No secrets committed.
 - [ ] No DTO created.
-- [ ] No generated scenario exports committed.
+- [ ] No generated exports committed.
 - [ ] git status reviewed.
 - [ ] Commit created.
 - [ ] Push attempted.

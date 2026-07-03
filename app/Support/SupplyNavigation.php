@@ -34,6 +34,7 @@ class SupplyNavigation
             ['key' => 'calculations', 'label' => 'Calculations', 'route' => 'supply.calculations.index', 'active' => 'supply.calculations.*'],
             ['key' => 'order-proposals', 'label' => 'Order Proposals', 'route' => 'supply.proposals.index', 'active' => 'supply.proposals.*'],
             ['key' => 'supplier-orders', 'label' => 'Supplier Orders', 'route' => 'supply.supplier-orders.index', 'active' => 'supply.supplier-orders.*'],
+            ['key' => 'procurement-controls', 'label' => 'Procurement Controls', 'route' => 'supply.procurement.reports.index', 'active' => 'supply.procurement.*'],
             ['key' => 'emails', 'label' => 'Emails', 'route' => 'supply.emails.index', 'active' => 'supply.emails.*'],
             ['key' => 'ai-extractions', 'label' => 'AI Extractions', 'route' => 'supply.ai-extractions.index', 'active' => 'supply.ai-extractions.*'],
             ['key' => 'form-templates', 'label' => 'Form Templates', 'route' => 'supply.forms.templates.index', 'active' => 'supply.forms.templates.*'],

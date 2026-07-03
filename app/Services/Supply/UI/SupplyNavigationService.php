@@ -41,6 +41,7 @@ class SupplyNavigationService
                     ['label' => 'Forecasting', 'route' => 'supply.forecasting.scenarios.index', 'active' => 'supply.forecasting.*', 'description' => 'Deterministic refinement profiles, exclusions and scenarios.'],
                     ['label' => 'Order Proposals', 'route' => 'supply.proposals.index', 'active' => 'supply.proposals.*', 'description' => 'Review, approve and adjust proposed order quantities.'],
                     ['label' => 'Supplier Orders', 'route' => 'supply.supplier-orders.index', 'active' => 'supply.supplier-orders.*', 'description' => 'Supplier order exports and email workflow.'],
+                    ['label' => 'Procurement Controls', 'route' => 'supply.procurement.reports.index', 'active' => 'supply.procurement.*', 'description' => 'Budgets, approvals, exceptions and procurement gates.'],
                 ],
             ],
             [

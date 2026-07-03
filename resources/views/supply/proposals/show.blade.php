@@ -81,6 +81,23 @@ Order Proposal #{{ $proposal->id }}
     <x-supply.alert tone="info">Converted supplier order: {{ $proposal->supplierOrder->order_number }}</x-supply.alert>
 @endif
 
+@include('supply.procurement.partials.gate-panel', [
+    'subjectType' => 'proposal',
+    'subjectId' => $proposal->id,
+    'actions' => [
+        [
+            'value' => 'approve_order_proposal',
+            'label' => 'Approve proposal',
+            'description' => 'Check budget, value thresholds and missing prices before proposal approval.',
+        ],
+        [
+            'value' => 'convert_to_supplier_order',
+            'label' => 'Convert to supplier order',
+            'description' => 'Check procurement rules before supplier order creation.',
+        ],
+    ],
+])
+
 <section>
     <h2>Actions</h2>
     <div class="actions">

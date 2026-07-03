@@ -311,3 +311,31 @@ Task 21 writes audit logs for:
 
 Incident audit metadata stores ids, status changes, owner changes, SLA status and report/export metadata only.
 It must not store secrets, encrypted config, full email bodies or credentials.
+
+## Procurement Audit Events
+
+Task 19 writes audit logs for:
+
+* `supplier_product_price_created`;
+* `supplier_product_price_updated`;
+* `procurement_policy_created`;
+* `procurement_policy_updated`;
+* `procurement_policy_archived`;
+* `procurement_budget_created`;
+* `procurement_budget_updated`;
+* `procurement_budget_line_created`;
+* `procurement_value_estimated`;
+* `procurement_budget_checked`;
+* `procurement_approval_required`;
+* `procurement_approval_requested`;
+* `procurement_approval_approved`;
+* `procurement_approval_rejected`;
+* `procurement_exception_requested`;
+* `procurement_exception_approved`;
+* `procurement_exception_rejected`;
+* `procurement_gate_checked`;
+* `procurement_gate_blocked`;
+* `procurement_report_exported`;
+* `procurement_rules_audit_run`.
+
+Procurement metadata stores model ids, amounts, currencies, warning codes and decision reasons. It must not store secrets, credentials, full email bodies or external provider payloads.

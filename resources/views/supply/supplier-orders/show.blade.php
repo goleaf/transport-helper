@@ -107,6 +107,23 @@ Supplier Order {{ $order->order_number }}
 
 @include('supply.supplier-orders.partials.items-table', ['order' => $order])
 
+@include('supply.procurement.partials.gate-panel', [
+    'subjectType' => 'supplier_order',
+    'subjectId' => $order->id,
+    'actions' => [
+        [
+            'value' => 'approve_supplier_email',
+            'label' => 'Approve supplier email',
+            'description' => 'Check procurement policy before approving the supplier email.',
+        ],
+        [
+            'value' => 'send_supplier_email',
+            'label' => 'Send supplier email',
+            'description' => 'Check procurement policy before sending supplier communication.',
+        ],
+    ],
+])
+
 <section>
     <div class="section-heading">
         <div>

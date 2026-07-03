@@ -366,6 +366,29 @@ Implementation:
 * commands added for scenario runs and refinement audit;
 * tests added for services, controllers, commands and boundary rules.
 
+## Step 19. Procurement Rules And Budget Controls
+
+Status: implemented in Task 19.
+
+Result:
+
+* procurement policies;
+* budgets and budget lines;
+* supplier product prices;
+* deterministic value estimation;
+* approval thresholds;
+* exception workflow;
+* advisory/enforced procurement gates.
+
+Implementation:
+
+* procurement control tables, models, enums, policies and form requests added;
+* deterministic procurement services added under `App\Services\Supply\Procurement`;
+* Blade pages added under `/supply/procurement`;
+* proposal and supplier-order pages include explicit procurement gate panels;
+* commands added for procurement rules audit, budget status and gate checks;
+* tests added for services, controllers, commands and no-autonomy boundary rules.
+
 ## Step 21. Exception And Incident Management
 
 Status: implemented in Task 21.

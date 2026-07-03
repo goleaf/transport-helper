@@ -108,6 +108,12 @@ Important docs:
 - `docs/forecasting/trend-overrides.md`
 - `docs/forecasting/replenishment-profiles.md`
 - `docs/forecasting/scenario-simulation.md`
+- `docs/procurement/overview.md`
+- `docs/procurement/budgets.md`
+- `docs/procurement/approval-thresholds.md`
+- `docs/procurement/supplier-rules.md`
+- `docs/procurement/exceptions.md`
+- `docs/procurement/procurement-gates.md`
 - `docs/incidents/overview.md`
 - `docs/incidents/sla-and-escalation.md`
 - `docs/incidents/workflow-blockers.md`
@@ -131,6 +137,8 @@ php artisan supply:analytics-report stockout_risk --format=json
 php artisan supply:analytics-report logistics_performance --format=json
 php artisan supply:run-scenario --help
 php artisan supply:forecast-refinement-audit
+php artisan supply:procurement-rules-audit
+php artisan supply:budget-status
 php artisan supply:detect-incidents --dry-run
 php artisan supply:monitor-incident-sla --dry-run
 php artisan supply:incident-report --json
@@ -146,6 +154,7 @@ Core safety rules:
 - Pilot mode stores real supplier samples privately and does not send real email, call external APIs, call external AI, or select carriers by default.
 - Analytics is read-only and may only create saved reports, report runs, report snapshots, private exports and audit logs.
 - Forecast refinement is deterministic and may only create scenario, export and audit records unless an explicit approved proposal workflow is added later.
+- Procurement gates are deterministic checks only and do not approve orders, create supplier orders, send email or select carriers.
 - Incident management tracks blockers but does not approve, send, apply, select carrier or update logistics automatically.
 - The UI shows AI, integration and real-email safety states explicitly and keeps dangerous workflow actions behind existing approvals.
 - DTOs are forbidden.

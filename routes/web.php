@@ -77,6 +77,14 @@ use App\Http\Controllers\Supply\PilotReadinessController;
 use App\Http\Controllers\Supply\PilotReportController;
 use App\Http\Controllers\Supply\PilotSupplierController;
 use App\Http\Controllers\Supply\PilotUatChecklistController;
+use App\Http\Controllers\Supply\ProcurementApprovalDecisionController;
+use App\Http\Controllers\Supply\ProcurementApprovalRequestController;
+use App\Http\Controllers\Supply\ProcurementBudgetController;
+use App\Http\Controllers\Supply\ProcurementBudgetLineController;
+use App\Http\Controllers\Supply\ProcurementExceptionController;
+use App\Http\Controllers\Supply\ProcurementGateController;
+use App\Http\Controllers\Supply\ProcurementPolicyController;
+use App\Http\Controllers\Supply\ProcurementReportController;
 use App\Http\Controllers\Supply\ReplenishmentProfileController;
 use App\Http\Controllers\Supply\ReportRunController;
 use App\Http\Controllers\Supply\ReservationController;
@@ -94,6 +102,7 @@ use App\Http\Controllers\Supply\SupplierOrderEmailApprovalController;
 use App\Http\Controllers\Supply\SupplierOrderEmailDraftController;
 use App\Http\Controllers\Supply\SupplierOrderExportController;
 use App\Http\Controllers\Supply\SupplierOrderSendController;
+use App\Http\Controllers\Supply\SupplierProductPriceController;
 use App\Http\Controllers\Supply\SupplyDashboardController;
 use App\Http\Controllers\Supply\SupplySectionController;
 use App\Http\Controllers\Supply\TrendOverrideApprovalController;
@@ -188,6 +197,41 @@ Route::middleware(['web', 'auth'])
         Route::post('forecasting/scenarios/compare', [ScenarioComparisonController::class, 'store'])->name('forecasting.scenarios.compare');
         Route::get('forecasting/scenarios/{scenario}', [CalculationScenarioController::class, 'show'])->name('forecasting.scenarios.show');
         Route::post('forecasting/scenarios/{scenario}/export', [ScenarioExportController::class, 'store'])->name('forecasting.scenarios.export');
+
+        Route::get('procurement/policies', [ProcurementPolicyController::class, 'index'])->name('procurement.policies.index');
+        Route::get('procurement/policies/create', [ProcurementPolicyController::class, 'create'])->name('procurement.policies.create');
+        Route::post('procurement/policies', [ProcurementPolicyController::class, 'store'])->name('procurement.policies.store');
+        Route::get('procurement/policies/{policy}', [ProcurementPolicyController::class, 'show'])->name('procurement.policies.show');
+        Route::get('procurement/policies/{policy}/edit', [ProcurementPolicyController::class, 'edit'])->name('procurement.policies.edit');
+        Route::match(['put', 'patch'], 'procurement/policies/{policy}', [ProcurementPolicyController::class, 'update'])->name('procurement.policies.update');
+        Route::delete('procurement/policies/{policy}', [ProcurementPolicyController::class, 'destroy'])->name('procurement.policies.archive');
+
+        Route::get('procurement/budgets', [ProcurementBudgetController::class, 'index'])->name('procurement.budgets.index');
+        Route::get('procurement/budgets/create', [ProcurementBudgetController::class, 'create'])->name('procurement.budgets.create');
+        Route::post('procurement/budgets', [ProcurementBudgetController::class, 'store'])->name('procurement.budgets.store');
+        Route::get('procurement/budgets/{budget}', [ProcurementBudgetController::class, 'show'])->name('procurement.budgets.show');
+        Route::get('procurement/budgets/{budget}/edit', [ProcurementBudgetController::class, 'edit'])->name('procurement.budgets.edit');
+        Route::match(['put', 'patch'], 'procurement/budgets/{budget}', [ProcurementBudgetController::class, 'update'])->name('procurement.budgets.update');
+        Route::post('procurement/budgets/{budget}/lines', [ProcurementBudgetLineController::class, 'store'])->name('procurement.budgets.lines.store');
+
+        Route::get('procurement/prices', [SupplierProductPriceController::class, 'index'])->name('procurement.prices.index');
+        Route::post('procurement/prices', [SupplierProductPriceController::class, 'store'])->name('procurement.prices.store');
+
+        Route::get('procurement/approvals', [ProcurementApprovalRequestController::class, 'index'])->name('procurement.approvals.index');
+        Route::get('procurement/approvals/{approvalRequest}', [ProcurementApprovalRequestController::class, 'show'])->name('procurement.approvals.show');
+        Route::post('procurement/approvals/request', [ProcurementApprovalRequestController::class, 'store'])->name('procurement.approvals.request');
+        Route::post('procurement/approvals/{approvalRequest}/approve', [ProcurementApprovalDecisionController::class, 'approve'])->name('procurement.approvals.approve');
+        Route::post('procurement/approvals/{approvalRequest}/reject', [ProcurementApprovalDecisionController::class, 'reject'])->name('procurement.approvals.reject');
+
+        Route::get('procurement/exceptions', [ProcurementExceptionController::class, 'index'])->name('procurement.exceptions.index');
+        Route::get('procurement/exceptions/{exception}', [ProcurementExceptionController::class, 'show'])->name('procurement.exceptions.show');
+        Route::post('procurement/exceptions', [ProcurementExceptionController::class, 'store'])->name('procurement.exceptions.store');
+        Route::post('procurement/exceptions/{exception}/approve', [ProcurementExceptionController::class, 'approve'])->name('procurement.exceptions.approve');
+        Route::post('procurement/exceptions/{exception}/reject', [ProcurementExceptionController::class, 'reject'])->name('procurement.exceptions.reject');
+
+        Route::post('procurement/gate', [ProcurementGateController::class, 'store'])->name('procurement.gate');
+        Route::get('procurement/reports', [ProcurementReportController::class, 'index'])->name('procurement.reports.index');
+        Route::post('procurement/reports/export', [ProcurementReportController::class, 'export'])->name('procurement.reports.export');
 
         Route::get('incidents', [OperationalIncidentController::class, 'index'])->name('incidents.index');
         Route::get('incidents/create', [OperationalIncidentController::class, 'create'])->name('incidents.create');

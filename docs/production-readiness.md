@@ -113,3 +113,19 @@ Before using refined scenario output for live procurement:
 - run at least one scenario and compare it with the baseline calculation;
 - verify scenario warnings before any proposal action;
 - confirm scenario exports are stored privately and not committed.
+
+## Procurement Controls Readiness
+
+Before using procurement gates for live approvals:
+
+- review the active default procurement policy;
+- review advisory/enforced mode with managers;
+- review active budgets and budget lines;
+- review supplier product price coverage;
+- review missing price report;
+- review approval thresholds and fallback permissions;
+- review pending approvals and pending exceptions;
+- review self-approval configuration;
+- run `php artisan supply:procurement-rules-audit`;
+- run `php artisan supply:budget-status`;
+- confirm procurement exports are stored privately and not committed.

@@ -250,3 +250,47 @@ Transitions:
 * open -> acknowledged after manager review;
 * acknowledged -> resolved when escalation no longer applies;
 * open or acknowledged -> cancelled if created in error.
+
+## ProcurementApprovalRequest
+
+* pending
+* approved
+* rejected
+* cancelled
+* expired
+
+Transitions:
+
+* pending -> approved after authorized manager/admin decision;
+* pending -> rejected after authorized rejection with reason;
+* pending -> cancelled by requester/manager when no longer needed;
+* pending -> expired when the configured expiry passes;
+* approved, rejected, cancelled and expired are terminal for gate satisfaction.
+
+## ProcurementException
+
+* pending
+* approved
+* rejected
+* cancelled
+
+Transitions:
+
+* pending -> approved after manager/admin decision;
+* pending -> rejected with rejection reason;
+* pending -> cancelled when no longer applicable;
+* approved exceptions can satisfy a matching gate condition but do not approve orders.
+
+## ProcurementBudget
+
+* draft
+* active
+* closed
+* archived
+
+Transitions:
+
+* draft -> active after review;
+* active -> closed after period completion;
+* draft, active or closed -> archived when superseded;
+* closed and archived budgets are not active for new availability checks.

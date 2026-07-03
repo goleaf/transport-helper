@@ -22,6 +22,16 @@ return [
             'allow_create_proposal_from_scenario' => env('SUPPLY_ALLOW_SCENARIO_TO_PROPOSAL', false),
         ],
     ],
+    'procurement' => [
+        'enabled' => env('SUPPLY_PROCUREMENT_CONTROLS_ENABLED', true),
+        'default_enforcement_mode' => env('SUPPLY_PROCUREMENT_DEFAULT_ENFORCEMENT', 'advisory'),
+        'allow_self_approval' => env('SUPPLY_PROCUREMENT_ALLOW_SELF_APPROVAL', false),
+        'default_currency' => env('SUPPLY_PROCUREMENT_DEFAULT_CURRENCY', 'EUR'),
+        'manual_currency_rates' => [
+            'EUR' => 1.0,
+        ],
+        'block_missing_price_in_enforced_mode' => env('SUPPLY_PROCUREMENT_BLOCK_MISSING_PRICE', true),
+    ],
     'email_ingestion' => [
         'default_provider' => env('SUPPLY_EMAIL_PROVIDER', 'manual'),
         'default_analyzer' => env('SUPPLY_EMAIL_ANALYZER', 'rule_based'),
