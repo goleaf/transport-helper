@@ -1,75 +1,53 @@
 # Next Codex Prompts
 
-## Purpose
+## Prompt 3: Core Database
 
-Use these prompts one at a time. Each prompt must be copied into docs/current-task.md before Codex starts implementation.
+Create migrations, models, relationships, enums, factories, seeders, roles and base tests.
 
-## Prompt 1: Core Schema Planning
+## Prompt 4: Audit Service And Calculation Engine
 
-Create the core supply schema plan and migrations for suppliers, products, inventory snapshots, order proposals, supplier orders, email messages, AI suggestions, human reviews, carrier quotes, logistics records, and audit events.
+Create AuditLogService and deterministic calculation engine with required 150 -> 156 test.
 
-Rules:
+## Prompt 5: CSV Import System
 
-- no services;
-- no controllers;
-- no UI;
-- no external API calls;
-- no DTO;
-- no app/Data;
-- factories and tests required;
-- guard must pass.
+Create import adapters, CSV import, batches, rows, validators, normalizers and dry-run.
 
-## Prompt 2: Deterministic Calculation
+## Prompt 6: Order Proposal Workflow
 
-Implement deterministic calculation service/action for order proposals.
+Create order proposal UI and approve/adjust/reject workflow.
 
-Rules:
+## Prompt 7: Supplier Order Export And Email
 
-- use arrays, Eloquent models, enums, and PHPDoc shapes;
-- no AI;
-- no external calls;
-- include formula explanation output;
-- add unit tests for the fixture in docs/calculation-engine.md.
+Create supplier order export, email draft, approval and send workflow.
 
-## Prompt 3: Import Normalization
+## Prompt 8: Inbound Email And AI Extraction
 
-Implement CSV import normalization and validation.
+Create inbound email storage, AI extraction boundary and human review.
 
-Rules:
+## Prompt 9: Email Form Autofill
 
-- fake fixture files only;
-- no Google, ERP, ecommerce, or warehouse calls;
-- write audit events;
-- invalid rows create errors or review records.
+Create email-to-form autofill, field review and validation.
 
-## Prompt 4: Supplier Email Boundary
+## Prompt 10: Supplier Confirmation
 
-Implement supplier email draft and approval workflow using fake/manual sender tests.
+Apply manual/accepted AI/validated form confirmation.
 
-Rules:
+## Prompt 11: Transport
 
-- no real email provider;
-- no send without approval;
-- audit draft, approval, and send intent.
+Create carrier quote scoring and user selection.
 
-## Prompt 5: AI Suggestion Boundary
+## Prompt 12: Logistics
 
-Implement AI suggestion interface with fake provider only.
+Create logistics dashboard, receiving, notifications and health checks.
 
-Rules:
+## Prompt 13: Final Hardening
 
-- no real AI provider;
-- suggestions only;
-- no direct business mutation;
-- human review required before application.
+Create E2E tests, production readiness and deployment docs.
 
-## Prompt 6: Carrier And Logistics
+## Prompt 14: Real Integrations
 
-Implement carrier quote and logistics workflow.
+Configure controlled real providers and onboarding framework.
 
-Rules:
+## Prompt 15: Pilot Supplier
 
-- fake carrier data only;
-- no automatic carrier selection;
-- human-selected logistics record;
-- audit selection.
+Configure one real supplier and UAT checklist.

@@ -9,24 +9,32 @@
 
 ## Supply Agent Architecture
 
-Project rules and implementation documentation are located in:
+Project documentation:
 
-- AGENTS.md
-- .codex/skills/
-- docs/architecture.md
-- docs/workflow-map.md
-- docs/calculation-engine.md
-- docs/email-ai-boundary.md
-- docs/email-form-autofill.md
-- docs/implementation-roadmap.md
+* AGENTS.md
+* .codex/skills/
+* docs/architecture.md
+* docs/domain-model.md
+* docs/workflow-map.md
+* docs/decision-log.md
+* docs/calculation-engine.md
+* docs/email-ai-boundary.md
+* docs/email-form-autofill.md
+* docs/import-export-adapters.md
+* docs/status-machines.md
+* docs/audit-and-security.md
+* docs/backup-plan.md
+* docs/implementation-roadmap.md
+* docs/next-codex-prompts.md
 
 Core rules:
-- Laravel owns business logic.
-- AI is only used for email understanding, reply drafts and form autofill suggestions.
-- Deterministic calculation engine calculates order quantities.
-- Human approval is required at critical points.
-- DTO classes are forbidden.
-- Audit logs are required for important actions.
+
+* Laravel owns business logic.
+* AI is only used for email/text/form extraction and draft suggestions.
+* Deterministic calculation engine calculates order quantities.
+* Human approval is required for critical actions.
+* Audit logs are required.
+* DTO classes are forbidden.
 
 ## Codex Execution Rules
 
@@ -63,26 +71,6 @@ Core rules:
 * no secrets;
 * no real external calls in tests;
 * no fake "done" without test results.
-
-## Supply Agent Architecture
-
-Start here before implementing supply modules:
-
-* [Architecture](docs/architecture.md)
-* [Domain Model](docs/domain-model.md)
-* [Workflow Map](docs/workflow-map.md)
-* [Decision Log](docs/decision-log.md)
-* [Calculation Engine](docs/calculation-engine.md)
-* [Email AI Boundary](docs/email-ai-boundary.md)
-* [Email Form Autofill](docs/email-form-autofill.md)
-* [Import Export Adapters](docs/import-export-adapters.md)
-* [Status Machines](docs/status-machines.md)
-* [Audit And Security](docs/audit-and-security.md)
-* [Backup Plan](docs/backup-plan.md)
-* [Implementation Roadmap](docs/implementation-roadmap.md)
-* [Next Codex Prompts](docs/next-codex-prompts.md)
-* [Architecture Bootstrap Notes](docs/repository-architecture-bootstrap-notes.md)
-* [Architecture Decision Records](docs/decisions/)
 
 ## About Laravel
 

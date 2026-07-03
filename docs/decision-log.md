@@ -1,57 +1,52 @@
 # Decision Log
 
-## Purpose
+## D-001 Laravel Is Business Logic Center
 
-This document summarizes architecture decisions that future tasks must preserve. Detailed ADR files can still live in docs/decisions.
+Laravel owns all business decisions and mutations.
 
-## Accepted Decisions
+## D-002 AI Boundary
 
-### Laravel Owns Business Logic
+AI is only allowed for email/text/form understanding and draft suggestions.
 
-Laravel validates, calculates, approves, mutates, authorizes, and audits business records. External systems and AI providers are inputs only.
+## D-003 Deterministic Calculation
 
-### Deterministic Calculation
+Order quantities are calculated by deterministic PHP/Laravel services.
 
-Order quantities are calculated by deterministic PHP/Laravel code. AI, email content, carrier APIs, and provider responses must not change formulas or quantities.
+## D-004 No DTO
 
-### No DTO Classes
+DTO classes are forbidden.
+Use arrays, Eloquent models, FormRequest validation and JSON columns.
 
-DTOs are forbidden. Use Eloquent models, arrays, FormRequest validated arrays, Laravel Validator, JSON columns, enums, services, jobs, policies, and PHPDoc array shapes.
+## D-005 Human Approval
 
-### AI Is Suggestion Only
+Human approval is required for:
 
-AI may extract, classify, summarize, draft, and suggest form values. It must not calculate, approve, send, select, apply, or directly mutate records.
+* order quantity approval;
+* quantity adjustment;
+* supplier email sending;
+* AI extraction acceptance;
+* form autofill application;
+* supplier confirmation application;
+* carrier selection;
+* mismatch resolution.
 
-### Human Review Is Required At Risk Points
+## D-006 Audit Required
 
-Human review gates protect proposal approval, supplier email sending, AI suggestion application, carrier selection, conflicts, credentials, and restore actions.
+All critical actions must write audit logs.
 
-### Adapter-Based Data Sources
+## D-007 Adapter-Based Integrations
 
-CSV, Excel, Google Sheets, ERP, ecommerce, warehouse, email, carrier, and email-provider integrations belong behind adapters. Tests must use fake or manual adapters.
+External sources are connected through adapters.
 
-### Audit Is Mandatory
+## D-008 Local/Private First
 
-Critical workflow actions must write audit events. Audit metadata must include IDs and context but never secrets.
+System must be safe for local/private infrastructure.
+External AI/services require explicit approval.
 
-## Deferred Decisions
+## D-009 No Period Duplication
 
-- Exact production database engine.
-- Filament or custom admin surface.
-- Queue driver for production.
-- Concrete external provider SDKs.
-- Supplier form submission strategy.
-- Carrier quote provider list.
+T0-T1, T1-T2 and T2-T3 must not be double-counted.
 
-## Revisit Rules
+## D-010 Real Integrations Disabled By Default
 
-Write or update an ADR when changing:
-
-- calculation formulas;
-- AI boundary;
-- no DTO rule;
-- schema ownership;
-- approval workflow;
-- carrier selection rules;
-- credential storage;
-- external provider architecture.
+Gmail, Microsoft, IMAP, SMTP, Google Sheets, ERP and external AI must be disabled until configured and approved.

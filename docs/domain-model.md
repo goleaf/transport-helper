@@ -1,8 +1,5 @@
 # Domain Model
 
-This document describes the planned domain objects for the Supply / Procurement Agent.
-It is architecture documentation only and does not create database schema, models, services, or DTO classes.
-
 ## Company
 
 Represents business/company context.
@@ -23,14 +20,14 @@ SKU, name, manufacturer SKU, category, unit and active state.
 
 Supplier-specific product rules:
 
-- supplier SKU;
-- MOQ;
-- pack multiple;
-- pallet quantity;
-- min transport quantity;
-- lead time;
-- safety days;
-- order enabled.
+* supplier SKU;
+* MOQ;
+* pack multiple;
+* pallet quantity;
+* min transport quantity;
+* lead time;
+* safety days;
+* order enabled.
 
 ## StockSnapshot
 
@@ -60,14 +57,14 @@ Proposed order for supplier after calculation.
 
 One SKU calculation result:
 
-- T0/T1/T2/T3;
-- trend;
-- need components;
-- raw need;
-- recommended quantity;
-- explanation;
-- warnings;
-- status.
+* T0/T1/T2/T3;
+* trend;
+* need components;
+* raw need;
+* recommended quantity;
+* explanation;
+* warnings;
+* status.
 
 ## SupplierOrder
 

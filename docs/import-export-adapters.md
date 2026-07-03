@@ -1,85 +1,56 @@
-# Import And Export Adapters
+# Import Export Adapters
 
-## Purpose
+## Import Principle
 
-Imports and exports are adapter-driven. Adapters isolate file formats and external providers from Laravel business logic.
+All external data sources must use adapters.
 
-## Import Sources
+Supported sources:
 
-Supported or planned source types:
+* CSV;
+* Excel;
+* Google Sheets;
+* API;
+* ERP export;
+* ecommerce export;
+* warehouse export;
+* manual upload;
+* email attachment.
 
-- CSV;
-- Excel;
-- Google Sheets;
-- ERP;
-- ecommerce;
-- accounting;
-- warehouse;
-- manual upload;
-- inbound email attachments;
-- carrier quote providers;
-- email providers.
+## Import Batch
 
-## Import Adapter Rules
+Every import creates:
 
-Adapters may:
+* import_batch;
+* import_rows;
+* raw_json;
+* normalized_json;
+* row status;
+* errors;
+* related model link.
 
-- read source data;
-- normalize rows into arrays;
-- attach source metadata;
-- report parse errors;
-- expose fake/manual implementations for tests.
+## Import Types
 
-Adapters must not:
+* sales_history;
+* stock_snapshot;
+* inbound_orders;
+* reservations;
+* product_rules;
+* supplier_products;
+* carrier_quotes;
+* logistics_records.
 
-- calculate order quantities;
-- approve proposals;
-- apply confirmations;
-- send supplier email;
-- select carriers;
-- mutate logistics records;
-- bypass Laravel validation.
+## Dry Run
 
-## Laravel Import Rules
+Dry run validates and normalizes but does not persist domain records.
 
-Laravel application flows must:
+## Export
 
-- validate normalized arrays;
-- reject incomplete rows or send them to review;
-- update Eloquent models only after validation;
-- write audit events;
-- avoid DTO classes.
+Supported/future:
 
-## Export Targets
-
-Supported or planned export targets:
-
-- CSV;
-- JSON;
-- Excel-compatible CSV;
-- supplier form output;
-- PDF placeholder;
-- Google Sheets placeholder.
-
-## Export Rules
-
-Exports should:
-
-- read Eloquent models and eager-loaded relationships;
-- use explicit fields;
-- avoid queries in Blade;
-- write audit events for sensitive exports;
-- use queues for long-running work.
-
-## Testing
-
-Every adapter must be testable without real external services.
-
-Tests should use:
-
-- fake adapters;
-- array-backed providers;
-- fixture files with fake data;
-- malformed input cases;
-- duplicate row cases;
-- missing required field cases.
+* supplier order CSV;
+* supplier order JSON;
+* Excel-compatible CSV;
+* manufacturer form;
+* logistics CSV;
+* form autofill JSON/CSV;
+* Google Sheets placeholder.

@@ -1,82 +1,53 @@
 # Email AI Boundary
 
-## Rule
+## Principle
 
-AI is allowed only inside the email, text, extraction, draft, and form suggestion boundary.
+AI suggests.
+Laravel validates.
+Human approves.
+Laravel applies.
 
-Laravel owns all business decisions and state changes.
+## AI Can
 
-## Allowed AI Uses
+* classify email type;
+* extract supplier reference;
+* extract order number;
+* extract SKUs;
+* extract quantities;
+* extract dates;
+* extract carrier quote data;
+* generate draft reply suggestions;
+* suggest form autofill values.
 
-AI may:
+## AI Cannot
 
-- read inbound email content;
-- extract structured information from email or attachments;
-- generate draft email replies;
-- suggest form autofill values;
-- summarize conflicts for human review;
-- provide confidence scores for review prioritization.
+* calculate order quantities;
+* change formulas;
+* approve order proposals;
+* adjust quantities;
+* send emails;
+* apply supplier confirmations;
+* create carrier selection;
+* update logistics records;
+* mutate business records directly.
 
-## Forbidden AI Uses
+## Storage
 
-AI must not:
+AI output is stored separately:
 
-- calculate order quantities;
-- change formulas;
-- approve order proposals;
-- approve supplier orders;
-- send supplier email;
-- select carriers;
-- apply supplier confirmations directly;
-- apply form autofill directly;
-- update logistics directly;
-- mutate business records without Laravel validation and human approval.
+* ai_email_extractions;
+* form_autofill_runs;
+* form_autofill_field_values.
 
-## Storage Rule
+## Human Review
 
-AI output must be stored separately as suggestions or extraction records.
+Required when:
 
-Expected suggestion fields:
-
-- type;
-- status;
-- source email or file reference;
-- payload;
-- confidence score;
-- conflicts;
-- review reason;
-- source adapter.
-
-Business records are not mutated when suggestions are created.
-
-## Review Rule
-
-Every AI suggestion starts as pending_review unless a future task explicitly implements stricter workflow states.
-
-Human review is required for:
-
-- low confidence;
-- conflicts;
-- missing required fields;
-- supplier confirmation application;
-- form autofill application;
-- reply sending;
-- carrier or logistics related suggestions.
-
-## Apply Rule
-
-Only Laravel application flows can apply approved suggestions.
-
-Apply flows must:
-
-- check policy;
-- verify suggestion type;
-- require approved status;
-- validate payload with Laravel;
-- verify related business record;
-- write audit event;
-- mark suggestion as applied.
-
-## Test Rule
-
-Tests must use fake AI providers or static fixtures. No tests may call real AI services.
+* confidence is low;
+* email type unclear;
+* supplier unknown;
+* order unknown;
+* SKU unknown;
+* date ambiguous;
+* quantity mismatch;
+* required field missing.

@@ -2,6 +2,7 @@
 
 test('architecture bootstrap docs exist', function () {
     $requiredDocs = [
+        'AGENTS.md',
         'docs/architecture.md',
         'docs/domain-model.md',
         'docs/workflow-map.md',
@@ -43,4 +44,18 @@ test('architecture docs keep core guardrails visible', function () {
         ->toContain('human')
         ->toContain('audit')
         ->toContain('adapter');
+});
+
+test('architecture docs include required bootstrap guardrails', function () {
+    $calculationEngine = file_get_contents(base_path('docs/calculation-engine.md')) ?: '';
+    $emailAiBoundary = file_get_contents(base_path('docs/email-ai-boundary.md')) ?: '';
+    $decisionLog = file_get_contents(base_path('docs/decision-log.md')) ?: '';
+
+    expect($calculationEngine)
+        ->toContain('raw_need = 150')
+        ->toContain('recommended_quantity = 156')
+        ->and($emailAiBoundary)
+        ->toContain('AI Cannot')
+        ->and($decisionLog)
+        ->toContain('No DTO');
 });

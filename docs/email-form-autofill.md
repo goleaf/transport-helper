@@ -2,80 +2,44 @@
 
 ## Purpose
 
-Email form autofill converts inbound supplier email content into suggested form values.
+The Email Form Autofill tool turns inbound email content into a reviewed form draft.
 
-It can help with:
-
-- supplier confirmations;
-- ready date updates;
-- quantity mismatch review;
-- carrier quote capture;
-- logistics updates;
-- custom supplier forms.
-
-## Workflow
+## Flow
 
 1. User opens inbound email.
-2. User chooses to create a form autofill suggestion.
-3. Laravel builds the extraction context.
-4. AI or a fake provider returns candidate field values.
-5. Laravel validates and normalizes candidates.
-6. Laravel stores an autofill suggestion.
-7. User reviews fields.
-8. User accepts, edits, or rejects values.
-9. User approves the suggestion.
-10. Laravel applies the approved suggestion through an application flow.
-11. Laravel writes audit events.
+2. User selects form template.
+3. Laravel builds context.
+4. AI suggests field values.
+5. Laravel validates every field.
+6. System stores extracted_value, normalized_value and final_value separately.
+7. User accepts, edits or rejects fields.
+8. User validates the run.
+9. Validated run can be applied by a target-specific application service.
 
-## Important Boundary
+## Field Values
 
-AI suggestion is not a final value.
+extracted_value:
 
-AI must not:
+* raw AI suggestion.
 
-- create business records directly;
-- submit forms directly;
-- apply confirmations;
-- update logistics;
-- send email;
-- bypass review.
+normalized_value:
 
-## Field Shape
+* Laravel-normalized value.
 
-Each suggested field should include:
+final_value:
 
-- extracted_value;
-- normalized_value;
-- final_value;
-- confidence;
-- source_excerpt;
-- requires_review;
-- review_reason.
+* user-approved or edited value.
 
-Use arrays and JSON columns with PHPDoc shapes. Do not create DTO classes.
+## Important Rule
 
-## Human Review Reasons
+AI suggestion is not final.
 
-Needs review when:
+## Review Triggers
 
-- required field is missing;
-- confidence is low;
-- SKU is unknown;
-- date is ambiguous;
-- quantity is invalid;
-- carrier is unknown;
-- quantity conflicts with order;
-- date conflicts with expected workflow.
-
-## Apply Contexts
-
-Supported future contexts:
-
-- supplier_confirmation;
-- ready_date_update;
-- quantity_mismatch;
-- carrier_quote;
-- logistics_update;
-- custom_email_form.
-
-Every apply context must be authorized, validated, and audited.
+* missing required field;
+* low confidence;
+* unknown SKU;
+* invalid date;
+* ambiguous date;
+* quantity mismatch;
+* unknown carrier.
