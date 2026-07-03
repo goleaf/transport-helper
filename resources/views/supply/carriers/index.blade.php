@@ -15,7 +15,7 @@ Carriers
 @endif
 
 <section>
-    <table>
+    <table class="table table-zebra">
         <thead>
             <tr>
                 <th>Name</th>

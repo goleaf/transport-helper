@@ -39,7 +39,7 @@ class SupplyNavigation
             ['key' => 'form-templates', 'label' => 'Form Templates', 'route' => 'supply.forms.templates.index', 'active' => 'supply.forms.templates.*'],
             ['key' => 'form-autofill-runs', 'label' => 'Form Autofill Runs', 'route' => 'supply.form-autofill-runs.index', 'active' => 'supply.form-autofill-runs.*'],
             ['key' => 'supplier-confirmations', 'label' => 'Supplier Confirmations', 'route' => 'supply.supplier-confirmations.index', 'active' => 'supply.supplier-confirmations.*'],
-            ['key' => 'transport-quotes', 'label' => 'Transport Quotes', 'route' => 'supply.transport.quotes.index', 'active' => 'supply.transport.*'],
+            ['key' => 'transport-quotes', 'label' => 'Carrier Quotes', 'route' => 'supply.transport.quotes.index', 'active' => 'supply.transport.*'],
             ['key' => 'logistics', 'label' => 'Logistics', 'route' => 'supply.logistics.index', 'active' => 'supply.logistics.*'],
             ['key' => 'imports', 'label' => 'Imports', 'route' => 'supply.imports.index', 'active' => 'supply.imports.*'],
             ['key' => 'exports', 'label' => 'Exports', 'route' => 'supply.exports.index', 'active' => 'supply.exports.*'],

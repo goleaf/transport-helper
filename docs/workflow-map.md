@@ -218,3 +218,17 @@ System:
 * verifies backup marker, storage folders and restore documentation;
 * audits AI/form/scoring boundaries;
 * aggregates health, security, permissions, audit, backup and AI boundary checks into production readiness.
+
+## 13. Guided Operator UI
+
+System:
+
+* presents the supply workflow through a sidebar and topbar shell;
+* shows KPI cards, action queue and environment badges on the dashboard;
+* keeps local mode, external AI and real integration state visible;
+* shows T0/T1/T2/T3 calculation context and formula explanation;
+* separates AI suggested, normalized and final values;
+* warns that AI extraction acceptance does not apply business changes;
+* warns that transport recommendation is not automatic carrier selection;
+* shows logistics and receiving dates in timeline form;
+* keeps dangerous links hidden from unauthorized users where permissions exist.

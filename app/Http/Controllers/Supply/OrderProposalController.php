@@ -146,7 +146,31 @@ class OrderProposalController extends Controller
                 'warnings_json',
                 'status',
             ])
-            ->with('product:id,sku,name')
+            ->with([
+                'product:id,company_id,sku,name,category,brand,unit',
+                'product.supplierProductRules' => fn ($query) => $query
+                    ->select(['id', 'supplier_id', 'product_id', 'supplier_sku', 'moq', 'pack_multiple', 'pallet_quantity', 'lead_time_days', 'order_enabled'])
+                    ->with(['supplier:id,name,code'])
+                    ->latest('id')
+                    ->limit(30),
+                'product.stockSnapshots' => fn ($query) => $query
+                    ->select(['id', 'company_id', 'product_id', 'snapshot_date', 'free_stock', 'total_stock', 'reserved_quantity', 'in_transit_quantity'])
+                    ->latest('snapshot_date')
+                    ->limit(30),
+                'product.salesHistory' => fn ($query) => $query
+                    ->select(['id', 'company_id', 'product_id', 'sales_date', 'quantity', 'channel', 'is_promotion', 'is_anomaly'])
+                    ->latest('sales_date')
+                    ->limit(30),
+                'product.reservations' => fn ($query) => $query
+                    ->select(['id', 'company_id', 'product_id', 'quantity', 'project_name', 'customer_name', 'reserved_at', 'expected_usage_date', 'status'])
+                    ->latest('expected_usage_date')
+                    ->limit(30),
+                'product.inboundOrderItems' => fn ($query) => $query
+                    ->select(['id', 'inbound_order_id', 'product_id', 'ordered_quantity', 'confirmed_quantity', 'received_quantity', 'expected_arrival_date', 'status'])
+                    ->with(['inboundOrder:id,supplier_id,order_number,status,expected_arrival_date'])
+                    ->latest('id')
+                    ->limit(30),
+            ])
             ->when($statusFilter !== null, fn (Builder $query) => $query->where('status', $statusFilter))
             ->orderBy('id')
             ->get();

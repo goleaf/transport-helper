@@ -305,12 +305,24 @@ Implementation:
 
 ## Step 16. UI/UX
 
+Status: implemented in Task 16.
+
 Result:
 
 * design system;
 * navigation;
 * guided workflow;
 * operator efficiency.
+
+Implementation:
+
+* supply layout partials for sidebar and topbar added;
+* environment badges added for local mode, external AI, real integrations and real email;
+* reusable components added for statuses, review banners, KPI/action cards, evidence, timelines, warnings and next actions;
+* dashboard updated with KPI cards, action queue and safe empty states;
+* permission-aware navigation service added;
+* localization files added for EN, LT and RU;
+* UI smoke and boundary tests added.
 
 ## Step 17. Analytics
 

@@ -30,15 +30,15 @@ Carrier Quotes
         <form method="post" action="{{ route('supply.transport.orders.request-quotes', $supplierOrder) }}">
             @csrf
             <label for="required_pickup_date">Required pickup date</label>
-            <input id="required_pickup_date" name="required_pickup_date" type="date">
+            <input class="input input-bordered input-primary" id="required_pickup_date" name="required_pickup_date" type="date">
 
             <label for="required_delivery_date">Required delivery date</label>
-            <input id="required_delivery_date" name="required_delivery_date" type="date">
+            <input class="input input-bordered input-primary" id="required_delivery_date" name="required_delivery_date" type="date">
 
             <label for="message">Message</label>
-            <textarea id="message" name="message"></textarea>
+            <textarea class="textarea textarea-bordered textarea-primary" id="message" name="message"></textarea>
 
-            <button type="submit">Request quotes</button>
+            <x-supply.button type="submit">Request quotes</x-supply.button>
         </form>
     </section>
 
@@ -49,7 +49,7 @@ Carrier Quotes
             <input type="hidden" name="supplier_order_id" value="{{ $supplierOrder->id }}">
 
             <label for="carrier_id">Carrier</label>
-            <select id="carrier_id" name="carrier_id">
+            <select class="select select-bordered select-primary" id="carrier_id" name="carrier_id">
                 <option value="">New carrier</option>
                 @foreach ($carriers as $carrier)
                     <option value="{{ $carrier->id }}">{{ $carrier->name }}</option>
@@ -57,34 +57,34 @@ Carrier Quotes
             </select>
 
             <label for="carrier_name">Carrier name</label>
-            <input id="carrier_name" name="carrier_name">
+            <input class="input input-bordered input-primary" id="carrier_name" name="carrier_name">
 
             <label for="price">Price</label>
-            <input id="price" name="price" inputmode="decimal">
+            <input class="input input-bordered input-primary" id="price" name="price" inputmode="decimal">
 
             <label for="currency">Currency</label>
-            <input id="currency" name="currency" value="EUR">
+            <input class="input input-bordered input-primary" id="currency" name="currency" value="EUR">
 
             <label for="pickup_date">Pickup date</label>
-            <input id="pickup_date" name="pickup_date" type="date">
+            <input class="input input-bordered input-primary" id="pickup_date" name="pickup_date" type="date">
 
             <label for="delivery_date">Delivery date</label>
-            <input id="delivery_date" name="delivery_date" type="date">
+            <input class="input input-bordered input-primary" id="delivery_date" name="delivery_date" type="date">
 
             <label for="transit_days">Transit days</label>
-            <input id="transit_days" name="transit_days" inputmode="numeric">
+            <input class="input input-bordered input-primary" id="transit_days" name="transit_days" inputmode="numeric">
 
             <label for="conditions">Conditions</label>
-            <textarea id="conditions" name="conditions"></textarea>
+            <textarea class="textarea textarea-bordered textarea-primary" id="conditions" name="conditions"></textarea>
 
-            <button type="submit">Save quote</button>
+            <x-supply.button type="submit">Save quote</x-supply.button>
         </form>
     </section>
 @endif
 
 <section>
     <h2>Quotes</h2>
-    <table>
+    <table class="table table-zebra">
         <thead>
             <tr>
                 <th>Supplier order</th>
@@ -126,11 +126,11 @@ Carrier Quotes
                         <form method="post" action="{{ route('supply.transport.quotes.select', $quote) }}">
                             @csrf
                             <input type="hidden" name="confirm_selection" value="1">
-                            <button type="submit">Select</button>
+                            <x-supply.button type="submit">Select</x-supply.button>
                         </form>
                         <form method="post" action="{{ route('supply.transport.quotes.reject', $quote) }}">
                             @csrf
-                            <button type="submit">Reject</button>
+                            <x-supply.button type="submit">Reject</x-supply.button>
                         </form>
                     </td>
                 </tr>

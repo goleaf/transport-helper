@@ -5,7 +5,7 @@ Sign in
 @endsection
 
 @section('content')
-<section class="auth-card" aria-labelledby="login-title">
+<section class="card bg-base-100 border border-base-300 shadow-sm auth-card" aria-labelledby="login-title">
     <div class="auth-copy">
         <p class="portal-eyebrow">Secure workspace</p>
         <h1 id="login-title">Supply / Procurement Agent</h1>
@@ -23,25 +23,25 @@ Sign in
         @csrf
 
         @if ($errors->any())
-            <p role="alert">{{ $errors->first() }}</p>
+            <p role="alert" class="alert alert-error">{{ $errors->first() }}</p>
         @endif
 
         <label for="email">
             Email
-            <input id="email" name="email" type="email" value="{{ old('email') }}" autocomplete="email" required autofocus>
+            <input class="input input-bordered input-primary" id="email" name="email" type="email" value="{{ old('email') }}" autocomplete="email" required autofocus>
         </label>
 
         <label for="password">
             Password
-            <input id="password" name="password" type="password" autocomplete="current-password" required>
+            <input class="input input-bordered input-primary" id="password" name="password" type="password" autocomplete="current-password" required>
         </label>
 
         <label class="auth-check" for="remember">
-            <input id="remember" name="remember" type="checkbox" value="1" @checked(old('remember'))>
+            <input class="checkbox checkbox-primary" id="remember" name="remember" type="checkbox" value="1" @checked(old('remember'))>
             Remember this browser
         </label>
 
-        <button type="submit">Sign in</button>
+        <x-supply.button type="submit">Sign in</x-supply.button>
     </form>
 </section>
 @endsection

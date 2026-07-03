@@ -56,6 +56,9 @@ class Badge extends Component
             'success' => 'badge-success',
             'warning' => 'badge-warning',
             'error', 'danger' => 'badge-error',
+            'ai' => 'badge-secondary',
+            'logistics' => 'badge-accent',
+            'transport' => 'badge-info',
             default => null,
         };
     }

@@ -14,7 +14,7 @@ Form Templates
     <p>{{ session('status') }}</p>
 @endif
 
-<table>
+<table class="table table-zebra">
     <thead>
         <tr>
             <th>Name</th>

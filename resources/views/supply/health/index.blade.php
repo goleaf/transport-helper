@@ -10,7 +10,7 @@ Supply Health
     <p>Status: {{ $result['status'] }}</p>
 </header>
 
-<table>
+<table class="table table-zebra">
     <thead>
         <tr>
             <th>Name</th>

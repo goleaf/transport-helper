@@ -7,7 +7,7 @@ Form Autofill Runs
 @section('content')
 <h1>Form Autofill Runs</h1>
 
-<table>
+<table class="table table-zebra">
     <thead>
         <tr>
             <th>ID</th>

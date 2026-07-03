@@ -1,6 +1,6 @@
 <section>
     <h2>Formula components</h2>
-    <table>
+    <table class="table table-zebra">
         <tbody>
             <tr><th>trend</th><td>{{ $item->trend }}</td></tr>
             <tr><th>need_t0_t1</th><td>{{ $item->need_t0_t1 }}</td></tr>

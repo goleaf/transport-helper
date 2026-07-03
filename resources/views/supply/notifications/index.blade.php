@@ -15,10 +15,10 @@ Notifications
 
 <form method="post" action="{{ route('supply.notifications.read-all') }}">
     @csrf
-    <button type="submit">Mark all as read</button>
+    <x-supply.button type="submit">Mark all as read</x-supply.button>
 </form>
 
-<table>
+<table class="table table-zebra">
     <thead>
         <tr>
             <th>Status</th>
@@ -41,7 +41,7 @@ Notifications
                     @if ($notification->read_at === null)
                         <form method="post" action="{{ route('supply.notifications.read', $notification->id) }}">
                             @csrf
-                            <button type="submit">Mark read</button>
+                            <x-supply.button type="submit">Mark read</x-supply.button>
                         </form>
                     @else
                         Read

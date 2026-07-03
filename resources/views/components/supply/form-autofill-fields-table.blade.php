@@ -1,6 +1,6 @@
 <section>
     <h2>Field Review</h2>
-    <table>
+    <table class="table table-zebra">
         <thead>
             <tr>
                 <th>Field</th>

@@ -2,30 +2,17 @@
 
 namespace App\View\Components\Supply;
 
-use App\Support\SupplyNavigation;
+use App\Services\Supply\UI\SupplyNavigationService;
 use Illuminate\Contracts\View\View;
 use Illuminate\View\Component;
 
 class Navigation extends Component
 {
-    public array $items;
+    public array $groups;
 
-    public function __construct()
+    public function __construct(SupplyNavigationService $navigationService)
     {
-        $this->items = collect(SupplyNavigation::items())->map(function (array $item): array {
-            $isActive = request()->routeIs($item['active']);
-
-            return [
-                'label' => $item['label'],
-                'href' => route($item['route']),
-                'is_active' => $isActive,
-                'show_children' => $isActive && ! empty($item['children']),
-                'children' => collect($item['children'] ?? [])->map(fn (array $child): array => [
-                    'label' => $child['label'],
-                    'href' => route($child['route']).'#'.$child['fragment'],
-                ])->all(),
-            ];
-        })->all();
+        $this->groups = $navigationService->navigation(request()->user());
     }
 
     public function render(): View

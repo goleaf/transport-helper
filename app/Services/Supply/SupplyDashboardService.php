@@ -15,15 +15,19 @@ use App\Models\LogisticsRecord;
 use App\Models\OrderProposal;
 use App\Models\OrderProposalItem;
 use App\Models\SupplierOrder;
+use App\Models\User;
+use App\Services\Supply\UI\SupplyDashboardService as UiSupplyDashboardService;
 
 class SupplyDashboardService
 {
+    public function __construct(private readonly UiSupplyDashboardService $uiDashboardService) {}
+
     /**
      * @return array<string, mixed>
      */
-    public function data(): array
+    public function data(?User $user = null): array
     {
-        return [
+        return array_merge([
             'replenishmentPriorities' => $this->replenishmentPriorities(),
             'latestCalculationRuns' => $this->latestCalculationRuns(),
             'proposalsNeedingReview' => $this->proposalsNeedingReview(),
@@ -31,7 +35,7 @@ class SupplyDashboardService
             'emailsNeedingReview' => $this->emailsNeedingReview(),
             'formAutofillRunsNeedingReview' => $this->formAutofillRunsNeedingReview(),
             'logisticsDelays' => $this->logisticsDelays(),
-        ];
+        ], $this->uiDashboardService->dashboard($user));
     }
 
     private function replenishmentPriorities(): mixed

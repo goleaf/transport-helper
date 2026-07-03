@@ -15,7 +15,7 @@ Create Supply Import
 
     <label>
         Company
-        <select name="company_id" required>
+        <select class="select select-bordered select-primary" name="company_id" required>
             @foreach ($companies as $company)
                 <option value="{{ $company->id }}" @selected((int) old('company_id') === $company->id)>
                     {{ $company->name }}
@@ -27,7 +27,7 @@ Create Supply Import
 
     <label>
         Supplier
-        <select name="supplier_id">
+        <select class="select select-bordered select-primary" name="supplier_id">
             <option value="">Optional</option>
             @foreach ($suppliers as $supplier)
                 <option value="{{ $supplier->id }}" @selected((int) old('supplier_id') === $supplier->id)>
@@ -40,7 +40,7 @@ Create Supply Import
 
     <label>
         Import type
-        <select name="import_type" required>
+        <select class="select select-bordered select-primary" name="import_type" required>
             @foreach ($importTypes as $importType)
                 <option value="{{ $importType }}" @selected(old('import_type') === $importType)>
                     <x-supply.human-label :value="$importType" />
@@ -52,7 +52,7 @@ Create Supply Import
 
     <label>
         Adapter
-        <select name="adapter" required>
+        <select class="select select-bordered select-primary" name="adapter" required>
             @foreach ($adapters as $adapter)
                 <option value="{{ $adapter }}" @selected(old('adapter', 'csv') === $adapter)>
                     <x-supply.human-label :value="$adapter" />
@@ -64,52 +64,52 @@ Create Supply Import
 
     <label>
         Source reference
-        <input name="source_reference" value="{{ old('source_reference') }}">
+        <input class="input input-bordered input-primary" name="source_reference" value="{{ old('source_reference') }}">
     </label>
     <div>{{ $errors->first('source_reference') }}</div>
 
     <label>
         Dry run
         <input type="hidden" name="dry_run" value="0">
-        <input type="checkbox" name="dry_run" value="1" @checked(old('dry_run'))>
+        <input class="checkbox checkbox-primary" type="checkbox" name="dry_run" value="1" @checked(old('dry_run'))>
     </label>
 
     <label>
         Allow duplicate checksum
         <input type="hidden" name="allow_duplicate" value="0">
-        <input type="checkbox" name="allow_duplicate" value="1" @checked(old('allow_duplicate'))>
+        <input class="checkbox checkbox-primary" type="checkbox" name="allow_duplicate" value="1" @checked(old('allow_duplicate'))>
     </label>
 
     <label>
         Allow negative stock
         <input type="hidden" name="allow_negative_stock" value="0">
-        <input type="checkbox" name="allow_negative_stock" value="1" @checked(old('allow_negative_stock'))>
+        <input class="checkbox checkbox-primary" type="checkbox" name="allow_negative_stock" value="1" @checked(old('allow_negative_stock'))>
     </label>
 
     <label>
         Delimiter
-        <input name="delimiter" value="{{ old('delimiter', ',') }}">
+        <input class="input input-bordered input-primary" name="delimiter" value="{{ old('delimiter', ',') }}">
     </label>
     <div>{{ $errors->first('delimiter') }}</div>
 
     <label>
         Has header
         <input type="hidden" name="has_header" value="0">
-        <input type="checkbox" name="has_header" value="1" @checked(old('has_header', true))>
+        <input class="checkbox checkbox-primary" type="checkbox" name="has_header" value="1" @checked(old('has_header', true))>
     </label>
 
     <label>
         Date format
-        <input name="date_format" value="{{ old('date_format') }}">
+        <input class="input input-bordered input-primary" name="date_format" value="{{ old('date_format') }}">
     </label>
     <div>{{ $errors->first('date_format') }}</div>
 
     <label>
         File
-        <input type="file" name="file">
+        <input class="file-input file-input-bordered file-input-primary" type="file" name="file">
     </label>
     <div>{{ $errors->first('file') }}</div>
 
-    <button type="submit">Run import</button>
+    <x-supply.button type="submit">Run import</x-supply.button>
 </form>
 @endsection

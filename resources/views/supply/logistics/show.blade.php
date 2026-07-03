@@ -103,7 +103,7 @@ Logistics Record {{ $record->id }}
     <form method="post" action="{{ route('supply.logistics.status.update', $record) }}">
         @csrf
         <label for="status">Status</label>
-        <select id="status" name="status">
+        <select class="select select-bordered select-primary" id="status" name="status">
             @forelse ($statuses as $status)
                 <option value="{{ $status->value }}" @selected($record->status_value === $status->value)>{{ $status->value }}</option>
             @empty
@@ -112,9 +112,9 @@ Logistics Record {{ $record->id }}
         </select>
 
         <label for="reason">Reason</label>
-        <textarea id="reason" name="reason" required>{{ old('reason') }}</textarea>
+        <textarea class="textarea textarea-bordered textarea-primary" id="reason" name="reason" required>{{ old('reason') }}</textarea>
 
-        <button type="submit">Update status</button>
+        <x-supply.button type="submit">Update status</x-supply.button>
     </form>
 </section>
 

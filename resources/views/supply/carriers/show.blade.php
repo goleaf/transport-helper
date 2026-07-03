@@ -20,7 +20,7 @@ Carrier
 
 <section>
     <h2>Recent quotes</h2>
-    <table>
+    <table class="table table-zebra">
         <thead>
             <tr>
                 <th>ID</th>

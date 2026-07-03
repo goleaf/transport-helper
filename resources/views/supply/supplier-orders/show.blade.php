@@ -6,40 +6,61 @@ Supplier Order {{ $order->order_number }}
 
 @section('content')
 <header>
-    <p><a href="{{ route('supply.supplier-orders.index') }}">Back to supplier orders</a></p>
-    <h1>Supplier Order {{ $order->order_number }}</h1>
-    @include('supply.supplier-orders.partials.status-badge', ['status' => $order->status])
+    <div>
+        <p class="portal-eyebrow">Supplier order workflow</p>
+        <h1>Supplier Order {{ $order->order_number }}</h1>
+    </div>
+    <div class="actions">
+        @include('supply.supplier-orders.partials.status-badge', ['status' => $order->status])
+        <x-supply.button :href="route('supply.supplier-orders.index')" mode="outline" variant="neutral">Back to orders</x-supply.button>
+    </div>
 </header>
 
 @if (session('status'))
-    <p>{{ session('status') }}</p>
+    <x-supply.alert tone="success">{{ session('status') }}</x-supply.alert>
 @endif
 
 @if ($errors->any())
-    <section>
-        <h2>Errors</h2>
+    <x-supply.alert tone="warning">
+        <strong>Errors</strong>
         <ul>
             @foreach ($errors->all() as $error)
                 <li>{{ $error }}</li>
             @endforeach
         </ul>
-    </section>
+    </x-supply.alert>
 @endif
 
+<section class="grid" aria-label="Supplier order summary">
+    <div class="stat metric"><span class="stat-title">Items</span><strong class="stat-value">{{ $itemsCount }}</strong></div>
+    <div class="stat metric"><span class="stat-title">Ordered quantity</span><strong class="stat-value">{{ number_format((float) $totalOrderedQuantity, 3) }}</strong></div>
+    <div class="stat metric"><span class="stat-title">Confirmations</span><strong class="stat-value">{{ $confirmationsCount }}</strong></div>
+    <div class="stat metric"><span class="stat-title">Inbound orders</span><strong class="stat-value">{{ $inboundOrdersCount }}</strong></div>
+    <div class="stat metric"><span class="stat-title">Carrier quotes</span><strong class="stat-value">{{ $carrierQuotesCount }}</strong></div>
+    <div class="stat metric"><span class="stat-title">Logistics records</span><strong class="stat-value">{{ $logisticsRecordsCount }}</strong></div>
+</section>
+
 <section>
+    <div class="section-heading">
+        <div>
+            <p class="portal-eyebrow">Order header</p>
+            <h2>{{ $order->supplier?->name }}</h2>
+        </div>
+    </div>
+
     <dl>
+        <dt>Company</dt>
+        <dd>{{ $order->company?->name }}</dd>
         <dt>Supplier</dt>
         <dd>{{ $order->supplier?->name }}</dd>
+        <dt>Supplier code</dt>
+        <dd>{{ $order->supplier?->code ?? 'Not set' }}</dd>
         <dt>Order date</dt>
-        <dd>{{ $order->order_date?->toDateString() }}</dd>
-        <dt>Created from proposal</dt>
-        <dd>
-            @if ($order->orderProposal)
-                <a href="{{ route('supply.proposals.show', $order->orderProposal) }}">Proposal #{{ $order->orderProposal->id }}</a>
-            @else
-                Not linked
-            @endif
-        </dd>
+        <dd>{{ $order->order_date?->toDateString() ?? 'Not set' }}</dd>
+        <dt>Email subject</dt>
+        <dd>{{ $order->email_subject ?? 'No subject prepared' }}</dd>
+        <dt>Notes</dt>
+        <dd>{{ $order->notes ?? 'No notes' }}</dd>
         <dt>Email approved by</dt>
         <dd>{{ $order->emailApprovedBy?->name ?? 'Not approved' }}</dd>
         <dt>Email approved at</dt>
@@ -52,88 +73,200 @@ Supplier Order {{ $order->order_number }}
 </section>
 
 <section>
-    <h2>Summary</h2>
-    <dl>
-        <dt>Items count</dt>
-        <dd>{{ $itemsCount }}</dd>
-        <dt>Total ordered quantity</dt>
-        <dd>{{ $totalOrderedQuantity }}</dd>
-        <dt>Latest export</dt>
-        <dd>{{ $exportFiles->first()?->filename ?? 'No exports' }}</dd>
-        <dt>Email status</dt>
-        <dd><x-supply.status-badge :status="$emailMessage?->status ?? 'No draft'" /></dd>
-        <dt>Logistics status</dt>
-        <dd><x-supply.status-badge :status="$firstLogisticsRecord?->status ?? 'No logistics record'" /></dd>
-    </dl>
-</section>
+    <div class="section-heading">
+        <div>
+            <p class="portal-eyebrow">Proposal source</p>
+            <h2>Approved planning input</h2>
+        </div>
+        @if ($order->orderProposal)
+            <x-supply.button :href="route('supply.proposals.show', $order->orderProposal)" size="sm" mode="outline" variant="neutral">Open proposal</x-supply.button>
+        @endif
+    </div>
 
-<section>
-    <h2>Logistics and Receiving</h2>
-    @if ($firstLogisticsRecord)
+    @if ($order->orderProposal)
         <dl>
-            <dt>Status</dt>
-            <dd>@include('supply.logistics.partials.status-badge', ['status' => $firstLogisticsRecord->status])</dd>
-            <dt>Ready date</dt>
-            <dd>{{ $firstLogisticsRecord->ready_date?->toDateString() ?? 'Not set' }}</dd>
-            <dt>Pickup date</dt>
-            <dd>{{ $firstLogisticsRecord->pickup_date?->toDateString() ?? 'Not set' }}</dd>
-            <dt>Delivery date</dt>
-            <dd>{{ $firstLogisticsRecord->delivery_date?->toDateString() ?? 'Not set' }}</dd>
-            <dt>Actual received date</dt>
-            <dd>{{ $firstLogisticsRecord->actual_received_date?->toDateString() ?? 'Not received' }}</dd>
-            <dt>Carrier</dt>
-            <dd>{{ $firstLogisticsRecord->carrier?->name ?? 'Not selected' }}</dd>
-            <dt>Transport price</dt>
-            <dd>{{ $firstLogisticsRecord->transport_price }} {{ $firstLogisticsRecord->currency }}</dd>
+            <dt>Proposal</dt>
+            <dd>Proposal #{{ $order->orderProposal->id }}</dd>
+            <dt>Proposal status</dt>
+            <dd><x-supply.status-badge :status="$order->orderProposal->status" /></dd>
+            <dt>Total lines</dt>
+            <dd>{{ $order->orderProposal->total_lines }}</dd>
+            <dt>Approved at</dt>
+            <dd>{{ $order->orderProposal->approved_at?->toDateTimeString() ?? 'Not approved' }}</dd>
+            <dt>Calculation date</dt>
+            <dd>{{ $order->orderProposal->calculationRun?->calculation_date?->toDateString() ?? 'Not set' }}</dd>
+            <dt>Formula version</dt>
+            <dd>{{ $order->orderProposal->calculationRun?->formula_version ?? 'Not linked' }}</dd>
+            <dt>Proposal notes</dt>
+            <dd>{{ $order->orderProposal->notes ?? 'No notes' }}</dd>
         </dl>
-        <p>
-            <a href="{{ route('supply.logistics.show', $firstLogisticsRecord) }}">Open logistics record</a>
-            <a href="{{ route('supply.logistics.receive.create', $firstLogisticsRecord) }}">Receive goods</a>
-        </p>
     @else
-        <p>No logistics record is linked yet.</p>
+        <x-supply.empty-state title="No proposal link">This supplier order is not linked to an order proposal.</x-supply.empty-state>
     @endif
 </section>
 
-        @include('supply.supplier-orders.partials.items-table', ['order' => $order])
-        <section>
-            <h2>Supplier confirmations</h2>
-            @if ($canCreateManualConfirmation)
-                <p><a href="{{ route('supply.supplier-orders.confirmations.create', $order) }}">Create manual confirmation</a></p>
-            @endif
-            <table>
-                <thead>
-                    <tr>
-                        <th>Status</th>
-                        <th>Supplier reference</th>
-                        <th>Confirmation date</th>
-                        <th>Ready date</th>
-                        <th>Expected arrival date</th>
-                        <th>Discrepancy summary</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @forelse ($order->confirmations as $confirmation)
-                        <tr>
-                            <td><x-supply.status-badge :status="$confirmation->status" /></td>
-                            <td>{{ $confirmation->supplier_reference }}</td>
-                            <td>{{ $confirmation->confirmation_date?->toDateString() }}</td>
-                            <td>{{ $confirmation->ready_date?->toDateString() }}</td>
-                            <td>{{ $confirmation->expected_arrival_date?->toDateString() }}</td>
-                            <td>{{ $confirmation->discrepancy_summary }}</td>
-                            <td><x-supply.table-action :href="route('supply.supplier-confirmations.show', $confirmation)" label="Open" /></td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="7">No supplier confirmations.</td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </section>
-        <x-supply.supplier-order-transport-summary :order="$order" :can-manage-transport="$canManageTransport" />
-        @include('supply.supplier-orders.partials.export-panel', ['order' => $order, 'exportFiles' => $exportFiles, 'canExport' => $canExport])
+@include('supply.supplier-orders.partials.items-table', ['order' => $order])
+
+<section>
+    <div class="section-heading">
+        <div>
+            <p class="portal-eyebrow">Inbound receiving</p>
+            <h2>Linked inbound orders</h2>
+        </div>
+    </div>
+
+    <table class="table table-zebra">
+        <thead>
+            <tr>
+                <th>Inbound order</th>
+                <th>Reference</th>
+                <th>Status</th>
+                <th>Ordered at</th>
+                <th>Ready date</th>
+                <th>Expected arrival</th>
+                <th>Confirmed arrival</th>
+                <th>Items</th>
+            </tr>
+        </thead>
+        <tbody>
+            @forelse ($order->inboundOrders as $inboundOrder)
+                <tr>
+                    <td>
+                        <strong>{{ $inboundOrder->order_number }}</strong>
+                        <span>Inbound #{{ $inboundOrder->id }}</span>
+                    </td>
+                    <td>{{ $inboundOrder->supplier_order_reference ?? 'Not provided' }}</td>
+                    <td><x-supply.status-badge :status="$inboundOrder->status" /></td>
+                    <td>{{ $inboundOrder->ordered_at?->toDateTimeString() ?? 'Not set' }}</td>
+                    <td>{{ $inboundOrder->ready_date?->toDateString() ?? 'Not set' }}</td>
+                    <td>{{ $inboundOrder->expected_arrival_date?->toDateString() ?? 'Not set' }}</td>
+                    <td>{{ $inboundOrder->confirmed_arrival_date?->toDateString() ?? 'Not confirmed' }}</td>
+                    <td>
+                        @forelse ($inboundOrder->items as $item)
+                            <span>{{ $item->product?->sku }}: {{ number_format((float) $item->ordered_quantity, 3) }}</span>
+                        @empty
+                            <span>No items</span>
+                        @endforelse
+                    </td>
+                </tr>
+            @empty
+                <tr>
+                    <td colspan="8">No inbound orders are linked yet.</td>
+                </tr>
+            @endforelse
+        </tbody>
+    </table>
+</section>
+
+<section>
+    <div class="section-heading">
+        <div>
+            <p class="portal-eyebrow">Supplier response</p>
+            <h2>Confirmations</h2>
+        </div>
+        @if ($canCreateManualConfirmation)
+            <x-supply.button :href="route('supply.supplier-orders.confirmations.create', $order)" size="sm" mode="outline" variant="neutral">Create manual confirmation</x-supply.button>
+        @endif
+    </div>
+
+    <table class="table table-zebra">
+        <thead>
+            <tr>
+                <th>Status</th>
+                <th>Supplier reference</th>
+                <th>Confirmation date</th>
+                <th>Ready date</th>
+                <th>Expected arrival</th>
+                <th>Discrepancy</th>
+                <th>Lines</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @forelse ($order->confirmations as $confirmation)
+                <tr>
+                    <td><x-supply.status-badge :status="$confirmation->status" /></td>
+                    <td>{{ $confirmation->supplier_reference ?? 'Not provided' }}</td>
+                    <td>{{ $confirmation->confirmation_date?->toDateString() ?? 'Not set' }}</td>
+                    <td>{{ $confirmation->ready_date?->toDateString() ?? 'Not set' }}</td>
+                    <td>{{ $confirmation->expected_arrival_date?->toDateString() ?? 'Not set' }}</td>
+                    <td>{{ $confirmation->discrepancy_summary ?? 'No discrepancy' }}</td>
+                    <td>
+                        @forelse ($confirmation->items as $item)
+                            <span>{{ $item->product?->sku }}: {{ number_format((float) $item->confirmed_quantity, 3) }}</span>
+                        @empty
+                            <span>No lines</span>
+                        @endforelse
+                    </td>
+                    <td><x-supply.table-action :href="route('supply.supplier-confirmations.show', $confirmation)" label="Open" /></td>
+                </tr>
+            @empty
+                <tr>
+                    <td colspan="8">No supplier confirmations.</td>
+                </tr>
+            @endforelse
+        </tbody>
+    </table>
+</section>
+
+<x-supply.supplier-order-transport-summary :order="$order" :can-manage-transport="$canManageTransport" />
+
+<section>
+    <div class="section-heading">
+        <div>
+            <p class="portal-eyebrow">Logistics execution</p>
+            <h2>Movement records</h2>
+        </div>
+    </div>
+
+    <table class="table table-zebra">
+        <thead>
+            <tr>
+                <th>Status</th>
+                <th>Carrier</th>
+                <th>Ready</th>
+                <th>Pickup</th>
+                <th>Delivery</th>
+                <th>Received</th>
+                <th>Transport price</th>
+                <th>Delay reason</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @forelse ($order->logisticsRecords as $record)
+                <tr>
+                    <td>@include('supply.logistics.partials.status-badge', ['status' => $record->status])</td>
+                    <td>{{ $record->carrier?->name ?? 'Not selected' }}</td>
+                    <td>{{ $record->ready_date?->toDateString() ?? 'Not set' }}</td>
+                    <td>{{ $record->pickup_date?->toDateString() ?? 'Not set' }}</td>
+                    <td>{{ $record->delivery_date?->toDateString() ?? 'Not set' }}</td>
+                    <td>{{ $record->actual_received_date?->toDateString() ?? 'Not received' }}</td>
+                    <td>{{ $record->transport_price ?? 'Not set' }} {{ $record->currency }}</td>
+                    <td>{{ $record->delay_reason ?? 'No delay' }}</td>
+                    <td>
+                        <div class="table-actions">
+                            <x-supply.table-action :href="route('supply.logistics.show', $record)" label="Open logistics record" />
+                            <x-supply.table-action :href="route('supply.logistics.receive.create', $record)" label="Receive" />
+                        </div>
+                    </td>
+                </tr>
+            @empty
+                <tr>
+                    <td colspan="9">No logistics record is linked yet.</td>
+                </tr>
+            @endforelse
+        </tbody>
+    </table>
+</section>
+
+@include('supply.supplier-orders.partials.export-panel', [
+    'order' => $order,
+    'exportFiles' => $exportFiles,
+    'canExport' => $canExport,
+    'exportFormats' => $exportFormats,
+    'exportTypeLabels' => $exportTypeLabels,
+])
 @include('supply.supplier-orders.partials.email-panel', [
     'order' => $order,
     'emailMessage' => $emailMessage,

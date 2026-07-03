@@ -13,17 +13,17 @@ Supply Imports
 <form method="GET" action="{{ route('supply.imports.index') }}">
     <label>
         Status
-        <input name="status" value="{{ $filters['status'] ?? '' }}">
+        <input class="input input-bordered input-primary" name="status" value="{{ $filters['status'] ?? '' }}">
     </label>
     <label>
         Import type
-        <input name="import_type" value="{{ $filters['import_type'] ?? '' }}">
+        <input class="input input-bordered input-primary" name="import_type" value="{{ $filters['import_type'] ?? '' }}">
     </label>
-    <button type="submit">Filter</button>
+    <x-supply.button type="submit">Filter</x-supply.button>
     <a href="{{ route('supply.imports.index') }}">Clear</a>
 </form>
 
-<table>
+<table class="table table-zebra">
     <thead>
         <tr>
             <th>ID</th>

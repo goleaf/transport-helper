@@ -5,13 +5,70 @@ Supply Dashboard
 @endsection
 
 @section('content')
-<header>
-    <h1>Supply Dashboard</h1>
-</header>
+<x-supply.page-header
+    title="Supply Dashboard"
+    subtitle="Workflow-first operator view for replenishment, email review, transport, logistics and UAT."
+/>
+
+<section id="dashboard-kpis" aria-label="Dashboard KPI cards">
+    <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        @forelse ($kpis as $kpi)
+            <x-supply.kpi-card
+                :title="$kpi['title']"
+                :value="$kpi['value']"
+                :subtitle="$kpi['subtitle']"
+                :tone="$kpi['tone']"
+                :url="$kpi['url']"
+            />
+        @empty
+            <x-supply.empty-state title="No KPI cards" message="Supply dashboard metrics will appear after the first workflow records exist." />
+        @endforelse
+    </div>
+</section>
+
+<section id="action-queue">
+    <h2>My Action Queue</h2>
+    @if ($hasActionQueue)
+        <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+            @forelse ($actionQueue as $item)
+                <x-supply.action-card :item="$item" />
+            @empty
+                <x-supply.empty-state title="No urgent actions" message="No urgent actions are assigned to your workflow queue." />
+            @endforelse
+        </div>
+    @else
+        <x-supply.empty-state title="No urgent actions" message="No urgent actions are assigned to your workflow queue." />
+    @endif
+</section>
+
+<section id="environment">
+    <h2>Environment</h2>
+    <div class="card bg-base-100 border border-base-300 shadow-sm">
+        <div class="card-body">
+            <x-supply.environment-badges />
+            <p class="text-sm text-slate-600">Real integrations, external AI and real email are displayed explicitly so operators know when the system is in safe mode.</p>
+        </div>
+    </div>
+</section>
+
+<section id="today-supply-timeline">
+    <h2>Today supply timeline</h2>
+    @if ($hasTimelineItems)
+        <ol class="timeline timeline-vertical">
+            @forelse ($timelineItems as $item)
+                <li>{{ $item['label'] }}: {{ $item['value'] }}</li>
+            @empty
+                <li>No timeline activity yet.</li>
+            @endforelse
+        </ol>
+    @else
+        <x-supply.empty-state title="No timeline activity yet" message="Today's supply events will appear after imports, approvals, emails, confirmations, transport or receiving activity." />
+    @endif
+</section>
 
 <section id="replenishment-priorities">
     <h2>Replenishment Priorities</h2>
-    <table>
+    <table class="table table-zebra">
         <thead>
             <tr>
                 <th>SKU</th>
@@ -41,7 +98,7 @@ Supply Dashboard
 
 <section id="latest-calculation-runs">
     <h2>Latest Calculation Runs</h2>
-    <table>
+    <table class="table table-zebra">
         <thead>
             <tr>
                 <th>Date</th>
@@ -71,7 +128,7 @@ Supply Dashboard
 
 <section id="proposals-needing-review">
     <h2>Proposals Needing Review</h2>
-    <table>
+    <table class="table table-zebra">
         <thead>
             <tr>
                 <th>Supplier</th>
@@ -99,7 +156,7 @@ Supply Dashboard
 
 <section id="supplier-orders-awaiting-action">
     <h2>Supplier Orders Awaiting Action</h2>
-    <table>
+    <table class="table table-zebra">
         <thead>
             <tr>
                 <th>Order</th>
@@ -127,7 +184,7 @@ Supply Dashboard
 
 <section id="emails-needing-review">
     <h2>Emails Needing Review</h2>
-    <table>
+    <table class="table table-zebra">
         <thead>
             <tr>
                 <th>From</th>
@@ -155,7 +212,7 @@ Supply Dashboard
 
 <section id="form-autofill-runs-needing-review">
     <h2>Form Autofill Runs Needing Review</h2>
-    <table>
+    <table class="table table-zebra">
         <thead>
             <tr>
                 <th>Template</th>
@@ -183,7 +240,7 @@ Supply Dashboard
 
 <section id="logistics-delays">
     <h2>Logistics Delays</h2>
-    <table>
+    <table class="table table-zebra">
         <thead>
             <tr>
                 <th>Order</th>

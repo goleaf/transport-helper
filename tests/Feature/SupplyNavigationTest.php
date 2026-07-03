@@ -8,7 +8,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 uses(RefreshDatabase::class);
 
 test('supply dashboard shows requested navigation and priority sections', function () {
-    $user = User::factory()->create(['role' => UserRole::SupplyManager]);
+    $user = User::factory()->create(['role' => UserRole::Admin]);
 
     $response = $this
         ->actingAs($user)

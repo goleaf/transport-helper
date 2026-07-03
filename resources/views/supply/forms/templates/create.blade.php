@@ -21,20 +21,20 @@ Create Form Template
 <form method="post" action="{{ route('supply.forms.templates.store') }}">
     @csrf
     <label for="company_id">Company</label>
-    <select id="company_id" name="company_id">
+    <select class="select select-bordered select-primary" id="company_id" name="company_id">
         @foreach ($companies as $company)
             <option value="{{ $company->id }}">{{ $company->name }}</option>
         @endforeach
     </select>
 
     <label for="name">Name</label>
-    <input id="name" name="name" value="{{ old('name') }}">
+    <input class="input input-bordered input-primary" id="name" name="name" value="{{ old('name') }}">
 
     <label for="code">Code</label>
-    <input id="code" name="code" value="{{ old('code') }}">
+    <input class="input input-bordered input-primary" id="code" name="code" value="{{ old('code') }}">
 
     <label for="context_type">Context</label>
-    <select id="context_type" name="context_type">
+    <select class="select select-bordered select-primary" id="context_type" name="context_type">
         <option value="supplier_confirmation">supplier_confirmation</option>
         <option value="carrier_quote">carrier_quote</option>
         <option value="logistics_update">logistics_update</option>
@@ -47,6 +47,6 @@ Create Form Template
     <input type="hidden" name="version" value="1.0">
     <input type="hidden" name="is_active" value="1">
 
-    <button type="submit">Create template</button>
+    <x-supply.button type="submit">Create template</x-supply.button>
 </form>
 @endsection

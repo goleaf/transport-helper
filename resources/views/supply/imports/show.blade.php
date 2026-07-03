@@ -36,11 +36,11 @@ Supply Import {{ $batch->id }}
 @if ($canRollback)
     <form method="POST" action="{{ route('supply.imports.rollback', $batch) }}">
         @csrf
-        <button type="submit">Rollback</button>
+        <x-supply.button type="submit">Rollback</x-supply.button>
     </form>
 @endif
 
-<table>
+<table class="table table-zebra">
     <thead>
         <tr>
             <th>Row</th>

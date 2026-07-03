@@ -99,6 +99,9 @@ Important docs:
 - `docs/deployment/backup-and-restore.md`
 - `docs/pilot/overview.md`
 - `docs/pilot/go-live-checklist.md`
+- `docs/ui-ux/design-system.md`
+- `docs/ui-ux/navigation.md`
+- `docs/ui-ux/workflow-screens.md`
 
 Useful commands:
 
@@ -120,5 +123,6 @@ Core safety rules:
 - AI only reads, extracts or suggests.
 - Human approval is required for critical actions.
 - Pilot mode stores real supplier samples privately and does not send real email, call external APIs, call external AI, or select carriers by default.
+- The UI shows AI, integration and real-email safety states explicitly and keeps dangerous workflow actions behind existing approvals.
 - DTOs are forbidden.
 - No secrets in git.

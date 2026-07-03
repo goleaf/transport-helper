@@ -878,7 +878,7 @@ class ComprehensiveProcurementDemoSeeder extends Seeder
             ->all();
 
         foreach ($workflowSuppliers as $supplierIndex => $supplier) {
-            for ($runIndex = 1; $runIndex <= 2; $runIndex++) {
+            for ($runIndex = 1; $runIndex <= 25; $runIndex++) {
                 $scenarioIndex++;
                 $calculationRun = CalculationRun::query()->updateOrCreate(
                     [
@@ -1315,6 +1315,48 @@ class ComprehensiveProcurementDemoSeeder extends Seeder
                     'matched_by' => 'sku',
                     'discrepancy_type' => $discrepancy > 0 ? 'short_confirmed' : null,
                     'discrepancies_json' => $discrepancy > 0 ? ['ordered_minus_confirmed' => $discrepancy] : [],
+                ]
+            );
+        }
+
+        $inboundOrder = InboundOrder::query()->updateOrCreate(
+            [
+                'company_id' => $company->getKey(),
+                'supplier_order_id' => $supplierOrder->getKey(),
+                'order_number' => 'IN-'.$orderNumber,
+            ],
+            [
+                'supplier_id' => $supplier->getKey(),
+                'supplier_order_reference' => 'CONF-'.$orderNumber,
+                'status' => $supplierOrder->status === SupplierOrderStatus::Completed ? 'received' : 'confirmed',
+                'ordered_at' => $supplierOrder->order_date,
+                'expected_arrival_date' => $this->anchor->addDays(14 + $scenarioIndex)->toDateString(),
+                'confirmed_arrival_date' => $this->anchor->addDays(14 + $scenarioIndex)->toDateString(),
+                'ready_date' => $this->anchor->addDays(7 + $scenarioIndex)->toDateString(),
+                'shipped_date' => $this->anchor->addDays(8 + $scenarioIndex)->toDateString(),
+                'notes' => 'Seeded inbound order linked to demo supplier order.',
+            ]
+        );
+
+        foreach ($orderItems as $itemIndex => $item) {
+            $confirmedQuantity = (float) $item->ordered_quantity - ($itemIndex === 0 && $requiresReview ? 6 : 0);
+
+            InboundOrderItem::query()->updateOrCreate(
+                [
+                    'inbound_order_id' => $inboundOrder->getKey(),
+                    'product_id' => $item->product_id,
+                ],
+                [
+                    'ordered_quantity' => $item->ordered_quantity,
+                    'confirmed_quantity' => $confirmedQuantity,
+                    'received_quantity' => $supplierOrder->status === SupplierOrderStatus::Completed ? $confirmedQuantity : null,
+                    'damaged_quantity' => $supplierOrder->status === SupplierOrderStatus::Completed && $itemIndex === 1 ? 1 : null,
+                    'receiving_notes' => $supplierOrder->status === SupplierOrderStatus::Completed && $itemIndex === 1
+                        ? 'One unit damaged in demo receiving scenario.'
+                        : null,
+                    'expected_arrival_date' => $this->anchor->addDays(14 + $scenarioIndex)->toDateString(),
+                    'confirmed_arrival_date' => $this->anchor->addDays(14 + $scenarioIndex)->toDateString(),
+                    'status' => $supplierOrder->status === SupplierOrderStatus::Completed ? 'received' : 'confirmed',
                 ]
             );
         }

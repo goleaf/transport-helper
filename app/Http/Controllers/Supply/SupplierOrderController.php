@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Supply;
 
+use App\Enums\SupplierOrderStatus;
 use App\Http\Controllers\Controller;
 use App\Models\AuditLog;
 use App\Models\EmailMessage;
@@ -9,6 +10,7 @@ use App\Models\ExportFile;
 use App\Models\Supplier;
 use App\Models\SupplierConfirmation;
 use App\Models\SupplierOrder;
+use App\Support\DisplayValue;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -33,7 +35,7 @@ class SupplierOrderController extends Controller
                 'updated_at',
             ])
             ->with('supplier:id,name')
-            ->withCount(['items', 'emailMessages'])
+            ->withCount(['items', 'emailMessages', 'confirmations', 'carrierQuotes', 'logisticsRecords', 'inboundOrders'])
             ->withSum('items', 'ordered_quantity')
             ->when($request->filled('status'), fn ($query) => $query->where('status', $request->string('status')->toString()))
             ->when($request->filled('supplier_id'), fn ($query) => $query->where('supplier_id', $request->integer('supplier_id')))
@@ -50,6 +52,7 @@ class SupplierOrderController extends Controller
                 ->orderBy('name')
                 ->limit(250)
                 ->get(),
+            'statuses' => SupplierOrderStatus::cases(),
             'filters' => $request->only(['status', 'supplier_id', 'order_date_from', 'order_date_to']),
         ]);
     }
@@ -62,19 +65,26 @@ class SupplierOrderController extends Controller
             'company:id,name',
             'supplier:id,name,code,default_language,default_currency',
             'supplier.contacts:id,supplier_id,name,email,receives_orders,is_active',
-            'orderProposal:id,status',
+            'orderProposal:id,company_id,calculation_run_id,supplier_id,status,total_lines,approved_at,notes',
+            'orderProposal.calculationRun:id,company_id,supplier_id,calculation_date,formula_version,status',
             'items.product:id,sku,manufacturer_sku,name,unit',
             'confirmations:id,supplier_order_id,supplier_reference,status,confirmation_date,ready_date,expected_arrival_date,discrepancy_summary,applied_at',
-            'logisticsRecords:id,supplier_order_id,carrier_id,selected_carrier_quote_id,status,order_date,ready_date,pickup_date,delivery_date,transport_price,currency',
+            'confirmations.items:id,supplier_confirmation_id,product_id,ordered_quantity,confirmed_quantity,discrepancy_quantity,status,notes',
+            'confirmations.items.product:id,sku,name',
+            'inboundOrders:id,company_id,supplier_id,supplier_order_id,order_number,supplier_order_reference,status,ordered_at,expected_arrival_date,confirmed_arrival_date,ready_date,shipped_date,notes',
+            'inboundOrders.items:id,inbound_order_id,product_id,ordered_quantity,confirmed_quantity,received_quantity,expected_arrival_date,confirmed_arrival_date,status',
+            'inboundOrders.items.product:id,sku,name',
+            'logisticsRecords:id,supplier_order_id,carrier_id,selected_carrier_quote_id,status,order_date,ready_date,pickup_date,delivery_date,actual_received_date,transport_price,currency,delay_reason',
             'logisticsRecords.carrier:id,name',
             'logisticsRecords.selectedCarrierQuote:id,carrier_id,price,currency,delivery_date,status',
-            'carrierQuotes:id,supplier_order_id,carrier_id,price,currency,pickup_date,delivery_date,calculated_score,status',
+            'carrierQuotes:id,supplier_order_id,carrier_id,price,currency,pickup_date,delivery_date,transit_days,calculated_score,status,selected_at,rejected_at,rejection_reason',
             'carrierQuotes.carrier:id,name',
             'emailMessages:id,company_id,related_supplier_order_id,direction,to_json,cc_json,subject,body_text,status,message_id,sent_at,created_at',
             'emailMessages.attachments:id,email_message_id,original_filename,stored_path,mime_type,size_bytes',
             'sentBy:id,name',
             'emailApprovedBy:id,name',
         ]);
+        $order->loadCount(['items', 'confirmations', 'inboundOrders', 'carrierQuotes', 'logisticsRecords', 'emailMessages']);
 
         $exportFiles = ExportFile::query()
             ->select(['id', 'company_id', 'export_type', 'related_model_type', 'related_model_id', 'filename', 'stored_path', 'mime_type', 'status', 'created_by_user_id', 'created_at'])
@@ -98,7 +108,14 @@ class SupplierOrderController extends Controller
             'exportFiles' => $exportFiles,
             'emailMessage' => $this->currentEmailMessage($order),
             'auditLogs' => $auditLogs,
+            'exportTypeLabels' => $exportFiles
+                ->mapWithKeys(fn (ExportFile $file): array => [$file->getKey() => $this->exportTypeLabel($file->export_type)])
+                ->all(),
             'itemsCount' => $order->items->count(),
+            'confirmationsCount' => $order->confirmations_count,
+            'inboundOrdersCount' => $order->inbound_orders_count,
+            'carrierQuotesCount' => $order->carrier_quotes_count,
+            'logisticsRecordsCount' => $order->logistics_records_count,
             'totalOrderedQuantity' => $order->items->sum(fn ($item): float => (float) $item->ordered_quantity),
             'firstLogisticsRecord' => $order->logisticsRecords->first(),
             'canExport' => Gate::allows('export', $order),
@@ -107,6 +124,12 @@ class SupplierOrderController extends Controller
             'canSendEmail' => Gate::allows('sendEmail', $order),
             'canCreateManualConfirmation' => Gate::allows('createManual', SupplierConfirmation::class),
             'canManageTransport' => request()->user()?->canManageLogisticsWorkflow() ?? false,
+            'exportFormats' => [
+                'csv' => 'Export spreadsheet',
+                'excel_csv' => 'Export Excel spreadsheet',
+                'pdf' => 'Export PDF draft',
+                'supplier_custom_template' => 'Export supplier template draft',
+            ],
         ]);
     }
 
@@ -127,5 +150,17 @@ class SupplierOrderController extends Controller
             ->filter(fn (EmailMessage $message): bool => ($message->direction instanceof \BackedEnum ? $message->direction->value : $message->direction) === 'outbound')
             ->sortByDesc('id')
             ->first();
+    }
+
+    private function exportTypeLabel(?string $type): string
+    {
+        return match ($type) {
+            'csv' => 'Spreadsheet',
+            'excel_csv' => 'Excel spreadsheet',
+            'pdf' => 'PDF document',
+            'supplier_custom_template' => 'Supplier template',
+            'json' => 'Data file',
+            default => DisplayValue::humanLabel($type),
+        };
     }
 }

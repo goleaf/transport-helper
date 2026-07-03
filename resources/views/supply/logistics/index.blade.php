@@ -34,7 +34,7 @@ Logistics Records
     <h2>Filters</h2>
     <form method="get" action="{{ route('supply.logistics.index') }}">
         <label for="status">Status</label>
-        <select id="status" name="status">
+        <select class="select select-bordered select-primary" id="status" name="status">
             <option value="">All statuses</option>
             @forelse ($statuses as $status)
                 <option value="{{ $status->value }}" @selected(($filters['status'] ?? '') === $status->value)>{{ $status->value }}</option>
@@ -44,7 +44,7 @@ Logistics Records
         </select>
 
         <label for="supplier_id">Supplier</label>
-        <select id="supplier_id" name="supplier_id">
+        <select class="select select-bordered select-primary" id="supplier_id" name="supplier_id">
             <option value="">All suppliers</option>
             @forelse ($suppliers as $supplier)
                 <option value="{{ $supplier->id }}" @selected((string) ($filters['supplier_id'] ?? '') === (string) $supplier->id)>{{ $supplier->name }}</option>
@@ -54,7 +54,7 @@ Logistics Records
         </select>
 
         <label for="carrier_id">Carrier</label>
-        <select id="carrier_id" name="carrier_id">
+        <select class="select select-bordered select-primary" id="carrier_id" name="carrier_id">
             <option value="">All carriers</option>
             @forelse ($carriers as $carrier)
                 <option value="{{ $carrier->id }}" @selected((string) ($filters['carrier_id'] ?? '') === (string) $carrier->id)>{{ $carrier->name }}</option>
@@ -64,16 +64,16 @@ Logistics Records
         </select>
 
         <label>
-            <input type="checkbox" name="delayed_only" value="1" @checked((bool) ($filters['delayed_only'] ?? false))>
+            <input class="checkbox checkbox-primary" type="checkbox" name="delayed_only" value="1" @checked((bool) ($filters['delayed_only'] ?? false))>
             Delayed only
         </label>
 
         <label>
-            <input type="checkbox" name="needs_review" value="1" @checked((bool) ($filters['needs_review'] ?? false))>
+            <input class="checkbox checkbox-primary" type="checkbox" name="needs_review" value="1" @checked((bool) ($filters['needs_review'] ?? false))>
             Needs review
         </label>
 
-        <button type="submit">Filter</button>
+        <x-supply.button type="submit">Filter</x-supply.button>
     </form>
 </section>
 
@@ -84,18 +84,18 @@ Logistics Records
         @if (($filters['status'] ?? '') !== '')
             <input type="hidden" name="status" value="{{ $filters['status'] }}">
         @endif
-        <button type="submit">Export CSV</button>
+        <x-supply.button type="submit">Export CSV</x-supply.button>
     </form>
 
     <form method="post" action="{{ route('supply.logistics.sync.google-sheets') }}">
         @csrf
-        <button type="submit">Sync Google Sheets</button>
+        <x-supply.button type="submit">Sync Google Sheets</x-supply.button>
     </form>
 </section>
 
 <section>
     <h2>Records</h2>
-    <table>
+    <table class="table table-zebra">
         <thead>
             <tr>
                 <th>Supplier order</th>

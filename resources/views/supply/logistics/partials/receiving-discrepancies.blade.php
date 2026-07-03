@@ -1,6 +1,6 @@
 <section>
     <h2>Receiving Discrepancies</h2>
-    <table>
+    <table class="table table-zebra">
         <thead>
             <tr>
                 <th>Type</th>

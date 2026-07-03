@@ -1,16 +1,21 @@
 <section>
-    <h2>Items</h2>
-    <table>
+    <div class="section-heading">
+        <div>
+            <p class="portal-eyebrow">Order lines</p>
+            <h2>Items</h2>
+        </div>
+    </div>
+
+    <table class="table table-zebra">
         <thead>
             <tr>
                 <th>SKU</th>
                 <th>Manufacturer SKU</th>
                 <th>Product</th>
-                <th>Ordered quantity</th>
-                <th>Confirmed quantity</th>
-                <th>Received quantity</th>
+                <th>Ordered</th>
+                <th>Confirmed</th>
+                <th>Received</th>
                 <th>Unit price</th>
-                <th>Currency</th>
                 <th>Status</th>
                 <th>Notes</th>
             </tr>
@@ -19,19 +24,18 @@
             @forelse ($order->items as $item)
                 <tr>
                     <td>{{ $item->product?->sku }}</td>
-                    <td>{{ $item->product?->manufacturer_sku }}</td>
+                    <td>{{ $item->product?->manufacturer_sku ?? 'Not set' }}</td>
                     <td>{{ $item->product?->name }}</td>
-                    <td>{{ $item->ordered_quantity }}</td>
-                    <td>{{ $item->confirmed_quantity }}</td>
-                    <td>{{ $item->received_quantity }}</td>
-                    <td>{{ $item->unit_price }}</td>
-                    <td>{{ $item->currency }}</td>
+                    <td>{{ number_format((float) $item->ordered_quantity, 3) }} {{ $item->product?->unit }}</td>
+                    <td>{{ number_format((float) ($item->confirmed_quantity ?? 0), 3) }} {{ $item->product?->unit }}</td>
+                    <td>{{ number_format((float) ($item->received_quantity ?? 0), 3) }} {{ $item->product?->unit }}</td>
+                    <td>{{ $item->unit_price ?? 'Not set' }} {{ $item->currency }}</td>
                     <td><x-supply.status-badge :status="$item->status" /></td>
-                    <td>{{ $item->notes }}</td>
+                    <td>{{ $item->notes ?? 'No notes' }}</td>
                 </tr>
             @empty
                 <tr>
-                    <td colspan="10">No items.</td>
+                    <td colspan="9">No items.</td>
                 </tr>
             @endforelse
         </tbody>

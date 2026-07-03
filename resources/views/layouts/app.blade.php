@@ -17,25 +17,12 @@
 
     <div class="app-shell">
         <aside class="app-sidebar">
-            <div class="brand-lockup">
-                <a class="brand-mark" href="{{ route('supply.dashboard') }}" aria-label="Open Supply Dashboard">SP</a>
-                <div>
-                    <p class="brand-eyebrow">Procurement</p>
-                    <p class="brand-name">Supply Agent</p>
-                </div>
-            </div>
-
-            <x-supply.navigation />
-
-            @auth
-                <form method="post" action="{{ route('logout') }}" class="sidebar-logout">
-                    @csrf
-                    <button type="submit" class="button-secondary">Sign out</button>
-                </form>
-            @endauth
+            @include('layouts.partials.supply-sidebar')
         </aside>
 
         <main id="content" class="app-main">
+            @include('layouts.partials.supply-topbar')
+
             <div class="app-content">
                 @yield('content')
             </div>

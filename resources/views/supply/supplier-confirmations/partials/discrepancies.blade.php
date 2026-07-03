@@ -1,7 +1,7 @@
 <section>
     <h2>Discrepancies</h2>
     <p>{{ $confirmation->discrepancy_summary ?? 'No discrepancy summary.' }}</p>
-    <table>
+    <table class="table table-zebra">
         <thead>
             <tr>
                 <th>Type</th>

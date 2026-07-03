@@ -13,6 +13,6 @@ class SupplyDashboardController extends Controller
     {
         abort_unless($request->user(), 403);
 
-        return view('supply.dashboard', $dashboardService->data());
+        return view('supply.dashboard', $dashboardService->data($request->user()));
     }
 }

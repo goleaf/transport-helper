@@ -1,4 +1,4 @@
-<table>
+<table class="table table-zebra">
     <thead>
         <tr>
             <th>Rank</th>

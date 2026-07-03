@@ -22,7 +22,7 @@ Order Proposal Item: {{ $item->product?->sku }}
 @endif
 
 @if ($errors->any())
-    <section class="warning">
+    <section class="alert alert-warning warning">
         <h2>Errors</h2>
         <ul>
             @foreach ($errors->all() as $error)
@@ -43,7 +43,7 @@ Order Proposal Item: {{ $item->product?->sku }}
 <section>
     <h2>Warnings</h2>
     @if ($item->requires_human_review)
-        <p class="warning">Human review required.</p>
+        <p class="alert alert-warning warning">Human review required.</p>
     @endif
     <ul>
         @forelse (($item->warnings_json ?? []) as $warning)
@@ -68,7 +68,7 @@ Order Proposal Item: {{ $item->product?->sku }}
 
 <section>
     <h2>Audit history</h2>
-    <table>
+    <table class="table table-zebra">
         <thead>
             <tr>
                 <th>Event</th>

@@ -165,14 +165,7 @@
         }
 
         .table-action-button {
-            min-height: tokens.size(nav-child-link-height);
-            padding: tokens.space(md-minus) tokens.space(lg-minus);
             white-space: nowrap;
-            @include mixins.button-token-variant(surface-white, border-strong, text-main);
-
-            &:hover {
-                @include mixins.button-token-variant(accent-soft, accent, accent-strong);
-            }
         }
 
         tbody {

@@ -137,7 +137,33 @@
 
     .app-main {
         min-width: 0;
-        padding: tokens.space(xxl) tokens.layout(main-padding-x-fluid) tokens.space(page-bottom);
+        padding: tokens.space(lg) tokens.layout(main-padding-x-fluid) tokens.space(page-bottom);
+    }
+
+    .supply-topbar {
+        display: grid;
+        min-height: 64px;
+        grid-template-columns: minmax(220px, 520px) minmax(0, 1fr);
+        align-items: center;
+        gap: tokens.space(lg);
+        margin-bottom: tokens.space(xl-plus);
+        border: 1px solid tokens.token(border);
+        border-radius: tokens.token(radius);
+        background: tokens.token(surface-white);
+        padding: tokens.space(md-plus) tokens.space(lg);
+        box-shadow: tokens.token(shadow-soft);
+    }
+
+    .supply-topbar-search {
+        min-width: 0;
+    }
+
+    .supply-topbar-meta {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: flex-end;
+        gap: tokens.space(md);
     }
 
     .sidebar-logout {

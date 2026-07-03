@@ -1,6 +1,6 @@
 <section>
     <h2>Audit History</h2>
-    <table>
+    <table class="table table-zebra">
         <thead>
             <tr>
                 <th>Time</th>

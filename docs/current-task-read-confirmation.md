@@ -16,7 +16,6 @@
 - docs/workflow-map.md
 - docs/status-machines.md
 - docs/decision-log.md
-- docs/import-export-adapters.md
 - docs/calculation-engine.md
 - docs/order-proposal-workflow.md
 - docs/supplier-order-email-workflow.md
@@ -26,7 +25,7 @@
 - docs/transport-workflow.md
 - docs/logistics-workflow.md
 - docs/integrations/overview.md
-- docs/onboarding/real-data-checklist.md
+- docs/pilot/overview.md
 - docs/production-readiness.md
 - docs/audit-and-security.md
 
@@ -42,36 +41,35 @@
 - Required Implementation
 - Required Tests
 - Required Documentation
-- Business Rules
 - Acceptance Criteria
 - Required Commands
 - Commit Message
 
 ## Understanding
 
-Task Title: implement Pilot Supplier Onboarding And UAT Workflow.
+Task Title: Implement the UI/UX design system, navigation, dashboard and guided workflow layer.
 
-Task Goal: add a safe one-supplier pilot layer with private files, mappings, data quality, dry-runs, UAT and approval, without real external calls.
+Task Goal: Build a consistent operator UI that is workflow-first, human-review-first, audit-first and safe by default.
 
-Required Reading: project rules, architecture docs, workflow docs, integration governance docs, production readiness docs and audit/security docs were read before implementation.
+Required Reading: Project rules and workflow docs define the boundaries for AI, email, carrier selection, logistics and approvals.
 
-Non-Negotiable Rules: no DTO/app/Data, no secrets or real pilot files in git, no real email/API/AI by default, no automatic live approval or carrier selection.
+Non-Negotiable Rules: The UI must not change formulas, bypass approvals, expose secrets, call external services or create DTOs.
 
-Scope: add pilot tables, models, enums, services, requests, policies, controllers, routes, views, commands, tests, config and docs.
+Scope: Create supply layout, topbar/sidebar, UI services, reusable components, dashboard, localization, UI tests and docs.
 
-Out Of Scope: no real UAT execution, no live go-live, no real providers, no external AI, no autonomous workflow and no accounting/portal automation.
+Out Of Scope: No new business modules, calculation logic, external providers, analytics, command palette or saved views.
 
-Required Implementation: users can configure a pilot, upload private samples, save mappings, run quality/readiness/dry-run checks, maintain UAT, export reports and approve or block with audit.
+Required Implementation: Show statuses, next actions, human review, audit context, AI suggestions as non-final, formulas, timelines and safe environment badges.
 
-Required Tests: create feature/unit tests for pilot services, controllers, commands, boundaries and No DTO.
+Required Tests: Add UI feature/unit tests for components, dashboard/navigation, key workflow screens and no-DTO/no-external-call boundaries.
 
-Required Documentation: create docs/pilot files and update onboarding, roadmap, readiness and README docs.
+Required Documentation: Create docs/ui-ux files and update workflow map, roadmap and README.
 
-Acceptance Criteria: the checklist below is copied from docs/current-task.md and must be updated in progress as work completes.
+Acceptance Criteria: Complete the UI checklist, run required commands, document blockers and commit/push.
 
-Required Commands: no-DTO, no-secrets, project-docs, migrate fresh seed, pilot onboarding JSON, health, production readiness and full test suite must run or be documented.
+Required Commands: Run no-DTO, no-secrets, docs checks, migrate/fresh seed, test, and optional build/Pint.
 
-Commit Message: Add pilot supplier onboarding and UAT workflow.
+Commit Message: Add supply agent design system and guided workflow UI.
 
 ## Acceptance Criteria Copied
 
@@ -80,82 +78,73 @@ Commit Message: Add pilot supplier onboarding and UAT workflow.
 - [ ] docs/current-task.md read from start to end.
 - [ ] docs/current-task-read-confirmation.md created.
 - [ ] docs/current-task-progress.md created.
-- [ ] Safe pilot migrations added if needed.
-- [ ] PilotSupplier model created.
-- [ ] PilotFile model created.
-- [ ] PilotRun model created.
-- [ ] Pilot enums/constants created.
-- [ ] PilotSupplierService created.
-- [ ] PilotFileUploadService created.
-- [ ] PilotMappingService created.
-- [ ] PilotDataQualityService created.
-- [ ] PilotReadinessService created.
-- [ ] PilotDryRunService created.
-- [ ] PilotUatChecklistService created.
-- [ ] PilotReportService created.
-- [ ] PilotApprovalService created.
-- [ ] One active pilot per supplier enforced by default.
-- [ ] Pilot files stored privately under storage/app/pilot.
-- [ ] Uploaded pilot files not public.
-- [ ] File checksum stored.
-- [ ] Import mapping saved.
-- [ ] Manufacturer form mapping saved.
-- [ ] Email sample mapping saved.
-- [ ] Carrier quote mapping saved.
-- [ ] Data quality report implemented.
-- [ ] Readiness check implemented.
-- [ ] Safe dry-run implemented.
-- [ ] Dry-run does not send real email.
-- [ ] Dry-run does not call real external APIs.
-- [ ] Dry-run does not call external AI.
-- [ ] Dry-run does not auto-select carrier.
-- [ ] UAT checklist implemented.
-- [ ] Critical failed UAT item blocks live approval.
-- [ ] Pilot approve for UAT implemented.
-- [ ] Pilot approve for live implemented.
-- [ ] Pilot block implemented.
-- [ ] Pilot reports implemented.
-- [ ] Commands created.
-- [ ] Routes/controllers/views created.
-- [ ] Policies/FormRequests created.
-- [ ] Audit events written.
-- [ ] Config updated.
-- [ ] .env.example updated without secrets.
-- [ ] .gitignore updated for pilot files.
-- [ ] Tests created.
-- [ ] Boundary test confirms no real external calls.
-- [ ] Boundary test confirms no real email send.
-- [ ] Boundary test confirms no external AI call.
-- [ ] Boundary test confirms no carrier auto-selection.
-- [ ] Boundary test confirms pilot approval does not activate integrations automatically.
+- [ ] Current frontend stack inspected and documented.
+- [ ] Supply layout created or existing layout safely extended.
+- [ ] Sidebar navigation created.
+- [ ] Topbar created.
+- [ ] Environment badges implemented.
+- [ ] Design system CSS/Tailwind config implemented.
+- [ ] Status badge component created.
+- [ ] AI confidence badge created.
+- [ ] Human review banner created.
+- [ ] KPI card component created.
+- [ ] Action card component created.
+- [ ] Page header component created.
+- [ ] Empty state component created.
+- [ ] Audit timeline component created.
+- [ ] Source evidence component created.
+- [ ] T0/T1/T2/T3 timeline component created.
+- [ ] Formula explanation component created.
+- [ ] Workflow progress component created.
+- [ ] Decision panel component created.
+- [ ] Warning list component created.
+- [ ] Logistics timeline component created.
+- [ ] Next action card component created.
+- [ ] SupplyDashboardService created.
+- [ ] SupplyNavigationService created.
+- [ ] SupplyStatusPresenter created.
+- [ ] SupplyActionQueueService created.
+- [ ] SupplyEnvironmentBadgeService created.
+- [ ] Supply dashboard controller/route/view created.
+- [ ] Dashboard shows KPI cards.
+- [ ] Dashboard shows action queue.
+- [ ] Dashboard shows environment badges.
+- [ ] Dashboard handles empty data safely.
+- [ ] Order proposal UI updated.
+- [ ] Proposal item detail shows T0/T1/T2/T3 timeline.
+- [ ] Proposal item detail shows formula explanation.
+- [ ] Supplier order UI updated with workflow progress/export/email/logistics panels.
+- [ ] Email UI updated with AI/form links and source context.
+- [ ] AI extraction UI shows confidence, source and no-apply warning.
+- [ ] Form autofill run UI shows extracted/normalized/final values.
+- [ ] Supplier confirmation UI shows discrepancies clearly.
+- [ ] Transport quote UI shows comparison and non-automatic selection warning.
+- [ ] Logistics UI shows timeline and receiving discrepancies.
+- [ ] Notifications UI polished.
+- [ ] Health UI polished.
+- [ ] Integration UI masks secrets.
+- [ ] Pilot UI shows readiness/dry-run/UAT panels.
+- [ ] Localization files created.
+- [ ] Accessibility basics implemented.
+- [ ] Disabled dangerous actions show reason.
+- [ ] Unauthorized users do not see dangerous links where permissions exist.
+- [ ] UI tests created.
+- [ ] Boundary test confirms UI layer does not call AI/external/email/carrier APIs.
 - [ ] No DTO test updated.
-- [ ] docs/pilot/overview.md created.
-- [ ] docs/pilot/required-real-files.md created.
-- [ ] docs/pilot/uat-checklist.md created.
-- [ ] docs/pilot/go-live-checklist.md created.
-- [ ] docs/pilot/real-data-safety.md created.
-- [ ] docs/pilot/pilot-implementation-notes.md created.
-- [ ] docs/onboarding/real-data-checklist.md updated.
+- [ ] docs/ui-ux/* created.
+- [ ] docs/workflow-map.md updated.
 - [ ] docs/implementation-roadmap.md updated.
-- [ ] docs/production-readiness.md updated.
 - [ ] README.md updated.
 - [ ] php artisan migrate:fresh --seed passed or blocker documented.
-- [ ] php artisan supply:pilot-onboarding-checklist --json passed or blocker documented.
-- [ ] php artisan supply:health-check passed or blocker documented.
-- [ ] php artisan supply:production-readiness passed or blocker documented.
+- [ ] php artisan test passed or blocker documented.
 - [ ] ./scripts/check-no-dto.sh passed.
 - [ ] ./scripts/check-no-secrets.sh passed.
 - [ ] ./scripts/check-project-docs.sh passed.
-- [ ] php artisan test passed or blocker documented.
+- [ ] npm run build passed if applicable.
 - [ ] Formatter passed if available.
-- [ ] npm build passed if applicable.
 - [ ] No secrets committed.
 - [ ] No DTO created.
-- [ ] No real supplier files committed.
-- [ ] No real email samples committed.
-- [ ] No real manufacturer forms committed.
-- [ ] No storage/app/pilot files committed.
-- [ ] No generated files committed.
+- [ ] No generated private files committed.
 - [ ] git status reviewed.
 - [ ] Commit created.
 - [ ] Push attempted.

@@ -9,16 +9,16 @@
     </div>
 
     <div class="page-actions">
-        <a class="button button-secondary" href="{{ route('supply.forms.templates.edit', $template) }}">Edit template</a>
+        <x-supply.button :href="route('supply.forms.templates.edit', $template)" variant="neutral" mode="outline">Edit template</x-supply.button>
     </div>
 </header>
 
 @if (session('status'))
-    <p role="status">{{ session('status') }}</p>
+    <p role="status" class="alert alert-info">{{ session('status') }}</p>
 @endif
 
 @if ($errors->any())
-    <section role="alert" aria-labelledby="template-errors-title">
+    <section role="alert" class="alert alert-error" aria-labelledby="template-errors-title">
         <h2 id="template-errors-title">Fix these fields</h2>
         <ul>
             @forelse ($errors->all() as $error)
@@ -31,10 +31,10 @@
 @endif
 
 <section class="grid" aria-label="Template summary">
-    <div class="metric"><span>Fields</span><strong>{{ $fieldCount }}</strong></div>
-    <div class="metric"><span>Required</span><strong>{{ $requiredFieldCount }}</strong></div>
-    <div class="metric"><span>Optional</span><strong>{{ $optionalFieldCount }}</strong></div>
-    <div class="metric"><span>Autofill runs</span><strong>{{ $autofillRunCount }}</strong></div>
+    <div class="stat metric"><span class="stat-title">Fields</span><strong class="stat-value">{{ $fieldCount }}</strong></div>
+    <div class="stat metric"><span class="stat-title">Required</span><strong class="stat-value">{{ $requiredFieldCount }}</strong></div>
+    <div class="stat metric"><span class="stat-title">Optional</span><strong class="stat-value">{{ $optionalFieldCount }}</strong></div>
+    <div class="stat metric"><span class="stat-title">Autofill runs</span><strong class="stat-value">{{ $autofillRunCount }}</strong></div>
 </section>
 
 <section>
@@ -73,7 +73,7 @@
         </div>
     </div>
 
-    <table>
+    <table class="table table-zebra">
         <thead>
             <tr>
                 <th>Sort</th>
@@ -115,7 +115,7 @@
         @csrf
         <label for="field_key">
             Field key
-            <input id="field_key" name="field_key" value="{{ old('field_key') }}" autocomplete="off" aria-describedby="field_key_help field_key_error">
+            <input class="input input-bordered input-primary" id="field_key" name="field_key" value="{{ old('field_key') }}" autocomplete="off" aria-describedby="field_key_help field_key_error">
             <span id="field_key_help" class="form-help">Use a stable machine key such as supplier_reference or ready_date.</span>
             @error('field_key')
                 <span id="field_key_error" class="form-error">{{ $message }}</span>
@@ -124,7 +124,7 @@
 
         <label for="label">
             Label
-            <input id="label" name="label" value="{{ old('label') }}" autocomplete="off" aria-describedby="label_error">
+            <input class="input input-bordered input-primary" id="label" name="label" value="{{ old('label') }}" autocomplete="off" aria-describedby="label_error">
             @error('label')
                 <span id="label_error" class="form-error">{{ $message }}</span>
             @enderror
@@ -132,7 +132,7 @@
 
         <label for="field_type">
             Type
-            <select id="field_type" name="field_type" aria-describedby="field_type_error">
+            <select class="select select-bordered select-primary" id="field_type" name="field_type" aria-describedby="field_type_error">
                 @forelse ($fieldTypeOptions as $fieldType)
                     <option value="{{ $fieldType['value'] }}" @selected(old('field_type', 'text') === $fieldType['value'])>{{ $fieldType['label'] }}</option>
                 @empty
@@ -146,7 +146,7 @@
 
         <label for="sort_order">
             Sort order
-            <input id="sort_order" name="sort_order" inputmode="numeric" value="{{ old('sort_order', $nextSortOrder) }}" aria-describedby="sort_order_error">
+            <input class="input input-bordered input-primary" id="sort_order" name="sort_order" inputmode="numeric" value="{{ old('sort_order', $nextSortOrder) }}" aria-describedby="sort_order_error">
             @error('sort_order')
                 <span id="sort_order_error" class="form-error">{{ $message }}</span>
             @enderror
@@ -154,13 +154,13 @@
 
         <label class="checkbox-field" for="is_required">
             <input type="hidden" name="is_required" value="0">
-            <input id="is_required" name="is_required" type="checkbox" value="1" @checked(old('is_required'))>
+            <input class="checkbox checkbox-primary" id="is_required" name="is_required" type="checkbox" value="1" @checked(old('is_required'))>
             Required field
         </label>
 
         <label class="form-field-wide" for="ai_extraction_hint">
             AI extraction hint
-            <textarea id="ai_extraction_hint" name="ai_extraction_hint" rows="4" aria-describedby="ai_extraction_hint_help ai_extraction_hint_error">{{ old('ai_extraction_hint') }}</textarea>
+            <textarea class="textarea textarea-bordered textarea-primary" id="ai_extraction_hint" name="ai_extraction_hint" rows="4" aria-describedby="ai_extraction_hint_help ai_extraction_hint_error">{{ old('ai_extraction_hint') }}</textarea>
             <span id="ai_extraction_hint_help" class="form-help">Describe the exact evidence the AI may use. This is a suggestion only; application still requires human approval.</span>
             @error('ai_extraction_hint')
                 <span id="ai_extraction_hint_error" class="form-error">{{ $message }}</span>
@@ -168,7 +168,7 @@
         </label>
 
         <div class="form-actions form-field-wide">
-            <button type="submit">Add field</button>
+            <x-supply.button type="submit">Add field</x-supply.button>
         </div>
     </form>
 </section>

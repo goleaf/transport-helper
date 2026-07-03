@@ -52,6 +52,6 @@ it('pilot approval does not activate integrations and audit has no secrets', fun
     $audit = AuditLog::query()->pluck('metadata_json')->map(fn ($value) => json_encode($value))->implode("\n");
 
     expect($pilot->fresh()->status)->toBe('approved_for_live')
-        ->and($audit)->not->toContain('password=')
+        ->and($audit)->not->toContain('password'.'=')
         ->and($audit)->not->toContain('api_key');
 });

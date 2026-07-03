@@ -1,11 +1,11 @@
 @props(['extraction'])
 
 @if ($extraction->accepted_at)
-    <span class="badge badge-outline status-badge" data-status="accepted">Accepted</span>
+    <x-supply.badge class="status-badge" data-status="accepted">Accepted</x-supply.badge>
 @elseif ($extraction->rejected_at)
-    <span class="badge badge-outline status-badge" data-status="rejected">Rejected</span>
+    <x-supply.badge class="status-badge" data-status="rejected">Rejected</x-supply.badge>
 @elseif ($extraction->requires_human_review)
-    <span class="badge badge-outline status-badge" data-status="needs_review">Needs review</span>
+    <x-supply.badge class="status-badge" data-status="needs_review">Needs review</x-supply.badge>
 @else
-    <span class="badge badge-outline status-badge" data-status="reviewed">Reviewed</span>
+    <x-supply.badge class="status-badge" data-status="reviewed">Reviewed</x-supply.badge>
 @endif

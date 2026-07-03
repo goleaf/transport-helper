@@ -139,6 +139,8 @@ test('daisyui is wired through the portal theme and shared components', function
     $daisy = file_get_contents(resource_path('css/daisy.css'));
     $appLayout = file_get_contents(resource_path('views/layouts/app.blade.php'));
     $authLayout = file_get_contents(resource_path('views/layouts/auth.blade.php'));
+    $buttonComponent = file_get_contents(app_path('View/Components/Supply/Button.php'));
+    $badgeComponent = file_get_contents(app_path('View/Components/Supply/Badge.php'));
     $tableAction = file_get_contents(resource_path('views/components/supply/table-action.blade.php'));
     $statusBadge = file_get_contents(resource_path('views/components/supply/status-badge.blade.php'));
     $quoteStatus = file_get_contents(resource_path('views/components/supply/quote-status-label.blade.php'));
@@ -158,10 +160,146 @@ test('daisyui is wired through the portal theme and shared components', function
         ->toContain('resources/css/daisy.css')
         ->toContain('data-theme="transport"');
 
+    expect($buttonComponent)
+        ->toContain("'btn'")
+        ->toContain("'btn-primary'")
+        ->toContain("'btn-outline'")
+        ->and($badgeComponent)
+        ->toContain("'badge'")
+        ->toContain("'badge-outline'");
+
     expect($tableAction)
-        ->toContain('btn btn-sm btn-outline btn-primary')
+        ->toContain('<x-supply.button')
         ->and($statusBadge)
-        ->toContain('badge badge-outline status-badge')
+        ->toContain('<x-supply.badge')
         ->and($quoteStatus)
-        ->toContain('badge badge-outline status-badge');
+        ->toContain('<x-supply.badge');
+});
+
+test('interactive blade buttons use the daisyui supply button component', function () {
+    $violations = [];
+    $allowedRawButton = resource_path('views/components/supply/button.blade.php');
+    $files = new RecursiveIteratorIterator(
+        new RecursiveDirectoryIterator(resource_path('views'), FilesystemIterator::SKIP_DOTS),
+    );
+
+    foreach ($files as $file) {
+        if (! str_ends_with($file->getFilename(), '.blade.php')) {
+            continue;
+        }
+
+        if ($file->getPathname() === $allowedRawButton) {
+            continue;
+        }
+
+        $contents = file_get_contents($file->getPathname());
+
+        if (preg_match('/<button\b|<a\b[^>]*class="[^"]*\bbutton\b/s', $contents) === 1) {
+            $violations[] = str_replace(base_path().DIRECTORY_SEPARATOR, '', $file->getPathname());
+        }
+    }
+
+    expect($violations)->toBe([]);
+});
+
+test('visible form controls use daisyui control classes', function () {
+    $violations = [];
+    $files = new RecursiveIteratorIterator(
+        new RecursiveDirectoryIterator(resource_path('views'), FilesystemIterator::SKIP_DOTS),
+    );
+
+    foreach ($files as $file) {
+        if (! str_ends_with($file->getFilename(), '.blade.php')) {
+            continue;
+        }
+
+        $contents = file_get_contents($file->getPathname());
+        preg_match_all('/<(input|select|textarea)\b[^>]*>/s', $contents, $matches);
+
+        foreach ($matches[0] as $tag) {
+            if (preg_match('/<input\b[^>]*type="hidden"/s', $tag) === 1) {
+                continue;
+            }
+
+            $hasDaisyClass = preg_match('/class="[^"]*\b(input|select|textarea|checkbox|radio|file-input)\b/s', $tag) === 1;
+
+            if (! $hasDaisyClass) {
+                $violations[] = str_replace(base_path().DIRECTORY_SEPARATOR, '', $file->getPathname()).' contains '.$tag;
+            }
+        }
+    }
+
+    expect($violations)->toBe([]);
+});
+
+test('data tables use daisyui table classes', function () {
+    $violations = [];
+    $files = new RecursiveIteratorIterator(
+        new RecursiveDirectoryIterator(resource_path('views'), FilesystemIterator::SKIP_DOTS),
+    );
+
+    foreach ($files as $file) {
+        if (! str_ends_with($file->getFilename(), '.blade.php')) {
+            continue;
+        }
+
+        $contents = file_get_contents($file->getPathname());
+        preg_match_all('/<table\b[^>]*>/s', $contents, $matches);
+
+        foreach ($matches[0] as $tag) {
+            if (preg_match('/class="[^"]*\btable\b/s', $tag) !== 1) {
+                $violations[] = str_replace(base_path().DIRECTORY_SEPARATOR, '', $file->getPathname()).' contains '.$tag;
+            }
+        }
+    }
+
+    expect($violations)->toBe([]);
+});
+
+test('layout cards alerts stats and menus use daisyui semantic classes', function () {
+    $violations = [];
+    $files = new RecursiveIteratorIterator(
+        new RecursiveDirectoryIterator(resource_path('views'), FilesystemIterator::SKIP_DOTS),
+    );
+
+    foreach ($files as $file) {
+        if (! str_ends_with($file->getFilename(), '.blade.php')) {
+            continue;
+        }
+
+        $relativePath = str_replace(base_path().DIRECTORY_SEPARATOR, '', $file->getPathname());
+        $contents = file_get_contents($file->getPathname());
+
+        preg_match_all('/class="([^"]*)"/s', $contents, $matches);
+
+        foreach ($matches[1] as $classList) {
+            $classViolation = match (true) {
+                preg_match('/\b(auth-card|guardrail-card|workflow-card|proposal-timeline-node)\b/', $classList) === 1
+                    && preg_match('/\bcard\b/', $classList) !== 1 => 'card',
+                preg_match('/\bmetric\b/', $classList) === 1
+                    && preg_match('/\bstat\b/', $classList) !== 1 => 'stat',
+                preg_match('/\b(warning|proposal-period)\b/', $classList) === 1
+                    && preg_match('/\balert\b/', $classList) !== 1 => 'alert',
+                preg_match('/\b(nav-list|nav-child-list)\b/', $classList) === 1
+                    && preg_match('/\bmenu\b/', $classList) !== 1 => 'menu',
+                default => null,
+            };
+
+            if ($classViolation) {
+                $violations[] = $relativePath.' needs '.$classViolation.' in class="'.$classList.'"';
+            }
+        }
+
+        if ($relativePath !== 'resources/views/components/supply/alert.blade.php') {
+            preg_match_all('/<[^>]+role="(?:alert|status)"[^>]*>/s', $contents, $roleMatches);
+
+            foreach ($roleMatches[0] as $tag) {
+                if (preg_match('/class="[^"]*\balert\b/s', $tag) !== 1) {
+                    $violations[] = $relativePath.' contains unstyled alert/status '.$tag;
+                }
+            }
+        }
+    }
+
+    expect($violations)->toBe([]);
 });

@@ -4,18 +4,18 @@
     @csrf
     <label>
         Note
-        <textarea name="note" rows="3"></textarea>
+        <textarea class="textarea textarea-bordered textarea-primary" name="note" rows="3"></textarea>
     </label>
 
     @if ($canAccept)
-        <button type="submit" name="decision" value="accept">Accept</button>
+        <x-supply.button type="submit" name="decision" value="accept">Accept</x-supply.button>
     @endif
 
     @if ($canReject)
-        <button type="submit" name="decision" value="reject">Reject</button>
+        <x-supply.button type="submit" name="decision" value="reject">Reject</x-supply.button>
     @endif
 
     @if ($canRequestHumanReview)
-        <button type="submit" name="decision" value="needs_review">Mark needs review</button>
+        <x-supply.button type="submit" name="decision" value="needs_review">Mark needs review</x-supply.button>
     @endif
 </form>

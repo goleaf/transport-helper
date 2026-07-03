@@ -26,9 +26,9 @@ Record Goods Receipt
 
 <form method="post" action="{{ route('supply.logistics.receive.store', $record) }}">
     @csrf
-    <label>Actual received date <input type="date" name="actual_received_date" value="{{ old('actual_received_date', now()->toDateString()) }}" required></label>
+    <label>Actual received date <input class="input input-bordered input-primary" type="date" name="actual_received_date" value="{{ old('actual_received_date', now()->toDateString()) }}" required></label>
 
-    <table>
+    <table class="table table-zebra">
         <thead>
             <tr>
                 <th>SKU</th>
@@ -51,9 +51,9 @@ Record Goods Receipt
                     <td>{{ $item->confirmed_quantity }}</td>
                     <td>{{ $item->expected_receipt_quantity }}</td>
                     <td>{{ $item->received_quantity }}</td>
-                    <td><input type="number" step="0.001" name="items[{{ $index }}][received_quantity]" value="{{ old('items.'.$index.'.received_quantity', $item->expected_receipt_quantity) }}" required></td>
-                    <td><input type="number" step="0.001" name="items[{{ $index }}][damaged_quantity]" value="{{ old('items.'.$index.'.damaged_quantity', 0) }}"></td>
-                    <td><input type="text" name="items[{{ $index }}][notes]" value="{{ old('items.'.$index.'.notes') }}"></td>
+                    <td><input class="input input-bordered input-primary" type="number" step="0.001" name="items[{{ $index }}][received_quantity]" value="{{ old('items.'.$index.'.received_quantity', $item->expected_receipt_quantity) }}" required></td>
+                    <td><input class="input input-bordered input-primary" type="number" step="0.001" name="items[{{ $index }}][damaged_quantity]" value="{{ old('items.'.$index.'.damaged_quantity', 0) }}"></td>
+                    <td><input class="input input-bordered input-primary" type="text" name="items[{{ $index }}][notes]" value="{{ old('items.'.$index.'.notes') }}"></td>
                 </tr>
             @empty
                 <tr>
@@ -63,11 +63,11 @@ Record Goods Receipt
         </tbody>
     </table>
 
-    <label><input type="checkbox" name="complete_order" value="1" checked> Complete order</label>
-    <label><input type="checkbox" name="confirm_mismatches" value="1" @checked(old('confirm_mismatches'))> Confirm mismatches</label>
-    <label>Notes <textarea name="notes">{{ old('notes') }}</textarea></label>
+    <label><input class="checkbox checkbox-primary" type="checkbox" name="complete_order" value="1" checked> Complete order</label>
+    <label><input class="checkbox checkbox-primary" type="checkbox" name="confirm_mismatches" value="1" @checked(old('confirm_mismatches'))> Confirm mismatches</label>
+    <label>Notes <textarea class="textarea textarea-bordered textarea-primary" name="notes">{{ old('notes') }}</textarea></label>
 
     <p>If received quantities differ from expected quantities, the system will record discrepancies and may mark logistics/order as needs_review.</p>
-    <button type="submit">Record receipt</button>
+    <x-supply.button type="submit">Record receipt</x-supply.button>
 </form>
 @endsection

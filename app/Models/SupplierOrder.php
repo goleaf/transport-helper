@@ -97,6 +97,11 @@ class SupplierOrder extends Model
         return $this->hasMany(SupplierConfirmation::class);
     }
 
+    public function inboundOrders(): HasMany
+    {
+        return $this->hasMany(InboundOrder::class);
+    }
+
     public function carrierQuotes(): HasMany
     {
         return $this->hasMany(CarrierQuote::class);

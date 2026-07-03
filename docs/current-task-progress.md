@@ -8,26 +8,26 @@
 
 ## Implementation Checklist
 
-- [x] Safe pilot migrations
-- [x] Pilot models
-- [x] Pilot enums/constants
-- [x] PilotSupplierService
-- [x] PilotFileUploadService
-- [x] PilotMappingService
-- [x] PilotDataQualityService
-- [x] PilotReadinessService
-- [x] PilotDryRunService
-- [x] PilotUatChecklistService
-- [x] PilotReportService
-- [x] PilotApprovalService
-- [x] FormRequests
-- [x] Policies
-- [x] Controllers
-- [x] Routes
-- [x] Views
-- [x] Commands
-- [x] Config
-- [x] Gitignore
+- [x] Frontend stack inspection
+- [x] Supply layout
+- [x] Sidebar
+- [x] Topbar
+- [x] Environment badges
+- [x] Design system styles
+- [x] Reusable components
+- [x] Dashboard service/controller/view
+- [x] Action queue
+- [x] Order proposal UI polish
+- [x] Supplier order UI polish
+- [x] Email/AI UI polish
+- [x] Form autofill UI polish
+- [x] Supplier confirmation UI polish
+- [x] Transport UI polish
+- [x] Logistics UI polish
+- [x] Notifications UI polish
+- [x] Health/integration/pilot UI polish
+- [x] Localization
+- [x] Accessibility
 - [x] Tests
 - [x] Docs
 
@@ -37,30 +37,30 @@
 - [x] ./scripts/check-no-secrets.sh - passed
 - [x] ./scripts/check-project-docs.sh - passed
 - [x] php artisan migrate:fresh --seed - passed
-- [x] php artisan supply:pilot-onboarding-checklist --json - passed
-- [x] php artisan supply:health-check - passed with existing seeded data warnings
-- [x] php artisan supply:production-readiness - passed with warning status from health section
-- [ ] php artisan test - blocked by unrelated untracked CalculationRunCrudTest seeding expectation
-- [x] ./vendor/bin/pint, if available - passed
-- [x] npm run build, if applicable - passed
+- [x] php artisan test --compact - passed, 667 tests, 2772 assertions
+- [x] npm run build - passed
+- [x] ./vendor/bin/pint --dirty --format agent - passed
+- [x] ./scripts/run-supply-checks.sh - passed, including 667 tests and 2772 assertions
+- [x] php artisan supply:health-check - completed with warning status from seeded review/delay queues
+- [x] php artisan supply:production-readiness - completed with warning status from health section
 
 Focused checks:
 
-- [x] php artisan test --compact --filter=Pilot - passed, 24 tests, 76 assertions
-- [x] php artisan test --compact --filter=NoDtoRuleTest - passed, 6 tests, 8 assertions
+- [x] php artisan test --compact tests/Feature/UI tests/Unit/UI/UiNoDtoBoundaryTest.php - passed, 23 tests, 143 assertions
+- [x] php artisan test --compact --filter=SupplierOrderPageTest - passed, 2 tests, 39 assertions
+- [x] php artisan test --compact --filter=DemoSeederTest - passed, 2 tests, 57 assertions
 - [x] php artisan test --compact --filter=BladePresentationTest - passed, 9 tests, 25 assertions
+- [x] php artisan test --compact --filter=SupplyNavigationTest - passed, 3 tests, 92 assertions
+- [x] php artisan test --compact --filter=TransportControllerTest - passed, 2 tests, 6 assertions
+- [x] find app -iname "*DTO*" -o -path "app/Data" - no output
 
 ## Failures
 
-- `php artisan test --compact` failed with 637 passing tests and 1 failing test.
-- Failing test: `P\Tests\Feature\CalculationRunCrudTest::it_seeds_one_hundred_demo_calculation_runs_with_proposal_and_product_planning_relations`.
-- Failure: expected 100 seeded demo calculation runs, actual 0.
-- The failing test file is untracked and belongs to a separate calculation CRUD/demo seeding slice, not this pilot supplier workflow.
+None.
 
 ## Blockers
 
-- Full-suite green is blocked by the unrelated calculation CRUD/demo seeding expectation above.
-- See `docs/blockers/current-task-blockers.md`.
+None.
 
 ## Commit
 

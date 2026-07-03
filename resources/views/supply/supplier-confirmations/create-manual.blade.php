@@ -38,16 +38,16 @@ Create Manual Confirmation
     @csrf
     <fieldset>
         <legend>Header</legend>
-        <label>Supplier reference <input type="text" name="supplier_reference" value="{{ old('supplier_reference') }}"></label>
-        <label>Confirmation date <input type="date" name="confirmation_date" value="{{ old('confirmation_date') }}"></label>
-        <label>Ready date <input type="date" name="ready_date" value="{{ old('ready_date') }}"></label>
-        <label>Shipping date <input type="date" name="shipping_date" value="{{ old('shipping_date') }}"></label>
-        <label>Expected arrival date <input type="date" name="expected_arrival_date" value="{{ old('expected_arrival_date') }}"></label>
+        <label>Supplier reference <input class="input input-bordered input-primary" type="text" name="supplier_reference" value="{{ old('supplier_reference') }}"></label>
+        <label>Confirmation date <input class="input input-bordered input-primary" type="date" name="confirmation_date" value="{{ old('confirmation_date') }}"></label>
+        <label>Ready date <input class="input input-bordered input-primary" type="date" name="ready_date" value="{{ old('ready_date') }}"></label>
+        <label>Shipping date <input class="input input-bordered input-primary" type="date" name="shipping_date" value="{{ old('shipping_date') }}"></label>
+        <label>Expected arrival date <input class="input input-bordered input-primary" type="date" name="expected_arrival_date" value="{{ old('expected_arrival_date') }}"></label>
     </fieldset>
 
     <fieldset>
         <legend>Items</legend>
-        <table>
+        <table class="table table-zebra">
             <thead>
                 <tr>
                     <th>SKU</th>
@@ -67,8 +67,8 @@ Create Manual Confirmation
                         </td>
                         <td>{{ $item->product?->name }}</td>
                         <td>{{ $item->ordered_quantity }}</td>
-                        <td><input type="number" step="0.001" min="0" name="items[{{ $index }}][confirmed_quantity]" value="{{ old("items.{$index}.confirmed_quantity", $item->ordered_quantity) }}"></td>
-                        <td><input type="text" name="items[{{ $index }}][notes]" value="{{ old("items.{$index}.notes") }}"></td>
+                        <td><input class="input input-bordered input-primary" type="number" step="0.001" min="0" name="items[{{ $index }}][confirmed_quantity]" value="{{ old("items.{$index}.confirmed_quantity", $item->ordered_quantity) }}"></td>
+                        <td><input class="input input-bordered input-primary" type="text" name="items[{{ $index }}][notes]" value="{{ old("items.{$index}.notes") }}"></td>
                     </tr>
                 @endforeach
             </tbody>
@@ -77,12 +77,12 @@ Create Manual Confirmation
 
     <fieldset>
         <legend>Options</legend>
-        <label><input type="checkbox" name="update_inbound" value="1" checked> Update inbound</label>
-        <label><input type="checkbox" name="update_logistics" value="1" checked> Update logistics</label>
-        <label><input type="checkbox" name="allow_missing_items" value="1"> Allow missing items</label>
-        <label><input type="checkbox" name="allow_over_confirmation" value="1"> Allow over confirmation</label>
+        <label><input class="checkbox checkbox-primary" type="checkbox" name="update_inbound" value="1" checked> Update inbound</label>
+        <label><input class="checkbox checkbox-primary" type="checkbox" name="update_logistics" value="1" checked> Update logistics</label>
+        <label><input class="checkbox checkbox-primary" type="checkbox" name="allow_missing_items" value="1"> Allow missing items</label>
+        <label><input class="checkbox checkbox-primary" type="checkbox" name="allow_over_confirmation" value="1"> Allow over confirmation</label>
     </fieldset>
 
-    <button type="submit">Apply supplier confirmation</button>
+    <x-supply.button type="submit">Apply supplier confirmation</x-supply.button>
 </form>
 @endsection

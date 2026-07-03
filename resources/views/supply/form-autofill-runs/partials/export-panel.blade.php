@@ -3,28 +3,28 @@
     <form method="post" action="{{ route('supply.form-autofill-runs.validate', $run) }}">
         @csrf
         <label>
-            <input type="checkbox" name="ignore_optional_review" value="1">
+            <input class="checkbox checkbox-primary" type="checkbox" name="ignore_optional_review" value="1">
             Ignore optional review fields
         </label>
         <label>
-            <input type="checkbox" name="mismatch_reviewed" value="1">
+            <input class="checkbox checkbox-primary" type="checkbox" name="mismatch_reviewed" value="1">
             Quantity mismatch reviewed
         </label>
-        <input name="validation_note" placeholder="Validation note">
-        <button type="submit">Validate run</button>
+        <input class="input input-bordered input-primary" name="validation_note" placeholder="Validation note">
+        <x-supply.button type="submit">Validate run</x-supply.button>
     </form>
 
     <form method="post" action="{{ route('supply.form-autofill-runs.export', $run) }}">
         @csrf
-        <select name="format">
+        <select class="select select-bordered select-primary" name="format">
             <option value="json">Structured data</option>
             <option value="csv">Spreadsheet</option>
         </select>
         <label>
-            <input type="checkbox" name="include_review_fields" value="1">
+            <input class="checkbox checkbox-primary" type="checkbox" name="include_review_fields" value="1">
             Include review fields
         </label>
-        <button type="submit">Export</button>
+        <x-supply.button type="submit">Export</x-supply.button>
     </form>
 
     <h3>Outputs</h3>

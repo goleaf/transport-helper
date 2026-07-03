@@ -59,17 +59,17 @@ Supply Email {{ $email->id }}
             <input type="hidden" name="sync" value="1">
             <label>
                 Analyzer
-                <select name="analyzer">
+                <select class="select select-bordered select-primary" name="analyzer">
                     <option value="rule_based">Rule based</option>
                     <option value="fake">Fake</option>
                     <option value="external">External placeholder</option>
                 </select>
             </label>
-            <button type="submit">Analyze email</button>
+            <x-supply.button type="submit">Analyze email</x-supply.button>
         </form>
     @endif
 
-    <table>
+    <table class="table table-zebra">
         <thead>
             <tr>
                     <th>Prompt</th>
@@ -103,7 +103,7 @@ Supply Email {{ $email->id }}
 
 <section>
     <h2>Form Autofill Runs</h2>
-    <table>
+    <table class="table table-zebra">
         <thead>
             <tr>
                 <th>ID</th>

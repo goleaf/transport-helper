@@ -4,6 +4,6 @@
     <form method="post" action="{{ route('supply.form-autofill-runs.application-check', $run) }}">
         @csrf
         <input type="hidden" name="confirmation" value="1">
-        <button type="submit">Check application readiness</button>
+        <x-supply.button type="submit">Check application readiness</x-supply.button>
     </form>
 </section>

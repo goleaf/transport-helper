@@ -43,6 +43,29 @@ $form-action-button-variants: (
 }
 
 @mixin styles {
+    :root {
+        --supply-bg: #f8fafc;
+        --supply-surface: #ffffff;
+        --supply-surface-muted: #f1f5f9;
+        --supply-text: #0f172a;
+        --supply-text-muted: #64748b;
+        --supply-border: #e2e8f0;
+        --supply-primary-600: #2563eb;
+        --supply-primary-100: #dbeafe;
+        --supply-success-700: #15803d;
+        --supply-success-100: #dcfce7;
+        --supply-warning-700: #b45309;
+        --supply-warning-100: #fef3c7;
+        --supply-danger-700: #b91c1c;
+        --supply-danger-100: #fee2e2;
+        --supply-ai-700: #6d28d9;
+        --supply-ai-100: #ede9fe;
+        --supply-logistics-700: #0f766e;
+        --supply-logistics-100: #ccfbf1;
+        --supply-transport-700: #0369a1;
+        --supply-transport-100: #e0f2fe;
+    }
+
     * {
         box-sizing: border-box;
     }
@@ -89,11 +112,10 @@ $form-action-button-variants: (
         max-width: 100%;
     }
 
-    button,
-    [type='submit'],
-    [type='button'],
-    .button,
-    .btn {
+    button:not(.btn),
+    [type='submit']:not(.btn),
+    [type='button']:not(.btn),
+    .button {
         @include mixins.button-base;
 
         &:hover {
@@ -115,7 +137,13 @@ $form-action-button-variants: (
         }
     }
 
-    button {
+    .btn {
+        &:focus-visible {
+            @include mixins.focus-ring;
+        }
+    }
+
+    button:not(.btn) {
         &:disabled,
         &[disabled] {
             @include mixins.button-token-variant(bg-disabled, border-strong, text-soft);
@@ -134,7 +162,7 @@ $form-action-button-variants: (
         @each $name, $variant in $form-action-button-variants {
             @each $action in map.get($variant, actions) {
                 &[action*='#{$action}'] {
-                    button {
+                    button:not(.btn) {
                         @include token-button-variant($variant);
                     }
                 }
@@ -142,9 +170,9 @@ $form-action-button-variants: (
         }
     }
 
-    input,
-    select,
-    textarea {
+    input:not(.input):not(.checkbox):not(.radio):not(.file-input),
+    select:not(.select),
+    textarea:not(.textarea) {
         @include mixins.form-control;
 
         &:focus {
@@ -158,8 +186,8 @@ $form-action-button-variants: (
     }
 
     input {
-        &[type='checkbox'],
-        &[type='radio'] {
+        &[type='checkbox']:not(.checkbox),
+        &[type='radio']:not(.radio) {
             width: tokens.size(checkbox);
             min-width: tokens.size(checkbox);
             height: tokens.size(checkbox);

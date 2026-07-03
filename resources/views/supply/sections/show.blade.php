@@ -33,17 +33,17 @@
 
 <section>
     <div class="guardrail-grid">
-        <article class="guardrail-card">
+        <article class="card bg-base-100 border border-base-300 shadow-sm guardrail-card">
             <span>01</span>
             <h2>Human review</h2>
             <p>Workflow changes stay explicit and approval-driven.</p>
         </article>
-        <article class="guardrail-card">
+        <article class="card bg-base-100 border border-base-300 shadow-sm guardrail-card">
             <span>02</span>
             <h2>Audit evidence</h2>
             <p>Operational decisions should leave traceable records.</p>
         </article>
-        <article class="guardrail-card">
+        <article class="card bg-base-100 border border-base-300 shadow-sm guardrail-card">
             <span>03</span>
             <h2>Laravel authority</h2>
             <p>Business state is owned by Laravel services and Eloquent models.</p>

@@ -3,13 +3,13 @@
     @if ($canShowSupplierConfirmationForm)
         <form method="POST" action="{{ route('supply.ai-extractions.apply-supplier-confirmation', $extraction) }}">
             @csrf
-            <label>Supplier order ID <input type="number" name="supplier_order_id" value="{{ $extraction->emailMessage?->related_supplier_order_id }}"></label>
-            <label><input type="checkbox" name="update_inbound" value="1" checked> Update inbound</label>
-            <label><input type="checkbox" name="update_logistics" value="1" checked> Update logistics</label>
-            <label><input type="checkbox" name="allow_missing_items" value="1"> Allow missing items</label>
-            <label><input type="checkbox" name="allow_over_confirmation" value="1"> Allow over confirmation</label>
-            <label><input type="checkbox" name="confirm_apply" value="1" required> Confirm apply</label>
-            <button type="submit">Apply supplier confirmation</button>
+            <label>Supplier order ID <input class="input input-bordered input-primary" type="number" name="supplier_order_id" value="{{ $extraction->emailMessage?->related_supplier_order_id }}"></label>
+            <label><input class="checkbox checkbox-primary" type="checkbox" name="update_inbound" value="1" checked> Update inbound</label>
+            <label><input class="checkbox checkbox-primary" type="checkbox" name="update_logistics" value="1" checked> Update logistics</label>
+            <label><input class="checkbox checkbox-primary" type="checkbox" name="allow_missing_items" value="1"> Allow missing items</label>
+            <label><input class="checkbox checkbox-primary" type="checkbox" name="allow_over_confirmation" value="1"> Allow over confirmation</label>
+            <label><input class="checkbox checkbox-primary" type="checkbox" name="confirm_apply" value="1" required> Confirm apply</label>
+            <x-supply.button type="submit">Apply supplier confirmation</x-supply.button>
         </form>
     @elseif (! $isAccepted)
         <p>Accept extraction before applying it.</p>
@@ -23,11 +23,11 @@
     @if ($canShowCarrierQuoteForm)
         <form method="POST" action="{{ route('supply.ai-extractions.apply-carrier-quote', $extraction) }}">
             @csrf
-            <label>Supplier order ID <input type="number" name="supplier_order_id" value="{{ $extraction->emailMessage?->related_supplier_order_id }}"></label>
-            <label><input type="checkbox" name="allow_missing_delivery_date" value="1"> Allow missing delivery date</label>
-            <label><input type="checkbox" name="allow_zero_price" value="1"> Allow zero price</label>
-            <label><input type="checkbox" name="confirm_apply" value="1" required> Confirm apply</label>
-            <button type="submit">Create carrier quote candidate</button>
+            <label>Supplier order ID <input class="input input-bordered input-primary" type="number" name="supplier_order_id" value="{{ $extraction->emailMessage?->related_supplier_order_id }}"></label>
+            <label><input class="checkbox checkbox-primary" type="checkbox" name="allow_missing_delivery_date" value="1"> Allow missing delivery date</label>
+            <label><input class="checkbox checkbox-primary" type="checkbox" name="allow_zero_price" value="1"> Allow zero price</label>
+            <label><input class="checkbox checkbox-primary" type="checkbox" name="confirm_apply" value="1" required> Confirm apply</label>
+            <x-supply.button type="submit">Create carrier quote candidate</x-supply.button>
         </form>
     @elseif (! $isAccepted)
         <p>Accept extraction first.</p>

@@ -29,9 +29,9 @@ Carrier Quotes For Supplier Order
     <p>System recommendation is not automatic carrier selection. User must select carrier.</p>
     <form method="post" action="{{ route('supply.transport.orders.quotes.score', $supplierOrder) }}">
         @csrf
-        <label>Required pickup date <input type="date" name="required_pickup_date"></label>
-        <label>Required delivery date <input type="date" name="required_delivery_date"></label>
-        <button type="submit">Re-score quotes</button>
+        <label>Required pickup date <input class="input input-bordered input-primary" type="date" name="required_pickup_date"></label>
+        <label>Required delivery date <input class="input input-bordered input-primary" type="date" name="required_delivery_date"></label>
+        <x-supply.button type="submit">Re-score quotes</x-supply.button>
     </form>
 </section>
 

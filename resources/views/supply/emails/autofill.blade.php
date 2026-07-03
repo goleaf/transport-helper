@@ -31,7 +31,7 @@
         <form method="post" action="{{ route('supply.emails.autofill.preview', $email) }}">
             @csrf
             <label for="form_template_id">Form template</label>
-            <select id="form_template_id" name="form_template_id">
+            <select class="select select-bordered select-primary" id="form_template_id" name="form_template_id">
                 @forelse ($templates as $template)
                     <option value="{{ $template->id }}">{{ $template->autofill_option_label }}</option>
                 @empty
@@ -40,21 +40,21 @@
             </select>
 
             <label for="extractor">Extractor</label>
-            <select id="extractor" name="extractor">
+            <select class="select select-bordered select-primary" id="extractor" name="extractor">
                 <option value="rule_based">Rule based</option>
                 <option value="fake">Fake</option>
                 <option value="external">External placeholder</option>
             </select>
 
             <label>
-                <input type="checkbox" name="force_new" value="1">
+                <input class="checkbox checkbox-primary" type="checkbox" name="force_new" value="1">
                 Force new run
             </label>
 
             <label>
-                <input type="checkbox" name="include_attachments_summary" value="1" checked>
+                <input class="checkbox checkbox-primary" type="checkbox" name="include_attachments_summary" value="1" checked>
                 Include attachments summary
             </label>
 
-            <button type="submit">Generate autofill preview</button>
+            <x-supply.button type="submit">Generate autofill preview</x-supply.button>
         </form>

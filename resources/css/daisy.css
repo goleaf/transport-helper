@@ -5,7 +5,7 @@
 @source inline("btn btn-primary btn-secondary btn-accent btn-neutral btn-info btn-success btn-warning btn-error btn-outline btn-soft btn-ghost btn-link btn-sm btn-md btn-lg btn-wide btn-block");
 @source inline("badge badge-primary badge-secondary badge-accent badge-neutral badge-info badge-success badge-warning badge-error badge-outline badge-soft badge-sm badge-md badge-lg");
 @source inline("alert alert-info alert-success alert-warning alert-error card card-body card-title table table-zebra table-pin-rows");
-@source inline("input input-bordered input-primary input-sm select select-bordered select-primary textarea textarea-bordered textarea-primary checkbox checkbox-primary radio radio-primary");
+@source inline("input input-bordered input-primary input-sm select select-bordered select-primary textarea textarea-bordered textarea-primary checkbox checkbox-primary radio radio-primary file-input file-input-bordered file-input-primary");
 @source inline("menu navbar breadcrumbs tabs tab tab-active join join-item dropdown dropdown-content modal modal-box modal-action collapse collapse-title collapse-content");
 @source inline("stats stat stat-title stat-value stat-desc steps step timeline toast tooltip loading loading-spinner skeleton divider indicator avatar");
 

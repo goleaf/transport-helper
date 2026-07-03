@@ -13,6 +13,6 @@ Edit Carrier
     @csrf
     @method('PATCH')
     @include('supply.carriers.partials.form', ['carrier' => $carrier])
-    <button type="submit">Save carrier</button>
+    <x-supply.button type="submit">Save carrier</x-supply.button>
 </form>
 @endsection

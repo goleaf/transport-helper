@@ -12,24 +12,24 @@ AI Email Extractions
 <form method="get" action="{{ route('supply.ai-extractions.index') }}">
     <label>
         Provider
-        <input name="provider" value="{{ request('provider') }}">
+        <input class="input input-bordered input-primary" name="provider" value="{{ request('provider') }}">
     </label>
     <label>
         Requires review
-        <input type="checkbox" name="requires_human_review" value="1" @checked(request()->boolean('requires_human_review'))>
+        <input class="checkbox checkbox-primary" type="checkbox" name="requires_human_review" value="1" @checked(request()->boolean('requires_human_review'))>
     </label>
     <label>
         Accepted
-        <input type="checkbox" name="accepted" value="1" @checked(request()->boolean('accepted'))>
+        <input class="checkbox checkbox-primary" type="checkbox" name="accepted" value="1" @checked(request()->boolean('accepted'))>
     </label>
     <label>
         Rejected
-        <input type="checkbox" name="rejected" value="1" @checked(request()->boolean('rejected'))>
+        <input class="checkbox checkbox-primary" type="checkbox" name="rejected" value="1" @checked(request()->boolean('rejected'))>
     </label>
-    <button type="submit">Filter</button>
+    <x-supply.button type="submit">Filter</x-supply.button>
 </form>
 
-<table>
+<table class="table table-zebra">
     <thead>
         <tr>
             <th>ID</th>

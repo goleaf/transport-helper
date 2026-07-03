@@ -15,26 +15,26 @@ Supplier Confirmations
 
 <section>
     <form method="GET" action="{{ route('supply.supplier-confirmations.index') }}">
-        <label>Status <input type="text" name="status" value="{{ $filters['status'] ?? '' }}"></label>
+        <label>Status <input class="input input-bordered input-primary" type="text" name="status" value="{{ $filters['status'] ?? '' }}"></label>
         <label>Supplier
-            <select name="supplier_id">
+            <select class="select select-bordered select-primary" name="supplier_id">
                 <option value="">Any</option>
                 @foreach ($suppliers as $supplier)
                     <option value="{{ $supplier->id }}" @selected((string) ($filters['supplier_id'] ?? '') === (string) $supplier->id)>{{ $supplier->name }}</option>
                 @endforeach
             </select>
         </label>
-        <label>Supplier order <input type="number" name="supplier_order_id" value="{{ $filters['supplier_order_id'] ?? '' }}"></label>
-        <label>Source <input type="text" name="source_type" value="{{ $filters['source_type'] ?? '' }}"></label>
-        <label>Date from <input type="date" name="date_from" value="{{ $filters['date_from'] ?? '' }}"></label>
-        <label>Date to <input type="date" name="date_to" value="{{ $filters['date_to'] ?? '' }}"></label>
-        <label><input type="checkbox" name="needs_review" value="1" @checked((bool) ($filters['needs_review'] ?? false))> Needs review</label>
-        <button type="submit">Filter</button>
+        <label>Supplier order <input class="input input-bordered input-primary" type="number" name="supplier_order_id" value="{{ $filters['supplier_order_id'] ?? '' }}"></label>
+        <label>Source <input class="input input-bordered input-primary" type="text" name="source_type" value="{{ $filters['source_type'] ?? '' }}"></label>
+        <label>Date from <input class="input input-bordered input-primary" type="date" name="date_from" value="{{ $filters['date_from'] ?? '' }}"></label>
+        <label>Date to <input class="input input-bordered input-primary" type="date" name="date_to" value="{{ $filters['date_to'] ?? '' }}"></label>
+        <label><input class="checkbox checkbox-primary" type="checkbox" name="needs_review" value="1" @checked((bool) ($filters['needs_review'] ?? false))> Needs review</label>
+        <x-supply.button type="submit">Filter</x-supply.button>
     </form>
 </section>
 
 <section>
-    <table>
+    <table class="table table-zebra">
         <thead>
             <tr>
                 <th>ID</th>

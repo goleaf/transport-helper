@@ -27,7 +27,7 @@ Manual Inbound Email
     <div>
         <label>
             Company
-            <select name="company_id" required>
+            <select class="select select-bordered select-primary" name="company_id" required>
                 @foreach ($companies as $company)
                     <option value="{{ $company->id }}" @selected((int) old('company_id') === $company->id)>{{ $company->name }}</option>
                 @endforeach
@@ -38,7 +38,7 @@ Manual Inbound Email
     <div>
         <label>
             Email account
-            <select name="email_account_id">
+            <select class="select select-bordered select-primary" name="email_account_id">
                 <option value="">None</option>
                 @foreach ($emailAccounts as $emailAccount)
                     <option value="{{ $emailAccount->id }}" @selected((int) old('email_account_id') === $emailAccount->id)>
@@ -50,44 +50,44 @@ Manual Inbound Email
     </div>
 
     <div>
-        <label>From email <input name="from_email" value="{{ old('from_email') }}" required></label>
+        <label>From email <input class="input input-bordered input-primary" name="from_email" value="{{ old('from_email') }}" required></label>
     </div>
 
     <div>
-        <label>To email <input name="to[]" value="{{ old('to.0') }}"></label>
+        <label>To email <input class="input input-bordered input-primary" name="to[]" value="{{ old('to.0') }}"></label>
     </div>
 
     <div>
-        <label>CC email <input name="cc[]" value="{{ old('cc.0') }}"></label>
+        <label>CC email <input class="input input-bordered input-primary" name="cc[]" value="{{ old('cc.0') }}"></label>
     </div>
 
     <div>
-        <label>Subject <input name="subject" value="{{ old('subject') }}"></label>
+        <label>Subject <input class="input input-bordered input-primary" name="subject" value="{{ old('subject') }}"></label>
     </div>
 
     <div>
-        <label>Body text <textarea name="body_text" rows="8">{{ old('body_text') }}</textarea></label>
+        <label>Body text <textarea class="textarea textarea-bordered textarea-primary" name="body_text" rows="8">{{ old('body_text') }}</textarea></label>
     </div>
 
     <div>
-        <label>Received at <input name="received_at" value="{{ old('received_at') }}"></label>
+        <label>Received at <input class="input input-bordered input-primary" name="received_at" value="{{ old('received_at') }}"></label>
     </div>
 
     <div>
-        <label>Message ID <input name="message_id" value="{{ old('message_id') }}"></label>
+        <label>Message ID <input class="input input-bordered input-primary" name="message_id" value="{{ old('message_id') }}"></label>
     </div>
 
     <div>
-        <label>Thread ID <input name="thread_id" value="{{ old('thread_id') }}"></label>
+        <label>Thread ID <input class="input input-bordered input-primary" name="thread_id" value="{{ old('thread_id') }}"></label>
     </div>
 
     <div>
-        <label>Attachments <input type="file" name="attachments[]" multiple></label>
+        <label>Attachments <input class="file-input file-input-bordered file-input-primary" type="file" name="attachments[]" multiple></label>
     </div>
 
     <div>
         <label>
-            <input type="checkbox" name="analyze" value="1" @checked(old('analyze'))>
+            <input class="checkbox checkbox-primary" type="checkbox" name="analyze" value="1" @checked(old('analyze'))>
             Analyze immediately
         </label>
     </div>
@@ -95,7 +95,7 @@ Manual Inbound Email
     <div>
         <label>
             Analyzer
-            <select name="analyzer">
+            <select class="select select-bordered select-primary" name="analyzer">
                 <option value="rule_based">Rule based</option>
                 <option value="fake">Fake</option>
                 <option value="external">External placeholder</option>
@@ -103,6 +103,6 @@ Manual Inbound Email
         </label>
     </div>
 
-    <button type="submit">Store inbound email</button>
+    <x-supply.button type="submit">Store inbound email</x-supply.button>
 </form>
 @endsection

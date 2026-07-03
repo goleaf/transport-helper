@@ -1,3 +1,3 @@
 <form method="GET" action="{{ $href }}" {{ $attributes->class('table-action-form') }}>
-    <button type="submit" class="btn btn-sm btn-outline btn-primary table-action-button">{{ $label }}</button>
+    <x-supply.button type="submit" size="sm" mode="outline" class="table-action-button">{{ $label }}</x-supply.button>
 </form>

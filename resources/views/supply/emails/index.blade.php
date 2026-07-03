@@ -17,7 +17,7 @@ Supply Emails
 <form method="get" action="{{ route('supply.emails.index') }}">
     <label>
         Direction
-        <select name="direction">
+        <select class="select select-bordered select-primary" name="direction">
             <option value="">Any</option>
             <option value="inbound" @selected(request('direction') === 'inbound')>Inbound</option>
             <option value="outbound" @selected(request('direction') === 'outbound')>Outbound</option>
@@ -26,23 +26,23 @@ Supply Emails
 
     <label>
         Status
-        <input name="status" value="{{ request('status') }}">
+        <input class="input input-bordered input-primary" name="status" value="{{ request('status') }}">
     </label>
 
     <label>
         From email
-        <input name="from_email" value="{{ request('from_email') }}">
+        <input class="input input-bordered input-primary" name="from_email" value="{{ request('from_email') }}">
     </label>
 
     <label>
         Needs review
-        <input type="checkbox" name="needs_review" value="1" @checked(request()->boolean('needs_review'))>
+        <input class="checkbox checkbox-primary" type="checkbox" name="needs_review" value="1" @checked(request()->boolean('needs_review'))>
     </label>
 
-    <button type="submit">Filter</button>
+    <x-supply.button type="submit">Filter</x-supply.button>
 </form>
 
-<table>
+<table class="table table-zebra">
     <thead>
         <tr>
             <th>Direction</th>

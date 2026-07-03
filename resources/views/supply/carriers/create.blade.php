@@ -12,6 +12,6 @@ Create Carrier
 <form method="post" action="{{ route('supply.carriers.store') }}">
     @csrf
     @include('supply.carriers.partials.form', ['carrier' => null])
-    <button type="submit">Save carrier</button>
+    <x-supply.button type="submit">Save carrier</x-supply.button>
 </form>
 @endsection
