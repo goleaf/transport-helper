@@ -14,78 +14,43 @@
 - docs/architecture.md
 - docs/domain-model.md
 - docs/workflow-map.md
-- docs/import-export-adapters.md
-- docs/audit-and-security.md
 - docs/status-machines.md
-- docs/core-database-implementation-notes.md
+- docs/decision-log.md
+- docs/calculation-engine.md
 - docs/calculation-engine-implementation-notes.md
+- docs/core-database-implementation-notes.md
+- docs/import-system-implementation-notes.md
 
 ## Headings Found In Current Task
 
-1. Task Title
-2. Task Goal
-3. Required Reading
-4. Non-Negotiable Rules
-5. Scope
-6. Out Of Scope
-7. Required Implementation
-8. Required Tests
-9. Required Documentation
-10. Acceptance Criteria
-11. Required Commands
-12. Commit Message
+1. Current Task
+2. Task Title
+3. Task Goal
+4. Required Reading
+5. Non-Negotiable Rules
+6. Scope
+7. Out Of Scope
+8. Required Implementation
+9. Required Tests
+10. Required Documentation
+11. Acceptance Criteria
+12. Required Commands
+13. Commit Message
 
 ## Understanding
 
-### Task Title
-
-The task is the CSV import system with batches, rows, validation and dry-run.
-
-### Task Goal
-
-Build the adapter-based import layer for sales history, stock snapshots, inbound orders, reservations and product rules.
-The work must include contracts, adapters, normalizers, validators, persisters, batch orchestration, tests and docs.
-
-### Required Reading
-
-Project rules, task workflow skills, architecture docs, domain docs, workflow map, import docs, audit docs, statuses and database notes must be read before implementation.
-
-### Non-Negotiable Rules
-
-No DTO, no app/Data, no real external services, no AI, no Google Sheets API and no secrets.
-Every source row must create an ImportRow, dry-run must not persist domain records and unknown SKUs must fail for transactional import types.
-
-### Scope
-
-The scope covers import contracts, adapters, normalizers, validators, persisters, ImportBatchService, optional Blade routes/controllers/views, tests and documentation.
-
-### Out Of Scope
-
-Calculation changes, supplier order workflow, real email/providers, AI, form autofill, supplier confirmation, transport scoring, logistics services and real external APIs are excluded.
-
-### Required Implementation
-
-Implement CSV import for the five core import types with raw/normalized row storage, validation errors, related model links, dry-run, duplicate checksum detection, rollback and audit events.
-
-### Required Tests
-
-Tests must cover CSV reading, value normalization, row normalization/validation, ImportBatchService persistence, dry-run, duplicates, rollback, invalid SKUs, product rules, inbound orders and the no-DTO rule.
-
-### Required Documentation
-
-Create or update the import system notes, import/export adapters document, workflow map and implementation roadmap.
-
-### Acceptance Criteria
-
-Acceptance requires all listed files/features/tests/docs/checks to pass, with no DTO/secrets, reviewed git status, commit and push attempt.
-
-### Required Commands
-
-Run guard scripts, migrate fresh with seed, full test suite, Pint if available and npm build if applicable.
-
-### Commit Message
-
-Use `Add CSV import system with batches and validation`.
+- Task Title: Build the order proposal review workflow.
+- Task Goal: Provide proposal list/detail, item review, timeline/formula UI, approve/adjust/reject, proposal approval, conversion and audit without changing calculations.
+- Required Reading: Use repository rules plus architecture, workflow, status, decision and calculation docs as the source of truth.
+- Non-Negotiable Rules: No DTO/app/Data, no AI/external/email/carrier side effects, no formula changes, and no success claim without checks.
+- Scope: Services, FormRequests, policies, controllers, routes, Blade views, tests and proposal workflow docs.
+- Out Of Scope: Supplier order export/email, inbound email, AI extraction, form autofill, confirmation application, carrier selection/scoring and full logistics workflow.
+- Required Implementation: Human users review stored calculation results, resolve item decisions, approve proposals only when safe, and convert only approved positive lines.
+- Required Tests: Unit and feature coverage for summary, decisions, proposal approval, conversion, controller flow, no-AI dependency and no DTO.
+- Required Documentation: Create order proposal workflow docs and update workflow/status/roadmap docs.
+- Acceptance Criteria: Every file, behavior, check, commit and push requirement must be completed or explicitly blocked.
+- Required Commands: Run no-DTO, no-secrets, docs check, migrate:fresh --seed, php artisan test, Pint and npm build when available.
+- Commit Message: Use `Add order proposal review workflow`.
 
 ## Acceptance Criteria Copied
 
@@ -94,42 +59,39 @@ Use `Add CSV import system with batches and validation`.
 - [ ] docs/current-task.md read from start to end.
 - [ ] docs/current-task-read-confirmation.md created.
 - [ ] docs/current-task-progress.md created.
-- [ ] Import contracts created.
-- [ ] NotConfiguredYetException created or reused.
-- [ ] CsvImportAdapter created.
-- [ ] ManualJsonImportAdapter created.
-- [ ] Placeholder adapters created.
-- [ ] ImportValueNormalizer created.
-- [ ] SalesHistoryNormalizer created.
-- [ ] StockSnapshotNormalizer created.
-- [ ] InboundOrderNormalizer created.
-- [ ] ReservationNormalizer created.
-- [ ] ProductRuleNormalizer created.
-- [ ] SalesHistoryValidator created.
-- [ ] StockSnapshotValidator created.
-- [ ] InboundOrderValidator created.
-- [ ] ReservationValidator created.
-- [ ] ProductRuleValidator created.
-- [ ] SalesHistoryPersister created.
-- [ ] StockSnapshotPersister created.
-- [ ] InboundOrderPersister created.
-- [ ] ReservationPersister created.
-- [ ] ProductRulePersister created.
-- [ ] ImportBatchService created.
-- [ ] Dry-run implemented.
-- [ ] Duplicate checksum detection implemented.
-- [ ] Safe rollback implemented.
-- [ ] Import audit events written.
-- [ ] Optional import UI/routes created if safe.
-- [ ] CSV adapter tests created.
-- [ ] Value normalizer tests created.
-- [ ] Normalizer/validator tests created.
-- [ ] ImportBatchService tests created.
-- [ ] Import UI tests created or skipped with reason.
+- [ ] OrderProposalSummaryService created.
+- [ ] OrderProposalDecisionService created.
+- [ ] OrderProposalApprovalService created.
+- [ ] SupplierOrderCreationService created.
+- [ ] Approve item implemented.
+- [ ] Adjust item implemented with required reason.
+- [ ] Reject item implemented with required reason.
+- [ ] Proposal approval implemented.
+- [ ] Proposal approval blocks unresolved items.
+- [ ] Proposal approval blocks all-rejected proposal.
+- [ ] Conversion to supplier order implemented.
+- [ ] Conversion excludes rejected items.
+- [ ] Conversion excludes zero quantity items.
+- [ ] Conversion creates logistics record if model/table exists.
+- [ ] All decision actions write audit logs.
+- [ ] FormRequests created.
+- [ ] Policies created or updated.
+- [ ] Controllers created.
+- [ ] Routes created.
+- [ ] Views created.
+- [ ] T0/T1/T2/T3 timeline visible.
+- [ ] Formula explanation visible.
+- [ ] Warnings visible.
+- [ ] Adjustment reason visible and stored.
+- [ ] Supplier order minimal show page created if needed.
+- [ ] Service tests created.
+- [ ] Controller tests created.
+- [ ] No AI dependency test created.
 - [ ] No DTO test updated.
-- [ ] docs/import-system-implementation-notes.md created.
-- [ ] docs/import-export-adapters.md updated.
+- [ ] docs/order-proposal-workflow.md created.
+- [ ] docs/order-proposal-workflow-implementation-notes.md created.
 - [ ] docs/workflow-map.md updated.
+- [ ] docs/status-machines.md updated.
 - [ ] docs/implementation-roadmap.md updated.
 - [ ] php artisan migrate:fresh --seed passed or blocker documented.
 - [ ] ./scripts/check-no-dto.sh passed.

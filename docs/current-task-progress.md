@@ -8,74 +8,62 @@
 
 ## Implementation Checklist
 
-- [x] Import contracts
-  - Files: app/Contracts/Import/*
-  - Tests: ImportBatchServiceTest
-  - Status: existing contracts verified
-- [x] NotConfiguredYetException
-  - Files: app/Exceptions/NotConfiguredYetException.php
-  - Tests: ImportBatchServiceTest placeholder adapter case
-  - Status: reused and aligned with Task 5 wording
-- [x] CSV adapter
-  - Files: app/Services/Import/Adapters/CsvImportAdapter.php
-  - Tests: CsvImportAdapterTest
-  - Status: verified with header map coverage added
-- [x] Manual JSON adapter
-  - Files: app/Services/Import/Adapters/ManualJsonImportAdapter.php
-  - Tests: ImportBatchServiceTest through service resolver
-  - Status: existing adapter verified
-- [x] Placeholder adapters
-  - Files: ExcelImportAdapter, GoogleSheetsImportAdapter, ApiImportAdapter, EmailAttachmentImportAdapter
-  - Tests: ImportBatchServiceTest
-  - Status: verified not configured exception
-- [x] Import value normalizer
-  - Files: app/Services/Import/ImportValueNormalizer.php
-  - Tests: ImportValueNormalizerTest
-  - Status: verified with extra date and boolean coverage
-- [x] Normalizers
-  - Files: app/Services/Import/Normalizers/*
-  - Tests: *ImportNormalizerValidatorTest
+- [x] Summary service
+  - Files: app/Services/Supply/OrderProposals/OrderProposalSummaryService.php
+  - Tests: tests/Unit/OrderProposalSummaryServiceTest.php
   - Status: verified
-- [x] Validators
-  - Files: app/Services/Import/Validators/*
-  - Tests: *ImportNormalizerValidatorTest
+- [x] Decision service
+  - Files: app/Services/Supply/OrderProposals/OrderProposalDecisionService.php
+  - Tests: tests/Feature/OrderProposalDecisionServiceTest.php
   - Status: verified
-- [x] Persisters
-  - Files: app/Services/Import/Persisters/*
-  - Tests: ImportBatchServiceTest
-  - Status: verified through service tests
-- [x] ImportBatchService
-  - Files: app/Services/Import/ImportBatchService.php
-  - Tests: ImportBatchServiceTest
+- [x] Approval service
+  - Files: app/Services/Supply/OrderProposals/OrderProposalApprovalService.php
+  - Tests: tests/Feature/OrderProposalApprovalServiceTest.php
   - Status: verified
-- [x] Dry-run
-  - Files: app/Services/Import/ImportBatchService.php
-  - Tests: ImportBatchServiceTest
+- [x] Supplier order creation service
+  - Files: app/Services/Supply/OrderProposals/SupplierOrderCreationService.php
+  - Tests: tests/Feature/SupplierOrderCreationFromProposalTest.php
   - Status: verified
-- [x] Duplicate checksum
-  - Files: app/Services/Import/ImportBatchService.php
-  - Tests: ImportBatchServiceTest
+- [x] FormRequests
+  - Files: app/Http/Requests/Supply/*OrderProposal*Request.php
+  - Tests: tests/Feature/OrderProposalWorkflowControllerTest.php
   - Status: verified
-- [x] Safe rollback
-  - Files: app/Services/Import/ImportBatchService.php
-  - Tests: ImportBatchServiceTest
+- [x] Policies
+  - Files: app/Policies/OrderProposalPolicy.php, app/Policies/OrderProposalItemPolicy.php, app/Policies/SupplierOrderPolicy.php
+  - Tests: tests/Feature/OrderProposalWorkflowControllerTest.php
   - Status: verified
-- [x] Audit events
-  - Files: app/Services/Import/ImportBatchService.php, app/Services/Audit/AuditLogService.php
-  - Tests: ImportBatchServiceTest
+- [x] Controllers
+  - Files: app/Http/Controllers/Supply/OrderProposalController.php, OrderProposalItemDecisionController.php, OrderProposalApprovalController.php, ConvertProposalToSupplierOrderController.php, SupplierOrderController.php
+  - Tests: tests/Feature/OrderProposalWorkflowControllerTest.php
   - Status: verified
-- [x] UI/routes if safe
-  - Files: app/Http/Controllers/Supply/ImportController.php, ImportRollbackController.php, StoreImportBatchRequest.php, resources/views/supply/imports/*, routes/web.php
-  - Tests: ImportControllerTest
+- [x] Routes
+  - Files: routes/web.php
+  - Tests: route:list, tests/Feature/OrderProposalWorkflowControllerTest.php
+  - Status: verified
+- [x] Views
+  - Files: resources/views/supply/proposals/*, resources/views/supply/supplier-orders/show.blade.php
+  - Tests: tests/Feature/OrderProposalWorkflowControllerTest.php
+  - Status: verified
+- [x] Timeline UI
+  - Files: resources/views/supply/proposals/partials/timeline.blade.php
+  - Tests: tests/Feature/OrderProposalWorkflowControllerTest.php
+  - Status: verified
+- [x] Formula explanation UI
+  - Files: resources/views/supply/proposals/partials/formula-summary.blade.php, explanation.blade.php
+  - Tests: tests/Feature/OrderProposalWorkflowControllerTest.php
+  - Status: verified
+- [x] Audit integration
+  - Files: app/Services/Supply/OrderProposals/*
+  - Tests: proposal service feature tests
   - Status: verified
 - [x] Tests
-  - Files: tests/Unit/CsvImportAdapterTest.php, tests/Unit/ImportValueNormalizerTest.php, tests/Unit/*ImportNormalizerValidatorTest.php, tests/Feature/ImportBatchServiceTest.php, tests/Feature/ImportControllerTest.php
-  - Tests: focused import filters
-  - Status: updated and passing
+  - Files: tests/Unit/OrderProposalSummaryServiceTest.php, tests/Feature/OrderProposalDecisionServiceTest.php, tests/Feature/OrderProposalApprovalServiceTest.php, tests/Feature/SupplierOrderCreationFromProposalTest.php, tests/Feature/OrderProposalWorkflowControllerTest.php, tests/Unit/OrderProposalWorkflowNoAiDependencyTest.php
+  - Tests: focused filters
+  - Status: focused tests passing
 - [x] Docs
-  - Files: docs/import-system-implementation-notes.md, docs/import-export-adapters.md, docs/workflow-map.md, docs/implementation-roadmap.md
+  - Files: docs/order-proposal-workflow.md, docs/order-proposal-workflow-implementation-notes.md, docs/workflow-map.md, docs/status-machines.md, docs/implementation-roadmap.md
   - Tests: docs check
-  - Status: updated
+  - Status: verified and updated
 
 ## Tests And Checks
 
@@ -94,27 +82,25 @@ None yet.
 
 ## Blockers
 
-None yet.
+None. Note: unrelated email/export workflow files were path-stashed before final Task 6 checks and will be restored after the Task 6 commit/push.
 
 ## Check Results
 
+- php artisan test --filter=OrderProposalSummaryServiceTest: passed, 1 test / 13 assertions.
+- php artisan test --filter=OrderProposalDecisionServiceTest: passed, 9 tests / 18 assertions.
+- php artisan test --filter=OrderProposalApprovalServiceTest: passed, 4 tests / 8 assertions.
+- php artisan test --filter=SupplierOrderCreationFromProposalTest: passed, 5 tests / 13 assertions.
+- php artisan test --filter=OrderProposalWorkflowControllerTest: passed, 12 tests / 46 assertions.
+- php artisan test --filter=OrderProposalWorkflowNoAiDependencyTest: passed, 1 test / 21 assertions.
+- php artisan test --filter=NoDtoRuleTest: passed, 1 test / 3 assertions.
+- php artisan test --filter=OrderProposalWorkflowTest: passed, 7 tests / 51 assertions.
 - composer install --no-interaction --prefer-dist: passed; nothing to install, update or remove.
 - php artisan migrate:fresh --seed --env=testing --no-interaction: passed.
 - ./scripts/check-no-dto.sh: passed; no forbidden DTO usage found.
 - ./scripts/check-no-secrets.sh: passed; no obvious secrets found.
 - ./scripts/check-project-docs.sh: passed; all required project documentation files exist.
-- php artisan test --filter=CsvImportAdapterTest: passed, 7 tests / 17 assertions.
-- php artisan test --filter=ImportValueNormalizerTest: passed, 3 tests / 13 assertions.
-- php artisan test --filter=SalesHistoryImportNormalizerValidatorTest: passed, 2 tests / 7 assertions.
-- php artisan test --filter=StockSnapshotImportNormalizerValidatorTest: passed, 2 tests / 5 assertions.
-- php artisan test --filter=InboundOrderImportNormalizerValidatorTest: passed, 2 tests / 5 assertions.
-- php artisan test --filter=ReservationImportNormalizerValidatorTest: passed, 2 tests / 5 assertions.
-- php artisan test --filter=ProductRuleImportNormalizerValidatorTest: passed, 2 tests / 6 assertions.
-- php artisan test --filter=ImportBatchServiceTest: passed, 13 tests / 44 assertions.
-- php artisan test --filter=ImportControllerTest: passed, 5 tests / 9 assertions.
-- php artisan test --filter=NoDtoRuleTest: passed, 1 test / 3 assertions.
 - php artisan test: passed, 214 tests / 1153 assertions.
-- ./vendor/bin/pint --dirty --format agent: passed.
+- ./vendor/bin/pint app/Http/Controllers/Supply/ConvertProposalToSupplierOrderController.php tests/Feature/OrderProposalWorkflowControllerTest.php tests/Feature/OrderProposalWorkflowTest.php --format agent: passed.
 - npm run build: passed.
 - ./scripts/agent-guard.sh: passed, including no DTO, no secrets, project docs, php artisan test, Pint test and npm build.
 

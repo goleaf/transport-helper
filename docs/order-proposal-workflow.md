@@ -70,5 +70,6 @@ Events:
 Only approved proposals can be converted to supplier orders.
 Rejected lines and zero-quantity approved/adjusted lines are excluded.
 Conversion creates a draft supplier order, draft supplier order items and a planned logistics record.
+After successful conversion, the user is sent to the created supplier order show page.
 
 Export and email workflow are implemented in the next workflow stage.

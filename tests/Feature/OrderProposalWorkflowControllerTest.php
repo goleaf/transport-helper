@@ -208,7 +208,7 @@ it('convert route creates supplier order', function () {
 
     $this->actingAs($manager)
         ->post(route('supply.proposals.convert-to-supplier-order', $fixture['proposal']), ['confirmation' => true])
-        ->assertRedirect(route('supply.proposals.show', $fixture['proposal']));
+        ->assertRedirect(route('supply.supplier-orders.show', SupplierOrder::query()->firstOrFail()));
 
     expect(SupplierOrder::query()->count())->toBe(1);
 });

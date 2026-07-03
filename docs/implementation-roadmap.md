@@ -97,7 +97,7 @@ Result:
 
 ## Step 6. Order Proposal Workflow
 
-Status: implemented in Stage 4.
+Status: implemented and verified in Task 6.
 
 Result:
 

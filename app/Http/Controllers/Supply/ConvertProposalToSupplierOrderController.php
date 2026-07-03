@@ -22,7 +22,7 @@ class ConvertProposalToSupplierOrderController extends Controller
         );
 
         return redirect()
-            ->route('supply.proposals.show', $proposal)
+            ->route('supply.supplier-orders.show', $result['supplier_order'])
             ->with('status', "Supplier order {$result['supplier_order']->order_number} created.");
     }
 }

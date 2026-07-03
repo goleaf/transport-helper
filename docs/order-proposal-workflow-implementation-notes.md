@@ -4,12 +4,12 @@
 
 The repository already had proposal routes, simple proposal Blade pages, policies, a broad `OrderProposalDecisionService` and a supplier order conversion service.
 
-Stage 4 keeps existing future modules untouched and replaces the proposal review workflow with dedicated services under `app/Services/Supply/OrderProposals`.
+Task 6 keeps existing future modules untouched and verifies the proposal review workflow with dedicated services under `app/Services/Supply/OrderProposals`.
 
 ## UI Stack Decision
 
 The project uses server-rendered Blade for supply screens.
-Stage 4 uses simple Blade pages and partials, with no React, Vue, Inertia, email calls or AI calls.
+Task 6 uses simple Blade pages and partials, with no React, Vue, Inertia, email calls or AI calls.
 
 ## Routes
 
@@ -37,7 +37,7 @@ Controllers validate route ownership for proposal items and delegate business ru
 
 ## Services
 
-Stage 4 services:
+Task 6 services:
 
 * `OrderProposalSummaryService`;
 * `OrderProposalDecisionService`;
@@ -129,8 +129,8 @@ Existing order proposal and supplier order workflow tests were updated to the ne
 
 ## Known Limitations
 
-Supplier order export and email approval/send screens existed before this stage but are not part of the Stage 4 implementation.
-Stage 4 conversion intentionally redirects back to the proposal page and does not start export/email workflow.
+Supplier order export and email approval/send screens existed before this stage but are not part of the Task 6 implementation.
+Task 6 conversion redirects to the created supplier order show page and does not start export/email workflow.
 
 ## Next Step
 

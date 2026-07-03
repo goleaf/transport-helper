@@ -181,7 +181,7 @@ it('converts an approved proposal to a supplier order', function () {
 
     $this->actingAs($manager)
         ->post(route('supply.proposals.convert-to-supplier-order', $fixture['proposal']))
-        ->assertRedirect(route('supply.proposals.show', $fixture['proposal']));
+        ->assertRedirect(route('supply.supplier-orders.show', SupplierOrder::query()->firstOrFail()));
 
     $supplierOrder = SupplierOrder::query()
         ->with('items')
