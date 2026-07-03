@@ -10,9 +10,13 @@ use Throwable;
 class AiEmailFormExtractionValidationService
 {
     public const OVERALL_MINIMUM = 0.80;
+
     public const REQUIRED_FIELD_MINIMUM = 0.85;
+
     public const DATE_FIELD_MINIMUM = 0.90;
+
     public const QUANTITY_FIELD_MINIMUM = 0.90;
+
     public const SKU_FIELD_MINIMUM = 0.90;
 
     /**

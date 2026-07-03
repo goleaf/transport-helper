@@ -5,7 +5,6 @@ namespace App\Services\FormAutofill;
 use App\Enums\FormAutofillRunStatus;
 use App\Enums\FormTemplateContextType;
 use App\Enums\LogisticsStatus;
-use App\Models\AuditLog;
 use App\Models\Carrier;
 use App\Models\CarrierQuote;
 use App\Models\FormAutofillOutput;
@@ -14,6 +13,7 @@ use App\Models\LogisticsRecord;
 use App\Models\SupplierConfirmation;
 use App\Models\SupplierOrder;
 use App\Models\User;
+use App\Services\Audit\AuditLogService;
 use App\Services\Supply\CarrierQuoteApplicationService;
 use App\Services\Supply\SupplierConfirmationApplicationService;
 use Illuminate\Support\Facades\DB;
@@ -24,6 +24,7 @@ class FormAutofillApplyService
     public function __construct(
         private readonly SupplierConfirmationApplicationService $supplierConfirmationApplicationService,
         private readonly CarrierQuoteApplicationService $carrierQuoteApplicationService,
+        private readonly AuditLogService $auditLogService,
     ) {}
 
     /**
@@ -59,23 +60,18 @@ class FormAutofillApplyService
                 'applied_at' => now(),
             ])->save();
 
-            AuditLog::query()->create([
-                'company_id' => $run->company_id,
-                'user_id' => $user->id,
-                'event_type' => 'form_autofill_run.applied',
-                'auditable_type' => $run::class,
-                'auditable_id' => $run->id,
-                'old_values_json' => $oldValues,
-                'new_values_json' => [
+            $this->auditLogService->logFormAutofillApplied(
+                run: $run,
+                user: $user,
+                oldValues: $oldValues,
+                newValues: [
                     'status' => $run->status,
                     'applied_by_user_id' => $run->applied_by_user_id,
                     'applied_at' => $run->applied_at,
                     'applied_model_type' => $applied::class,
                     'applied_model_id' => $applied->id,
                 ],
-                'metadata_json' => [],
-                'created_at' => now(),
-            ]);
+            );
 
             return [
                 'run' => $run->refresh(),

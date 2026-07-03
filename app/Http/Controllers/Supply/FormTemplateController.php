@@ -9,7 +9,6 @@ use App\Models\FormTemplate;
 use App\Services\FormAutofill\FormTemplateService;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Facades\Gate;
 
 class FormTemplateController extends Controller
 {
