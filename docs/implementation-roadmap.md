@@ -21,6 +21,7 @@ Current baseline:
 ## Required Verification Gates
 
 Every implementation task must run:
+- `./scripts/agent-guard.sh`
 - `php artisan test`
 - `./scripts/check-no-dto.sh`
 - `./scripts/check-no-secrets.sh`
@@ -29,3 +30,19 @@ Every implementation task must run:
 When available, also run:
 - `./vendor/bin/pint`
 - `npm run build`
+
+## Task Protocol
+
+Each implementation stage should live in `docs/current-task.md` instead of a long chat prompt.
+
+Expected flow:
+1. Read `AGENTS.md`.
+2. Read `docs/current-task.md` from first line to last line.
+3. Read `.codex/skills` files referenced by `AGENTS.md`.
+4. Write `docs/current-task-read-confirmation.md`.
+5. Write and maintain `docs/current-task-progress.md`.
+6. Implement the scoped task.
+7. Run `./scripts/agent-guard.sh`.
+8. Commit and push only after all required checks pass.
+
+If completion is blocked, create `docs/blockers/current-task-blockers.md` and do not claim the task is complete.

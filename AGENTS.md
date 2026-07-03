@@ -18,19 +18,39 @@ Never select carrier automatically.
 
 For every task:
 1. Read task from docs/current-task.md.
-2. Create an implementation checklist.
-3. Inspect current repository state.
-4. Implement code.
-5. Add or update tests.
-6. Run required checks.
-7. If checks fail, fix and rerun.
-8. Repeat until checks pass or a real blocker is found.
-9. Do not claim success without test output.
-10. Commit only after checks pass.
+2. Create docs/current-task-read-confirmation.md with every heading from docs/current-task.md and a short understanding of each section.
+3. Create an implementation checklist in docs/current-task-progress.md.
+4. Inspect current repository state.
+5. Implement code.
+6. Add or update tests.
+7. Update docs.
+8. Run required checks.
+9. If checks fail, fix and rerun.
+10. Repeat until checks pass or a real blocker is found.
+11. If blocked, create docs/blockers/current-task-blockers.md with exact reason, affected files, and what is needed from the user.
+12. Do not claim success without test output.
+13. Commit only after checks pass.
+
+Failure loop policy:
+- After every failed command, read the error and identify the failing file or test.
+- Fix only the related problem.
+- Rerun the same failed command.
+- Do not move to commit while any required check fails.
+- If the same failure remains after 5 attempts, stop, create docs/blockers/current-task-blockers.md, and report NOT COMPLETE.
+
+When resuming a task:
+1. Open docs/current-task-progress.md.
+2. Find unchecked items.
+3. Continue only those items.
+4. Do not modify completed items unless tests require it.
+5. Run checks again.
+6. Update progress file.
+7. Commit only when all required items are checked.
 
 ## Required checks
 
 Run:
+- ./scripts/agent-guard.sh
 - php artisan test
 - ./scripts/check-no-dto.sh
 - ./scripts/check-no-secrets.sh
@@ -39,6 +59,9 @@ Run:
 If available:
 - ./vendor/bin/pint
 - npm run build
+
+Do not finish until ./scripts/agent-guard.sh passes.
+Codex may not call a task complete if CI would fail.
 
 ## Final response
 
