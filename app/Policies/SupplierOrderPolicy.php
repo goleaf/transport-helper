@@ -2,6 +2,7 @@
 
 namespace App\Policies;
 
+use App\Enums\UserRole;
 use App\Models\SupplierOrder;
 use App\Models\User;
 
@@ -19,32 +20,39 @@ class SupplierOrderPolicy
 
     public function create(User $user): bool
     {
-        return $user->canManageSupplyWorkflow();
+        return $this->manage($user);
     }
 
     public function update(User $user, SupplierOrder $supplierOrder): bool
     {
-        return $user->canManageSupplyWorkflow();
+        return $this->manage($user);
+    }
+
+    public function approve(User $user, SupplierOrder $supplierOrder): bool
+    {
+        return $this->manage($user);
     }
 
     public function export(User $user, SupplierOrder $supplierOrder): bool
     {
-        return $user->canManageSupplyWorkflow();
+        return $this->manage($user);
     }
 
     public function prepareEmail(User $user, SupplierOrder $supplierOrder): bool
     {
-        return $user->canManageSupplyWorkflow();
+        return $this->manage($user);
     }
 
     public function approveEmail(User $user, SupplierOrder $supplierOrder): bool
     {
-        return $user->canManageSupplyWorkflow();
+        return $user->hasAnyRole([UserRole::Admin, UserRole::SupplyManager])
+            || $user->hasPermissionTo('approve_supplier_emails');
     }
 
     public function sendEmail(User $user, SupplierOrder $supplierOrder): bool
     {
-        return $user->canManageSupplyWorkflow();
+        return $user->hasAnyRole([UserRole::Admin, UserRole::SupplyManager])
+            || $user->hasPermissionTo('send_supplier_emails');
     }
 
     public function delete(User $user, SupplierOrder $supplierOrder): bool
@@ -60,5 +68,10 @@ class SupplierOrderPolicy
     public function forceDelete(User $user, SupplierOrder $supplierOrder): bool
     {
         return false;
+    }
+
+    private function manage(User $user): bool
+    {
+        return $user->hasAnyRole([UserRole::Admin, UserRole::SupplyManager]);
     }
 }

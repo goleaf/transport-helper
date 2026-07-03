@@ -2,6 +2,7 @@
 
 namespace App\Policies;
 
+use App\Enums\UserRole;
 use App\Models\OrderProposal;
 use App\Models\User;
 
@@ -19,22 +20,24 @@ class OrderProposalPolicy
 
     public function create(User $user): bool
     {
-        return $user->canManageSupplyWorkflow();
+        return $this->manage($user);
     }
 
     public function update(User $user, OrderProposal $orderProposal): bool
     {
-        return $user->canManageSupplyWorkflow();
+        return $this->manage($user);
     }
 
     public function approve(User $user, OrderProposal $orderProposal): bool
     {
-        return $user->canManageSupplyWorkflow();
+        return $user->hasAnyRole([UserRole::Admin, UserRole::SupplyManager])
+            || $user->hasPermissionTo('approve_order_proposals');
     }
 
     public function convertToSupplierOrder(User $user, OrderProposal $orderProposal): bool
     {
-        return $user->canManageSupplyWorkflow();
+        return $user->hasAnyRole([UserRole::Admin, UserRole::SupplyManager])
+            || $user->hasPermissionTo('create_supplier_orders');
     }
 
     public function delete(User $user, OrderProposal $orderProposal): bool
@@ -50,5 +53,10 @@ class OrderProposalPolicy
     public function forceDelete(User $user, OrderProposal $orderProposal): bool
     {
         return false;
+    }
+
+    private function manage(User $user): bool
+    {
+        return $user->hasAnyRole([UserRole::Admin, UserRole::SupplyManager]);
     }
 }

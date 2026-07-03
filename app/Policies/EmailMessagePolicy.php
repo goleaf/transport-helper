@@ -2,6 +2,7 @@
 
 namespace App\Policies;
 
+use App\Enums\UserRole;
 use App\Models\EmailMessage;
 use App\Models\User;
 
@@ -19,12 +20,12 @@ class EmailMessagePolicy
 
     public function create(User $user): bool
     {
-        return $user->canManageSupplyWorkflow();
+        return $this->manage($user);
     }
 
     public function update(User $user, EmailMessage $emailMessage): bool
     {
-        return $user->canManageSupplyWorkflow();
+        return $this->manage($user);
     }
 
     public function delete(User $user, EmailMessage $emailMessage): bool
@@ -40,5 +41,10 @@ class EmailMessagePolicy
     public function forceDelete(User $user, EmailMessage $emailMessage): bool
     {
         return false;
+    }
+
+    private function manage(User $user): bool
+    {
+        return $user->hasAnyRole([UserRole::Admin, UserRole::SupplyManager]);
     }
 }
