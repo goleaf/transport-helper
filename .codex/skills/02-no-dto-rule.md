@@ -1,29 +1,42 @@
 # No DTO Rule
 
-## Rule
+DTOs are forbidden.
 
-Do not create DTO classes.
+Do not create:
 
-Do not create `app/Data`.
+* app/Data
+* *DTO.php
+* *Dto.php
+* Spatie Data classes
+* DataTransferObject classes
 
-## Rationale
+Allowed:
 
-This project keeps workflow data close to existing Laravel primitives:
-- Eloquent models for persisted domain state.
-- Form requests for HTTP validation.
-- Services and actions for business behavior.
-- Arrays with explicit PHPDoc shapes for internal structured payloads.
-- API resources only when JSON output shaping is required.
+* arrays
+* Eloquent models
+* FormRequest validated arrays
+* Laravel Validator
+* Services
+* JSON columns
+* Enums
+* PHPDoc array shapes
 
-## Required Check
+Allowed example:
 
-Run:
-
-```bash
-./scripts/check-no-dto.sh
+```php
+/**
+ * @param array<string,mixed> $input
+ * @return array<string,mixed>
+ */
+public function calculate(array $input): array
 ```
 
-The check must fail if:
-- `app/Data` exists.
-- files under application/test/source paths include DTO-style names.
-- PHP classes under application/test/source paths include DTO-style class names.
+Forbidden example:
+
+```php
+public function calculate(CalculationInputDTO $input): CalculationResultDTO
+```
+
+Before commit:
+
+* run ./scripts/check-no-dto.sh

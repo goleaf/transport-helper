@@ -1,25 +1,24 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-scan_paths=(app tests database routes resources)
+echo "Checking forbidden DTO usage..."
 
-if [ -d app/Data ]; then
-    echo "DTO rule violation: app/Data exists." >&2
+if [ -d "app/Data" ]; then
+    echo "Forbidden directory exists: app/Data"
     exit 1
 fi
 
-if find "${scan_paths[@]}" \( -iname '*DTO.php' -o -iname '*Dto.php' -o -iname '*Data.php' \) -print | grep -q .; then
-    echo "DTO rule violation: DTO/Data-style PHP files found." >&2
-    find "${scan_paths[@]}" \( -iname '*DTO.php' -o -iname '*Dto.php' -o -iname '*Data.php' \) -print >&2
+FOUND_DTO_FILES=$(find app -type f \( -iname "*DTO.php" -o -iname "*Dto.php" \) 2>/dev/null || true)
+
+if [ -n "$FOUND_DTO_FILES" ]; then
+    echo "Forbidden DTO files found:"
+    echo "$FOUND_DTO_FILES"
     exit 1
 fi
 
-if grep -RInE 'class[[:space:]]+[A-Za-z0-9_]*(DTO|Dto)\b' "${scan_paths[@]}" --include='*.php' >/tmp/transport-helper-dto-scan.txt; then
-    echo "DTO rule violation: DTO-style PHP classes found." >&2
-    cat /tmp/transport-helper-dto-scan.txt >&2
+if grep -R "Spatie\\\\LaravelData\\|DataTransferObject\\|class .*DTO\\|class .*Dto" app 2>/dev/null; then
+    echo "Forbidden DTO/Data references found."
     exit 1
 fi
 
-rm -f /tmp/transport-helper-dto-scan.txt
-
-echo "No DTO violations found."
+echo "No forbidden DTO usage found."

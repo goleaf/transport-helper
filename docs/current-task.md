@@ -1,98 +1,160 @@
 # Current Task
 
-## Task title
+## Task Title
 
-Formalize the repository task protocol around `docs/current-task.md`, progress files, a single guard command, and CI.
+Create strict Codex execution control system.
 
-## Non-negotiable rules
+## Task Goal
 
-- Read this file from start to end.
-- Implement every requirement.
-- Do not create DTO.
-- Do not create app/Data.
-- Do not call real external services.
-- Do not finish until checks pass.
+Create repository-level rules and guardrails so every future Codex task is executed strictly, with reading confirmation, progress checklist, tests, guard scripts, no DTO rule, no secrets rule, and no fake "done" answers.
+
+## Required Reading
+
+* AGENTS.md
+* docs/implementation-roadmap.md
+* docs/current-task.md
+* .codex/skills/00-global-rules.md
+* .codex/skills/01-task-execution-loop.md
+* .codex/skills/02-no-dto-rule.md
+* .codex/skills/03-no-secrets-rule.md
+* .codex/skills/04-testing-and-checks.md
+* .codex/skills/05-git-commit-push.md
+* .codex/skills/06-blockers-and-not-complete.md
+
+## Non-Negotiable Rules
+
+* Do not implement business modules in this task.
+* Do not create database schema for supply modules in this task.
+* Do not create UI modules in this task.
+* Do not create DTO classes.
+* Do not create app/Data.
+* Do not call external APIs.
+* Do not call real AI.
+* Do not call real email providers.
+* Do not finish until required checks pass.
 
 ## Scope
 
-- Update permanent agent rules in `AGENTS.md`.
-- Add `docs/current-task-read-confirmation.md`.
-- Add `docs/current-task-progress.md`.
-- Add `scripts/agent-guard.sh`.
-- Add GitHub Actions CI.
-- Strengthen project docs checks so the task protocol is executable.
+This task is only about:
 
-## Out of scope
+* AGENTS.md
+* .codex/skills
+* docs/current-task-template.md
+* docs/current-task-progress-template.md
+* docs/blockers/.gitkeep
+* scripts/agent-guard.sh
+* scripts/check-no-dto.sh
+* scripts/check-no-secrets.sh
+* scripts/check-project-docs.sh
+* optional GitHub Actions test workflow if project already has CI or it is safe
+* README links
+* tests for scripts if practical
+* commit and push
 
-- No business workflow changes.
-- No changes to deterministic calculation formulas.
-- No external API integration.
-- No dependency upgrades unless required by existing lock files.
+## Out Of Scope
 
-## Files likely affected
+* Business workflow modules.
+* Supply module database schema.
+* UI modules.
+* DTO classes.
+* app/Data.
+* External AI, email, Google, carrier, or ERP API calls.
 
-- `AGENTS.md`
-- `docs/current-task.md`
-- `docs/current-task-read-confirmation.md`
-- `docs/current-task-progress.md`
-- `docs/implementation-roadmap.md`
-- `scripts/agent-guard.sh`
-- `scripts/check-project-docs.sh`
-- `.github/workflows/tests.yml`
+## Repository Inspection Required
 
-## Required implementation
+Before creating files, inspect:
 
-- `AGENTS.md` must require reading `docs/current-task.md` completely and writing `docs/current-task-progress.md`.
-- `AGENTS.md` must require `./scripts/agent-guard.sh` before finishing.
-- `AGENTS.md` must define blocker handling through `docs/blockers/current-task-blockers.md`.
-- `docs/current-task-read-confirmation.md` must list every heading from this file and summarize each section.
-- `docs/current-task-progress.md` must track requirements, checks, blockers, commit, and push state.
-- `scripts/agent-guard.sh` must run the existing project checks, `php artisan test`, Pint test mode when available, and `npm run build` when `package.json` exists.
-- `.github/workflows/tests.yml` must run project checks in CI.
-- `scripts/check-project-docs.sh` must verify the protocol files, guard script, and CI workflow exist.
+1. Laravel version.
+2. PHP version.
+3. Is there AGENTS.md?
+4. Is there .codex folder?
+5. Is there docs folder?
+6. Is there scripts folder?
+7. Is there README.md?
+8. Is there .github/workflows?
+9. Is there package.json?
+10. Is there artisan?
+11. Is there vendor?
+12. Is there tests folder?
+13. Is there .env.example?
+14. Is there git remote?
+15. Current branch.
 
-## Required tests
+Record this in docs/repository-control-setup-notes.md.
 
-- Run `./scripts/agent-guard.sh`.
-- Run individual required checks if the guard fails and rerun the guard after fixes.
+## Required Implementation
 
-## Required documentation
+* Create or update AGENTS.md with the strict project, AI boundary, no DTO, mandatory work loop, required checks, blocker, and final-response rules.
+* Create .codex/skills files 00 through 06 for global rules, task loop, no DTO, no secrets, testing/checks, git commit/push, and blockers.
+* Create docs/current-task-template.md.
+* Create docs/current-task-progress-template.md.
+* Create docs/blockers/.gitkeep.
+* Create docs/current-task-read-confirmation.example.md.
+* Create or update check-no-dto, check-no-secrets, check-project-docs, and agent-guard scripts.
+* Update README.md with Codex execution rules.
+* Keep or update GitHub Actions if safe for this project.
 
-- Update `AGENTS.md`.
-- Update `docs/implementation-roadmap.md`.
-- Keep this task file as the source of truth for the current implementation stage.
-- Update `docs/current-task-read-confirmation.md`.
-- Update `docs/current-task-progress.md`.
+## Required Tests
 
-## Acceptance criteria
+* Create tests/Feature/RepositoryControlFilesTest.php if tests are configured.
+* Create tests/Unit/NoDtoRuleScriptTest.php if tests are configured.
+* Create tests/Unit/NoSecretsScriptTest.php if tests are configured.
+* Do not make tests fragile.
+* Do not call real external services.
 
-- [ ] AGENTS.md read
-- [ ] current task read from start to end
-- [ ] implementation plan written
-- [ ] code implemented
-- [ ] tests added
-- [ ] no DTO
-- [ ] no app/Data
-- [ ] no secrets
-- [ ] no real external calls
-- [ ] php artisan test passed
-- [ ] check-no-dto passed
-- [ ] check-no-secrets passed
-- [ ] docs updated
-- [ ] git status reviewed
-- [ ] commit created
-- [ ] push attempted
+## Required Documentation
 
-## Required commands
+* docs/repository-control-setup-notes.md
+* docs/current-task-template.md
+* docs/current-task-progress-template.md
+* docs/current-task-read-confirmation.example.md
+* README.md Codex Execution Rules section
+* docs/current-task-read-confirmation.md for this task
+* docs/current-task-progress.md for this task
+
+## Acceptance Criteria
+
+* [ ] AGENTS.md created or updated.
+* [ ] Skills files created.
+* [ ] Templates created.
+* [ ] docs/blockers/.gitkeep created.
+* [ ] Scripts created or updated and executable.
+* [ ] README updated.
+* [ ] CI created or skipped with reason.
+* [ ] Tests created or skipped with reason.
+* [ ] no DTO.
+* [ ] no app/Data.
+* [ ] no secrets.
+* [ ] no real external calls.
+* [ ] check-no-dto passed.
+* [ ] check-no-secrets passed.
+* [ ] check-project-docs passed.
+* [ ] php artisan test passed.
+* [ ] npm build passed, if package.json exists.
+* [ ] formatter passed, if Pint exists.
+* [ ] git status reviewed.
+* [ ] git diff --stat reviewed.
+* [ ] commit created.
+* [ ] push attempted.
+
+## Required Commands
 
 ```bash
+chmod +x scripts/check-no-dto.sh
+chmod +x scripts/check-no-secrets.sh
+chmod +x scripts/check-project-docs.sh
+chmod +x scripts/agent-guard.sh
+./scripts/check-no-dto.sh
+./scripts/check-no-secrets.sh
+./scripts/check-project-docs.sh
+php artisan test
+./vendor/bin/pint
+npm run build
 ./scripts/agent-guard.sh
 ```
 
-If the guard fails, run the failing underlying command directly, fix the issue, and rerun `./scripts/agent-guard.sh`.
-
-## Commit message
+## Commit Message
 
 ```text
-chore(agent): add current task protocol guard
+Add Codex execution guardrails and task workflow
 ```

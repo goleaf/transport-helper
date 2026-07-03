@@ -1,8 +1,8 @@
 name: Tests
 
 on:
-  pull_request:
   push:
+  pull_request:
 
 jobs:
   tests:
@@ -21,14 +21,21 @@ jobs:
           node-version: '22'
           cache: npm
 
-      - run: composer install --no-interaction --prefer-dist
+      - name: Install dependencies
+        run: composer install --no-interaction --prefer-dist
 
-      - run: npm ci
+      - name: Install frontend dependencies
+        run: npm ci
 
-      - run: cp .env.example .env
+      - name: Prepare environment
+        run: |
+          cp .env.example .env
+          php artisan key:generate
 
-      - run: php artisan key:generate
+      - name: Prepare SQLite database
+        run: |
+          mkdir -p database
+          touch database/database.sqlite
 
-      - run: touch database/database.sqlite || true
-
-      - run: ./scripts/agent-guard.sh
+      - name: Run agent guard
+        run: ./scripts/agent-guard.sh

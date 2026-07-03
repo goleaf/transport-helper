@@ -7,6 +7,42 @@
 <a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
 </p>
 
+## Codex Execution Rules
+
+This repository uses strict Codex task execution rules.
+
+Main files:
+
+* AGENTS.md
+* .codex/skills/
+* docs/current-task-template.md
+* docs/current-task-progress-template.md
+* scripts/agent-guard.sh
+* scripts/check-no-dto.sh
+* scripts/check-no-secrets.sh
+* scripts/check-project-docs.sh
+
+Before starting a new task:
+
+1. Copy docs/current-task-template.md to docs/current-task.md.
+2. Fill the task requirements.
+3. Ask Codex to read AGENTS.md and docs/current-task.md.
+4. Codex must work in a loop until checks pass.
+
+Required checks:
+
+```bash
+./scripts/agent-guard.sh
+```
+
+Core rules:
+
+* no DTO;
+* no app/Data;
+* no secrets;
+* no real external calls in tests;
+* no fake "done" without test results.
+
 ## About Laravel
 
 Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:

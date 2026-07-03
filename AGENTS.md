@@ -1,77 +1,132 @@
-## Mandatory behavior
+# AGENTS.md
 
-Before coding, read:
-- AGENTS.md
-- docs/implementation-roadmap.md
-- docs/current-task.md
-- .codex/skills/00-global-project-rules.md
-- .codex/skills/02-no-dto-rule.md
+## Project
 
-Never create DTO classes.
-Never create app/Data.
-Never call real external AI, email, Google, carrier or ERP APIs in tests.
-Never mutate business records from AI extraction directly.
-Never send supplier email without approval.
-Never select carrier automatically.
+This is a Laravel-based Supply / Procurement Agent.
 
-## Work loop
+The system automates:
+- data imports;
+- deterministic replenishment calculation;
+- order proposal approval;
+- supplier order creation;
+- supplier email workflow;
+- inbound email analysis;
+- email-based form autofill;
+- supplier confirmations;
+- carrier quotes;
+- logistics records;
+- notifications;
+- audit logs.
 
-For every task:
-1. Read task from docs/current-task.md.
-2. Create docs/current-task-read-confirmation.md with every heading from docs/current-task.md and a short understanding of each section.
-3. Create an implementation checklist in docs/current-task-progress.md.
-4. Inspect current repository state.
-5. Implement code.
-6. Add or update tests.
-7. Update docs.
-8. Run required checks.
-9. If checks fail, fix and rerun.
-10. Repeat until checks pass or a real blocker is found.
-11. If blocked, create docs/blockers/current-task-blockers.md with exact reason, affected files, and what is needed from the user.
-12. Do not claim success without test output.
-13. Commit only after checks pass.
+## Core Rule
 
-Failure loop policy:
-- After every failed command, read the error and identify the failing file or test.
-- Fix only the related problem.
-- Rerun the same failed command.
-- Do not move to commit while any required check fails.
-- If the same failure remains after 5 attempts, stop, create docs/blockers/current-task-blockers.md, and report NOT COMPLETE.
+Laravel is the only source of business logic.
 
-When resuming a task:
-1. Open docs/current-task-progress.md.
-2. Find unchecked items.
-3. Continue only those items.
-4. Do not modify completed items unless tests require it.
-5. Run checks again.
-6. Update progress file.
-7. Commit only when all required items are checked.
+AI is allowed only for:
+- reading inbound email;
+- extracting structured data from email;
+- generating draft replies;
+- suggesting form autofill values.
 
-## Required checks
+AI must not:
+- calculate orders;
+- change formulas;
+- approve orders;
+- change quantities;
+- choose carriers;
+- send emails without approval;
+- apply confirmations directly;
+- update logistics directly.
+
+## No DTO
+
+DTOs are forbidden.
+
+Do not create:
+- app/Data;
+- DTO classes;
+- classes ending with DTO;
+- Spatie Data classes.
+
+Use:
+- arrays;
+- Eloquent models;
+- FormRequest;
+- Validator;
+- Services;
+- Jobs;
+- Policies;
+- Enums;
+- JSON columns;
+- PHPDoc array shapes.
+
+## Mandatory Work Loop
+
+For every future task:
+1. Read AGENTS.md completely.
+2. Read docs/current-task.md completely from start to end.
+3. Read all referenced .codex/skills files.
+4. Create or update docs/current-task-progress.md.
+5. Make an implementation checklist.
+6. Implement code.
+7. Add or update tests.
+8. Update docs.
+9. Run required checks.
+10. If checks fail, fix and rerun.
+11. Continue until all checks pass or a real blocker is documented.
+12. Do not claim success without command results.
+13. Commit only when required checks pass.
+14. Push after commit if remote is available.
+
+## Required Checks
 
 Run:
-- ./scripts/agent-guard.sh
-- php artisan test
-- ./scripts/check-no-dto.sh
-- ./scripts/check-no-secrets.sh
-- ./scripts/check-project-docs.sh
+
+```bash
+./scripts/check-no-dto.sh
+./scripts/check-no-secrets.sh
+./scripts/check-project-docs.sh
+php artisan test
+```
 
 If available:
-- ./vendor/bin/pint
-- npm run build
+
+```bash
+./vendor/bin/pint
+npm run build
+```
 
 Do not finish until ./scripts/agent-guard.sh passes.
 Codex may not call a task complete if CI would fail.
 
-## Final response
+## Blockers
 
-Final response must include:
-- changed files summary
-- tests run
-- failed tests if any
-- blockers if any
-- commit hash
-- push status
+If a requirement cannot be completed:
+
+* create docs/blockers/current-task-blockers.md;
+* explain exact blocker;
+* list affected files;
+* list commands that failed;
+* list what is needed from the user;
+* final response must say NOT COMPLETE.
+
+## Forbidden Final Answer
+
+Do not answer only:
+
+* "Done"
+* "Implemented"
+* "All set"
+
+Final answer must include:
+
+1. Files changed.
+2. Tests run.
+3. Script results.
+4. Failed checks, if any.
+5. Blockers, if any.
+6. Commit hash.
+7. Push status.
 
 <laravel-boost-guidelines>
 === foundation rules ===

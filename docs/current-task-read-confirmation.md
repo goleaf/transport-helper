@@ -1,58 +1,72 @@
 # Current Task Read Confirmation
 
-## Source
+## Files Read
 
-`docs/current-task.md`
+* AGENTS.md
+* docs/implementation-roadmap.md
+* docs/current-task.md
+* .codex/skills/00-global-rules.md
+* .codex/skills/01-task-execution-loop.md
+* .codex/skills/02-no-dto-rule.md
+* .codex/skills/03-no-secrets-rule.md
+* .codex/skills/04-testing-and-checks.md
+* .codex/skills/05-git-commit-push.md
+* .codex/skills/06-blockers-and-not-complete.md
 
-## Total headings found
+## Headings Found In Current Task
 
-12
-
-## Section titles
-
-- Current Task
-- Task title
-- Non-negotiable rules
-- Scope
-- Out of scope
-- Files likely affected
-- Required implementation
-- Required tests
-- Required documentation
-- Acceptance criteria
-- Required commands
-- Commit message
+1. Current Task
+2. Task Title
+3. Task Goal
+4. Required Reading
+5. Non-Negotiable Rules
+6. Scope
+7. Out Of Scope
+8. Repository Inspection Required
+9. Required Implementation
+10. Required Tests
+11. Required Documentation
+12. Acceptance Criteria
+13. Required Commands
+14. Commit Message
 
 ## Understanding
 
-- Current Task: This file is the source of truth for the current repository task.
-- Task title: The task is to formalize a reusable execution protocol around current task files, progress tracking, guard checks, and CI.
-- Non-negotiable rules: The task must be implemented completely without DTOs, `app/Data`, real external calls, or finishing before checks pass.
-- Scope: The implementation is limited to agent rules, progress/read-confirmation docs, guard script, CI, and docs checks.
-- Out of scope: No business workflow, calculation formula, external integration, or dependency upgrade work is included.
-- Files likely affected: The expected changes are docs, scripts, AGENTS rules, and GitHub Actions workflow files.
-- Required implementation: The repository must enforce reading current tasks, maintaining progress, running `agent-guard.sh`, documenting blockers, and verifying protocol files.
-- Required tests: The main proof is `./scripts/agent-guard.sh`, with underlying commands rerun directly if it fails.
-- Required documentation: AGENTS, roadmap, current task, read confirmation, and progress docs must be updated.
-- Acceptance criteria: The final report must include the task checklist and mark each item by evidence.
-- Required commands: `./scripts/agent-guard.sh` is the single mandatory guard command.
-- Commit message: The expected commit message is `chore(agent): add current task protocol guard`.
+* Task Title: this is the first guardrail/control-system task.
+* Task Goal: create durable repository controls so future Codex tasks cannot be claimed complete without checks.
+* Required Reading: AGENTS, the roadmap, current task, and all new control skills are mandatory context.
+* Non-Negotiable Rules: no business module work, no schema or UI work, no DTO/app/Data, and no external calls.
+* Scope: only repo control files, scripts, docs, CI, README, tests, commit, and push.
+* Out Of Scope: business behavior and integrations are explicitly excluded.
+* Repository Inspection Required: live repo facts must be captured in setup notes.
+* Required Implementation: create strict AGENTS rules, skills, templates, scripts, README, and CI.
+* Required Tests: add lightweight tests proving required control files and script checks exist.
+* Required Documentation: create setup notes, templates, read-confirmation example, README section, and this task trail.
+* Acceptance Criteria: every checklist item must be satisfied or documented as blocked.
+* Required Commands: run scripts, tests, Pint, npm build, and agent guard.
+* Commit Message: commit with the exact requested message.
 
-## Acceptance criteria copied
+## Acceptance Criteria Copied
 
-- [ ] AGENTS.md read
-- [ ] current task read from start to end
-- [ ] implementation plan written
-- [ ] code implemented
-- [ ] tests added
-- [ ] no DTO
-- [ ] no app/Data
-- [ ] no secrets
-- [ ] no real external calls
-- [ ] php artisan test passed
-- [ ] check-no-dto passed
-- [ ] check-no-secrets passed
-- [ ] docs updated
-- [ ] git status reviewed
-- [ ] commit created
-- [ ] push attempted
+* [ ] AGENTS.md created or updated.
+* [ ] Skills files created.
+* [ ] Templates created.
+* [ ] docs/blockers/.gitkeep created.
+* [ ] Scripts created or updated and executable.
+* [ ] README updated.
+* [ ] CI created or skipped with reason.
+* [ ] Tests created or skipped with reason.
+* [ ] no DTO.
+* [ ] no app/Data.
+* [ ] no secrets.
+* [ ] no real external calls.
+* [ ] check-no-dto passed.
+* [ ] check-no-secrets passed.
+* [ ] check-project-docs passed.
+* [ ] php artisan test passed.
+* [ ] npm build passed, if package.json exists.
+* [ ] formatter passed, if Pint exists.
+* [ ] git status reviewed.
+* [ ] git diff --stat reviewed.
+* [ ] commit created.
+* [ ] push attempted.
