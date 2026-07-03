@@ -198,3 +198,55 @@ SupplierOrder after receiving:
 * partially_confirmed -> needs_review or completed depending receiving result;
 * needs_review -> completed only after manual resolution and reconciled receipt;
 * receiving never updates confirmed quantities.
+
+## OperationalIncident
+
+* open
+* triaged
+* in_progress
+* waiting_on_user
+* waiting_on_supplier
+* waiting_on_external
+* resolved
+* closed
+* cancelled
+
+Transitions:
+
+* open -> triaged after owner review;
+* triaged -> in_progress after work starts;
+* in_progress -> waiting_on_user, waiting_on_supplier or waiting_on_external when blocked outside the operator;
+* in_progress -> resolved only with resolution note;
+* resolved -> closed after review;
+* any non-terminal status -> cancelled when no longer applicable;
+* closed and cancelled are terminal.
+
+Critical/high incidents require root cause and corrective action or explicit no-action reason before closing.
+
+## CorrectiveAction
+
+* open
+* in_progress
+* done
+* verified
+* cancelled
+
+Transitions:
+
+* open -> in_progress;
+* open or in_progress -> done with completion note;
+* done -> verified by manager/admin;
+* open or in_progress -> cancelled with reason.
+
+## Escalation
+
+* open
+* acknowledged
+* resolved
+* cancelled
+
+Transitions:
+
+* open -> acknowledged after manager review;
+* acknowledged -> resolved when escalation no longer applies;
+* open or acknowledged -> cancelled if created in error.

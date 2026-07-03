@@ -2,35 +2,29 @@
 
 ## Task Title
 
-Analytics And Management Reporting
+Exception And Incident Management
 
 ## Task Goal
 
-Create read-only analytics and management reporting for the Laravel Supply / Procurement Agent.
+Create operational incident management for the Laravel Supply / Procurement Agent.
 
 This task implements:
-- management analytics dashboard;
-- supplier performance report;
-- forecast accuracy report;
-- stockout risk report;
-- order proposal quality report;
-- supplier confirmation mismatch report;
-- transport performance report;
-- logistics performance report;
-- receiving accuracy report;
-- data quality report;
-- audit KPI report;
-- operator efficiency report;
-- import quality report;
-- email AI review quality report;
-- form autofill quality report;
-- saved reports;
-- report runs;
-- report exports;
-- analytics commands;
-- tests and documentation.
+- operational incidents;
+- workflow blocker tracking;
+- incident severity and priority;
+- incident ownership;
+- SLA timers;
+- escalation;
+- root cause analysis;
+- corrective actions;
+- incident comments/history;
+- incident reports;
+- incident notifications;
+- command-line monitors;
+- UI;
+- tests and docs.
 
-Analytics is read-only for business records.
+The goal is to make blocked workflows visible, owned, timed, escalated and resolved with audit trail.
 
 ## Required Reading
 
@@ -47,8 +41,8 @@ Analytics is read-only for business records.
 - docs/workflow-map.md
 - docs/status-machines.md
 - docs/decision-log.md
-- docs/calculation-engine.md
 - docs/import-export-adapters.md
+- docs/calculation-engine.md
 - docs/order-proposal-workflow.md
 - docs/supplier-order-email-workflow.md
 - docs/inbound-email-ai-workflow.md
@@ -56,6 +50,8 @@ Analytics is read-only for business records.
 - docs/supplier-confirmation-workflow.md
 - docs/transport-workflow.md
 - docs/logistics-workflow.md
+- docs/procurement/overview.md
+- docs/master-data/overview.md
 - docs/audit-and-security.md
 - docs/production-readiness.md
 
@@ -66,25 +62,22 @@ Analytics is read-only for business records.
 - Create docs/current-task-progress.md before implementation.
 - Do not create DTO.
 - Do not create app/Data.
-- Do not mutate business records from analytics.
 - Do not call AI.
 - Do not call OpenAI.
 - Do not call external APIs.
 - Do not call real email providers.
-- Do not call carrier APIs.
-- Do not call Google Sheets.
+- Do not send supplier email.
 - Do not approve proposals.
-- Do not send emails.
 - Do not apply AI extraction.
 - Do not apply form autofill.
 - Do not apply supplier confirmation.
 - Do not select carrier.
-- Do not update logistics status.
-- Do not record receiving.
-- Do not change calculation formula.
-- Do not expose secrets.
-- Do not export full email bodies by default.
-- Do not commit generated exports.
+- Do not resolve incidents automatically.
+- Do not approve exceptions automatically.
+- Do not close incident without resolution note.
+- Do not hide SLA breach.
+- Do not hard-delete incidents.
+- Do not expose secrets in incident metadata.
 - Do not commit secrets.
 - Do not claim success without checks.
 
@@ -92,165 +85,197 @@ Analytics is read-only for business records.
 
 Create or update:
 
-- database/migrations/* for saved_reports/report_runs/report_snapshots if missing
-- app/Enums/ReportType.php
-- app/Enums/ReportRunStatus.php
-- app/Models/SavedReport.php
-- app/Models/ReportRun.php
-- app/Models/ReportSnapshot.php optional
-- app/Services/Supply/Analytics/KpiDefinitionService.php
-- app/Services/Supply/Analytics/AnalyticsFilterService.php
-- app/Services/Supply/Analytics/ManagementDashboardAnalyticsService.php
-- app/Services/Supply/Analytics/SupplierPerformanceReportService.php
-- app/Services/Supply/Analytics/ForecastAccuracyReportService.php
-- app/Services/Supply/Analytics/StockoutRiskReportService.php
-- app/Services/Supply/Analytics/OrderProposalQualityReportService.php
-- app/Services/Supply/Analytics/SupplierConfirmationMismatchReportService.php
-- app/Services/Supply/Analytics/TransportPerformanceReportService.php
-- app/Services/Supply/Analytics/LogisticsPerformanceReportService.php
-- app/Services/Supply/Analytics/ReceivingAccuracyReportService.php
-- app/Services/Supply/Analytics/DataQualityReportService.php
-- app/Services/Supply/Analytics/AuditKpiReportService.php
-- app/Services/Supply/Analytics/OperatorEfficiencyReportService.php
-- app/Services/Supply/Analytics/ImportQualityReportService.php
-- app/Services/Supply/Analytics/EmailAiReviewQualityReportService.php
-- app/Services/Supply/Analytics/FormAutofillQualityReportService.php
-- app/Services/Supply/Analytics/SavedReportService.php
-- app/Services/Supply/Analytics/ReportRunService.php
-- app/Services/Supply/Analytics/AnalyticsExportService.php
-- app/Http/Requests/Supply/AnalyticsReportRequest.php
-- app/Http/Requests/Supply/StoreSavedReportRequest.php
-- app/Http/Requests/Supply/UpdateSavedReportRequest.php
-- app/Http/Requests/Supply/ExportAnalyticsReportRequest.php
-- app/Policies/SavedReportPolicy.php
-- app/Policies/ReportRunPolicy.php
-- app/Policies/AnalyticsPolicy.php optional
-- app/Http/Controllers/Supply/AnalyticsDashboardController.php
-- app/Http/Controllers/Supply/AnalyticsReportController.php
-- app/Http/Controllers/Supply/AnalyticsExportController.php
-- app/Http/Controllers/Supply/SavedReportController.php
-- app/Http/Controllers/Supply/ReportRunController.php
-- app/Console/Commands/AnalyticsReportCommand.php
-- app/Console/Commands/AnalyticsExportCommand.php
-- app/Console/Commands/AnalyticsSnapshotCommand.php optional
+- database/migrations/* for incident tables if missing
+- app/Enums/IncidentType.php
+- app/Enums/IncidentSeverity.php
+- app/Enums/IncidentPriority.php
+- app/Enums/IncidentStatus.php
+- app/Enums/IncidentSourceType.php
+- app/Enums/IncidentSlaStatus.php
+- app/Enums/CorrectiveActionStatus.php
+- app/Enums/RootCauseCategory.php
+- app/Enums/EscalationStatus.php
+- app/Models/OperationalIncident.php
+- app/Models/OperationalIncidentEvent.php
+- app/Models/OperationalIncidentComment.php
+- app/Models/IncidentCorrectiveAction.php
+- app/Models/IncidentSlaPolicy.php
+- app/Models/IncidentEscalation.php
+- app/Services/Supply/Incidents/IncidentTypeResolver.php
+- app/Services/Supply/Incidents/IncidentSeverityResolver.php
+- app/Services/Supply/Incidents/IncidentSlaService.php
+- app/Services/Supply/Incidents/IncidentCreationService.php
+- app/Services/Supply/Incidents/IncidentUpdateService.php
+- app/Services/Supply/Incidents/IncidentAssignmentService.php
+- app/Services/Supply/Incidents/IncidentEscalationService.php
+- app/Services/Supply/Incidents/IncidentRootCauseService.php
+- app/Services/Supply/Incidents/IncidentCorrectiveActionService.php
+- app/Services/Supply/Incidents/IncidentWorkflowLinkService.php
+- app/Services/Supply/Incidents/IncidentAutoDetectionService.php
+- app/Services/Supply/Incidents/IncidentNotificationService.php
+- app/Services/Supply/Incidents/IncidentReportService.php
+- app/Services/Supply/Incidents/IncidentExportService.php
+- app/Services/Supply/Incidents/IncidentHealthIntegrationService.php
+- app/Http/Requests/Supply/StoreIncidentRequest.php
+- app/Http/Requests/Supply/UpdateIncidentRequest.php
+- app/Http/Requests/Supply/AssignIncidentRequest.php
+- app/Http/Requests/Supply/ChangeIncidentStatusRequest.php
+- app/Http/Requests/Supply/AddIncidentCommentRequest.php
+- app/Http/Requests/Supply/StoreIncidentCorrectiveActionRequest.php
+- app/Http/Requests/Supply/UpdateIncidentCorrectiveActionRequest.php
+- app/Http/Requests/Supply/ResolveIncidentRootCauseRequest.php
+- app/Http/Requests/Supply/StoreIncidentSlaPolicyRequest.php
+- app/Http/Requests/Supply/RunIncidentDetectionRequest.php
+- app/Http/Requests/Supply/ExportIncidentReportRequest.php
+- app/Policies/OperationalIncidentPolicy.php
+- app/Policies/IncidentCorrectiveActionPolicy.php
+- app/Policies/IncidentSlaPolicyPolicy.php
+- app/Policies/IncidentEscalationPolicy.php
+- app/Http/Controllers/Supply/OperationalIncidentController.php
+- app/Http/Controllers/Supply/IncidentAssignmentController.php
+- app/Http/Controllers/Supply/IncidentStatusController.php
+- app/Http/Controllers/Supply/IncidentCommentController.php
+- app/Http/Controllers/Supply/IncidentCorrectiveActionController.php
+- app/Http/Controllers/Supply/IncidentRootCauseController.php
+- app/Http/Controllers/Supply/IncidentSlaPolicyController.php
+- app/Http/Controllers/Supply/IncidentDetectionController.php
+- app/Http/Controllers/Supply/IncidentReportController.php
+- app/Http/Controllers/Supply/IncidentExportController.php
+- app/Console/Commands/DetectOperationalIncidentsCommand.php
+- app/Console/Commands/MonitorIncidentSlaCommand.php
+- app/Console/Commands/IncidentReportCommand.php
+- app/Console/Commands/IncidentHealthCommand.php
 - routes/web.php
 - routes/console.php or app/Console/Kernel.php
-- resources/views/supply/analytics/dashboard.blade.php
-- resources/views/supply/analytics/report.blade.php
-- resources/views/supply/analytics/saved-reports/index.blade.php
-- resources/views/supply/analytics/report-runs/index.blade.php
-- resources/views/supply/analytics/report-runs/show.blade.php
-- resources/views/supply/analytics/partials/report-filters.blade.php
-- resources/views/supply/analytics/partials/kpi-card.blade.php
-- resources/views/supply/analytics/partials/report-table.blade.php
-- resources/views/supply/analytics/partials/warnings.blade.php
-- resources/views/supply/analytics/partials/export-panel.blade.php
-- resources/views/supply/analytics/partials/saved-report-panel.blade.php
-- resources/views/supply/analytics/partials/simple-bar-chart.blade.php
-- resources/views/supply/analytics/partials/risk-level-badge.blade.php
-- config/supply.php update if needed
-- tests/Unit/Analytics/KpiDefinitionServiceTest.php
-- tests/Unit/Analytics/AnalyticsFilterServiceTest.php
-- tests/Feature/Analytics/SupplierPerformanceReportServiceTest.php
-- tests/Feature/Analytics/ForecastAccuracyReportServiceTest.php
-- tests/Feature/Analytics/StockoutRiskReportServiceTest.php
-- tests/Feature/Analytics/OrderProposalQualityReportServiceTest.php
-- tests/Feature/Analytics/SupplierConfirmationMismatchReportServiceTest.php
-- tests/Feature/Analytics/TransportPerformanceReportServiceTest.php
-- tests/Feature/Analytics/LogisticsPerformanceReportServiceTest.php
-- tests/Feature/Analytics/ReceivingAccuracyReportServiceTest.php
-- tests/Feature/Analytics/DataQualityReportServiceTest.php
-- tests/Feature/Analytics/AuditKpiReportServiceTest.php
-- tests/Feature/Analytics/AnalyticsExportServiceTest.php
-- tests/Feature/Analytics/SavedReportServiceTest.php
-- tests/Feature/Analytics/AnalyticsControllerTest.php
-- tests/Feature/Analytics/AnalyticsCommandTest.php
-- tests/Unit/Analytics/AnalyticsBoundaryTest.php
+- resources/views/supply/incidents/index.blade.php
+- resources/views/supply/incidents/create.blade.php
+- resources/views/supply/incidents/show.blade.php
+- resources/views/supply/incidents/edit.blade.php
+- resources/views/supply/incidents/reports/index.blade.php
+- resources/views/supply/incidents/sla-policies/index.blade.php
+- resources/views/supply/incidents/sla-policies/create.blade.php
+- resources/views/supply/incidents/partials/status-badge.blade.php
+- resources/views/supply/incidents/partials/severity-badge.blade.php
+- resources/views/supply/incidents/partials/sla-badge.blade.php
+- resources/views/supply/incidents/partials/workflow-link.blade.php
+- resources/views/supply/incidents/partials/timeline.blade.php
+- resources/views/supply/incidents/partials/corrective-actions.blade.php
+- resources/views/supply/incidents/partials/root-cause-panel.blade.php
+- resources/views/supply/incidents/partials/escalation-panel.blade.php
+- resources/views/supply/incidents/partials/report-table.blade.php
+- config/supply.php update
+- .env.example update if needed
+- tests/Unit/Incidents/IncidentTypeResolverTest.php
+- tests/Unit/Incidents/IncidentSeverityResolverTest.php
+- tests/Feature/Incidents/IncidentSlaServiceTest.php
+- tests/Feature/Incidents/IncidentCreationServiceTest.php
+- tests/Feature/Incidents/IncidentUpdateServiceTest.php
+- tests/Feature/Incidents/IncidentAssignmentServiceTest.php
+- tests/Feature/Incidents/IncidentEscalationServiceTest.php
+- tests/Feature/Incidents/IncidentRootCauseServiceTest.php
+- tests/Feature/Incidents/IncidentCorrectiveActionServiceTest.php
+- tests/Feature/Incidents/IncidentAutoDetectionServiceTest.php
+- tests/Feature/Incidents/IncidentNotificationServiceTest.php
+- tests/Feature/Incidents/IncidentReportServiceTest.php
+- tests/Feature/Incidents/IncidentExportServiceTest.php
+- tests/Feature/Incidents/IncidentControllerTest.php
+- tests/Feature/Incidents/IncidentCommandTest.php
+- tests/Unit/Incidents/IncidentBoundaryTest.php
 - tests/Unit/NoDtoRuleTest.php update
-- docs/analytics/overview.md
-- docs/analytics/kpi-definitions.md
-- docs/analytics/supplier-performance.md
-- docs/analytics/forecast-accuracy.md
-- docs/analytics/stockout-risk.md
-- docs/analytics/transport-performance.md
-- docs/analytics/logistics-performance.md
-- docs/analytics/data-quality.md
-- docs/analytics/audit-kpis.md
-- docs/analytics/analytics-implementation-notes.md
+- docs/incidents/overview.md
+- docs/incidents/incident-types.md
+- docs/incidents/sla-and-escalation.md
+- docs/incidents/root-cause-analysis.md
+- docs/incidents/corrective-actions.md
+- docs/incidents/workflow-blockers.md
+- docs/incidents/reports.md
+- docs/incidents/incident-implementation-notes.md
 - docs/workflow-map.md update
-- docs/implementation-roadmap.md update
+- docs/status-machines.md update
+- docs/audit-and-security.md update
 - docs/production-readiness.md update
+- docs/implementation-roadmap.md update
 - README.md update
 
 ## Out Of Scope
 
 Do not implement:
-- AI provider integration;
-- real external API integration;
-- BI tool integration;
-- Google Sheets real sync;
-- scheduled email reports;
-- automatic business actions;
-- new business modules;
-- formula changes;
-- UI/UX design system stage;
-- operator command palette/saved table views stage.
+- external ticketing integrations;
+- Slack/Teams notifications;
+- real email notifications;
+- automatic supplier emails;
+- automatic workflow recovery;
+- automatic order approval;
+- automatic carrier selection;
+- AI root-cause analysis;
+- external monitoring provider;
+- accounting incidents;
+- legal/compliance case management.
 
 ## Required Implementation
 
-Implement read-only analytics.
+Implement incident management.
 
-The reports must:
-- support filters;
-- show summary KPI cards or simple values;
-- show warnings when data is incomplete;
-- show formula/definition explanation;
-- support CSV/JSON export;
-- respect permissions;
-- avoid exposing secrets;
-- avoid exporting full email bodies;
-- write audit logs for report runs and exports.
+User must be able to:
+- create operational incident manually;
+- view incident queue;
+- filter by status/severity/type/SLA/owner/source;
+- open incident detail;
+- assign incident;
+- change status;
+- add comment;
+- link incident to workflow object;
+- add root cause;
+- add corrective action;
+- update corrective action;
+- resolve incident with resolution note;
+- close incident;
+- detect incidents from existing workflow data;
+- monitor SLA breaches;
+- escalate incidents;
+- view incident reports;
+- export incident report;
+- see audit logs.
 
 ## Required Tests
 
 Create or update:
-- KpiDefinitionServiceTest
-- AnalyticsFilterServiceTest
-- SupplierPerformanceReportServiceTest
-- ForecastAccuracyReportServiceTest
-- StockoutRiskReportServiceTest
-- OrderProposalQualityReportServiceTest
-- SupplierConfirmationMismatchReportServiceTest
-- TransportPerformanceReportServiceTest
-- LogisticsPerformanceReportServiceTest
-- ReceivingAccuracyReportServiceTest
-- DataQualityReportServiceTest
-- AuditKpiReportServiceTest
-- AnalyticsExportServiceTest
-- SavedReportServiceTest
-- AnalyticsControllerTest
-- AnalyticsCommandTest
-- AnalyticsBoundaryTest
+- IncidentTypeResolverTest
+- IncidentSeverityResolverTest
+- IncidentSlaServiceTest
+- IncidentCreationServiceTest
+- IncidentUpdateServiceTest
+- IncidentAssignmentServiceTest
+- IncidentEscalationServiceTest
+- IncidentRootCauseServiceTest
+- IncidentCorrectiveActionServiceTest
+- IncidentAutoDetectionServiceTest
+- IncidentNotificationServiceTest
+- IncidentReportServiceTest
+- IncidentExportServiceTest
+- IncidentControllerTest
+- IncidentCommandTest
+- IncidentBoundaryTest
 - NoDtoRuleTest
 
 ## Required Documentation
 
 Create:
-- docs/analytics/overview.md
-- docs/analytics/kpi-definitions.md
-- docs/analytics/supplier-performance.md
-- docs/analytics/forecast-accuracy.md
-- docs/analytics/stockout-risk.md
-- docs/analytics/transport-performance.md
-- docs/analytics/logistics-performance.md
-- docs/analytics/data-quality.md
-- docs/analytics/audit-kpis.md
-- docs/analytics/analytics-implementation-notes.md
+- docs/incidents/overview.md
+- docs/incidents/incident-types.md
+- docs/incidents/sla-and-escalation.md
+- docs/incidents/root-cause-analysis.md
+- docs/incidents/corrective-actions.md
+- docs/incidents/workflow-blockers.md
+- docs/incidents/reports.md
+- docs/incidents/incident-implementation-notes.md
 
 Update:
 - docs/workflow-map.md
-- docs/implementation-roadmap.md
+- docs/status-machines.md
+- docs/audit-and-security.md
 - docs/production-readiness.md
+- docs/implementation-roadmap.md
 - README.md
 
 ## Acceptance Criteria
@@ -260,70 +285,69 @@ Update:
 - [ ] docs/current-task.md read from start to end.
 - [ ] docs/current-task-read-confirmation.md created.
 - [ ] docs/current-task-progress.md created.
-- [ ] Saved reports migration/model created if missing.
-- [ ] Report runs migration/model created if missing.
-- [ ] Report snapshots migration/model created or skipped with documented reason.
-- [ ] ReportType enum/constants created.
-- [ ] ReportRunStatus enum/constants created.
-- [ ] KpiDefinitionService created.
-- [ ] AnalyticsFilterService created.
-- [ ] ManagementDashboardAnalyticsService created.
-- [ ] SupplierPerformanceReportService created.
-- [ ] ForecastAccuracyReportService created.
-- [ ] StockoutRiskReportService created.
-- [ ] OrderProposalQualityReportService created.
-- [ ] SupplierConfirmationMismatchReportService created.
-- [ ] TransportPerformanceReportService created.
-- [ ] LogisticsPerformanceReportService created.
-- [ ] ReceivingAccuracyReportService created.
-- [ ] DataQualityReportService created.
-- [ ] AuditKpiReportService created.
-- [ ] OperatorEfficiencyReportService created.
-- [ ] ImportQualityReportService created.
-- [ ] EmailAiReviewQualityReportService created.
-- [ ] FormAutofillQualityReportService created.
-- [ ] SavedReportService created.
-- [ ] ReportRunService created.
-- [ ] AnalyticsExportService created.
-- [ ] Permissions/policies created.
-- [ ] FormRequests created.
-- [ ] Controllers created.
-- [ ] Routes created.
-- [ ] Views created with existing/simple layout.
-- [ ] Analytics commands created.
-- [ ] Supplier performance report implemented.
-- [ ] Forecast accuracy report implemented with insufficient data warning.
-- [ ] Stockout risk report implemented.
-- [ ] Order proposal quality report implemented.
-- [ ] Supplier confirmation mismatch report implemented.
-- [ ] Transport performance report implemented.
-- [ ] Logistics performance report implemented.
-- [ ] Receiving accuracy report implemented.
-- [ ] Data quality report implemented.
-- [ ] Audit KPI report implemented.
-- [ ] Operator efficiency report implemented.
-- [ ] Import quality report implemented.
-- [ ] Email AI review quality report implemented.
-- [ ] Form autofill quality report implemented.
-- [ ] Saved reports implemented.
-- [ ] Report runs implemented.
-- [ ] CSV export implemented.
-- [ ] JSON export implemented.
-- [ ] Exports do not include secrets or full email bodies.
-- [ ] Analytics audit events written.
-- [ ] Analytics is read-only for business records.
+- [ ] Incident migrations created if missing.
+- [ ] Incident models created.
+- [ ] Incident enums/constants created.
+- [ ] IncidentTypeResolver created.
+- [ ] IncidentSeverityResolver created.
+- [ ] IncidentSlaService created.
+- [ ] IncidentCreationService created.
+- [ ] IncidentUpdateService created.
+- [ ] IncidentAssignmentService created.
+- [ ] IncidentEscalationService created.
+- [ ] IncidentRootCauseService created.
+- [ ] IncidentCorrectiveActionService created.
+- [ ] IncidentWorkflowLinkService created.
+- [ ] IncidentAutoDetectionService created.
+- [ ] IncidentNotificationService created.
+- [ ] IncidentReportService created.
+- [ ] IncidentExportService created.
+- [ ] IncidentHealthIntegrationService created.
+- [ ] Manual incident creation implemented.
+- [ ] Incident assignment implemented.
+- [ ] Status transitions implemented.
+- [ ] Resolution note required before resolving.
+- [ ] Root cause required before closing critical incident.
+- [ ] Corrective action workflow implemented.
+- [ ] SLA policy implemented.
+- [ ] SLA breach detection implemented.
+- [ ] Escalation implemented.
+- [ ] Duplicate incident deduplication implemented.
+- [ ] Workflow object links implemented.
+- [ ] Auto-detection from failed imports implemented.
+- [ ] Auto-detection from calculation warnings implemented.
+- [ ] Auto-detection from AI extraction needs_review implemented.
+- [ ] Auto-detection from form autofill validation failures implemented.
+- [ ] Auto-detection from supplier confirmation mismatch implemented.
+- [ ] Auto-detection from carrier quote needs_review implemented.
+- [ ] Auto-detection from logistics delay implemented.
+- [ ] Auto-detection from receiving mismatch implemented.
+- [ ] Auto-detection from procurement gate blocked implemented if procurement exists.
+- [ ] Auto-detection from unknown SKU unresolved implemented if master data exists.
+- [ ] Notifications implemented or skipped with documented reason.
+- [ ] Incident reports implemented.
+- [ ] Incident export implemented.
+- [ ] Commands created.
+- [ ] UI/routes/controllers created.
+- [ ] Policies/FormRequests created.
+- [ ] Audit events written.
+- [ ] Tests created.
 - [ ] Boundary test confirms no AI/external/email/carrier calls.
-- [ ] Boundary test confirms no business mutation.
+- [ ] Boundary test confirms incidents do not auto-resolve workflow actions.
+- [ ] Boundary test confirms no automatic approvals.
+- [ ] Boundary test confirms no hard delete.
 - [ ] No DTO test updated.
-- [ ] docs/analytics/* created.
+- [ ] docs/incidents/* created.
 - [ ] docs/workflow-map.md updated.
-- [ ] docs/implementation-roadmap.md updated.
+- [ ] docs/status-machines.md updated.
+- [ ] docs/audit-and-security.md updated.
 - [ ] docs/production-readiness.md updated.
+- [ ] docs/implementation-roadmap.md updated.
 - [ ] README.md updated.
 - [ ] php artisan migrate:fresh --seed passed or blocker documented.
-- [ ] php artisan supply:analytics-report supplier_performance --format=json passed or blocker documented.
-- [ ] php artisan supply:analytics-report stockout_risk --format=json passed or blocker documented.
-- [ ] php artisan supply:analytics-report logistics_performance --format=json passed or blocker documented.
+- [ ] php artisan supply:detect-incidents --dry-run passed or blocker documented.
+- [ ] php artisan supply:monitor-incident-sla --dry-run passed or blocker documented.
+- [ ] php artisan supply:incident-report --json passed or blocker documented.
 - [ ] ./scripts/check-no-dto.sh passed.
 - [ ] ./scripts/check-no-secrets.sh passed.
 - [ ] ./scripts/check-project-docs.sh passed.
@@ -332,7 +356,7 @@ Update:
 - [ ] npm build passed if applicable.
 - [ ] No secrets committed.
 - [ ] No DTO created.
-- [ ] No generated report exports committed.
+- [ ] No generated exports committed.
 - [ ] git status reviewed.
 - [ ] Commit created.
 - [ ] Push attempted.
@@ -343,9 +367,9 @@ Update:
 ./scripts/check-no-secrets.sh
 ./scripts/check-project-docs.sh
 php artisan migrate:fresh --seed
-php artisan supply:analytics-report supplier_performance --format=json
-php artisan supply:analytics-report stockout_risk --format=json
-php artisan supply:analytics-report logistics_performance --format=json
+php artisan supply:detect-incidents --dry-run
+php artisan supply:monitor-incident-sla --dry-run
+php artisan supply:incident-report --json
 php artisan test
 
 Optional:
@@ -354,4 +378,4 @@ npm run build
 
 ## Commit Message
 
-Add supply analytics and management reporting
+Add exception and incident management workflow

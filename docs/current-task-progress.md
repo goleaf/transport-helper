@@ -8,30 +8,24 @@
 
 ## Implementation Checklist
 
-- [x] Saved reports/report runs migrations
-- [x] Report snapshots migration
-- [x] Report enums/constants
-- [x] KPI definitions
-- [x] Analytics filters
-- [x] Management dashboard analytics
-- [x] Supplier performance
-- [x] Forecast accuracy
-- [x] Stockout risk
-- [x] Order proposal quality
-- [x] Confirmation mismatch
-- [x] Transport performance
-- [x] Logistics performance
-- [x] Receiving accuracy
-- [x] Data quality
-- [x] Audit KPIs
-- [x] Operator efficiency
-- [x] Import quality
-- [x] Email AI review quality
-- [x] Form autofill quality
-- [x] Saved report service
-- [x] Report run service
-- [x] Export service
-- [x] Policies/FormRequests
+- [x] Migrations/models
+- [x] Enums/constants
+- [x] Type resolver
+- [x] Severity resolver
+- [x] SLA service
+- [x] Creation service
+- [x] Update service
+- [x] Assignment service
+- [x] Escalation service
+- [x] Root cause service
+- [x] Corrective action service
+- [x] Workflow link service
+- [x] Auto detection service
+- [x] Notification service
+- [x] Report/export services
+- [x] Health integration
+- [x] FormRequests
+- [x] Policies
 - [x] Controllers/routes/views
 - [x] Commands
 - [x] Tests
@@ -39,24 +33,26 @@
 
 ## Tests And Checks
 
-- [x] composer install - passed
-- [x] ./scripts/check-no-dto.sh - passed
-- [x] ./scripts/check-no-secrets.sh - passed
-- [x] ./scripts/check-project-docs.sh - passed
-- [x] php artisan migrate:fresh --seed - passed
-- [x] php artisan supply:analytics-report supplier_performance --format=json - passed
-- [x] php artisan supply:analytics-report stockout_risk --format=json - passed
-- [x] php artisan supply:analytics-report logistics_performance --format=json - passed
-- [x] php artisan test --compact - passed, 706 tests, 3077 assertions
-- [x] ./scripts/run-supply-checks.sh - passed, including 706 tests and 3077 assertions
-- [x] ./vendor/bin/pint --dirty --format agent - passed
-- [x] npm install - passed
-- [x] npm run build - passed
-- [x] find app -iname "*DTO*" -o -path "app/Data" - no output
+- [x] composer install: passed
+- [x] ./scripts/check-no-dto.sh: passed
+- [x] ./scripts/check-no-secrets.sh: passed
+- [x] ./scripts/check-project-docs.sh: passed
+- [x] php artisan migrate:fresh --seed: passed
+- [x] php artisan supply:detect-incidents --dry-run --json: passed, 219 seeded demo findings, 0 incidents created
+- [x] php artisan supply:monitor-incident-sla --dry-run --json: passed, 0 active incidents checked after dry-run
+- [x] php artisan supply:incident-report --json: passed
+- [x] php artisan supply:incident-health --json: passed
+- [x] php artisan test --compact: passed, 753 tests / 3256 assertions
+- [x] php artisan test --compact --filter=Incident: passed, 44 tests / 105 assertions
+- [x] ./scripts/run-supply-checks.sh: passed; production readiness reports seeded demo warnings
+- [x] ./vendor/bin/pint --dirty --format agent: passed, fixed formatting
+- [x] npm run build: passed
 
 ## Failures
 
-Initial full-suite run failed on stale/missing analytics Blade presentation output and an export download MIME auto-detection memory issue. Fixed by clearing compiled views, aligning analytics Blade with existing DaisyUI/shared component rules, and using stored export MIME metadata in the private download controller.
+- Incident-focused test run initially found expectation mismatches in boundary/escalation/status tests; fixed and reran successfully.
+- First full artisan test run hit PHP 128 MB memory limit before completion; phpunit.xml now sets test-only memory_limit=512M, and full artisan test passes.
+- A transient full-suite supplier-confirmation assertion failed once; the test passed in isolation and the next full artisan run passed.
 
 ## Blockers
 
@@ -64,5 +60,5 @@ None.
 
 ## Commit
 
-- Commit hash:
-- Push status:
+- Commit hash: recorded in final response after commit creation.
+- Push status: recorded in final response after push attempt.

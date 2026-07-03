@@ -245,3 +245,17 @@ System:
 * exports analytics to private CSV/JSON files without secrets or full email bodies;
 * audits report runs and exports;
 * does not call AI, email providers, carrier APIs, Google Sheets or external APIs.
+
+## 15. Exception And Incident Management
+
+System:
+
+* detects blocked operational workflows;
+* creates or deduplicates active incidents by source and type;
+* assigns an owner;
+* calculates response and resolution SLA;
+* escalates P1 or breached incidents;
+* records comments, history and audit logs;
+* requires root cause and corrective action for critical/high closure;
+* exports private incident reports;
+* does not approve proposals, send emails, apply AI/form/confirmation results, select carriers or update logistics status automatically.

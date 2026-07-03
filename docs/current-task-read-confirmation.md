@@ -16,8 +16,8 @@
 - docs/workflow-map.md
 - docs/status-machines.md
 - docs/decision-log.md
-- docs/calculation-engine.md
 - docs/import-export-adapters.md
+- docs/calculation-engine.md
 - docs/order-proposal-workflow.md
 - docs/supplier-order-email-workflow.md
 - docs/inbound-email-ai-workflow.md
@@ -25,49 +25,78 @@
 - docs/supplier-confirmation-workflow.md
 - docs/transport-workflow.md
 - docs/logistics-workflow.md
+- docs/procurement/overview.md
+- docs/master-data/overview.md
 - docs/audit-and-security.md
 - docs/production-readiness.md
 
+Optional docs note: docs/procurement/overview.md and docs/master-data/overview.md do not exist in this checkout.
+
 ## Headings Found In Current Task
 
-- Task Title
-- Task Goal
-- Required Reading
-- Non-Negotiable Rules
-- Scope
-- Out Of Scope
-- Required Implementation
-- Required Tests
-- Required Documentation
-- Acceptance Criteria
-- Required Commands
-- Commit Message
+- # Current Task
+- ## Task Title
+- ## Task Goal
+- ## Required Reading
+- ## Non-Negotiable Rules
+- ## Scope
+- ## Out Of Scope
+- ## Required Implementation
+- ## Required Tests
+- ## Required Documentation
+- ## Acceptance Criteria
+- ## Required Commands
+- ## Commit Message
 
 ## Understanding
 
-Task Title: This task is the analytics and management reporting stage.
+### Task Title
 
-Task Goal: Build read-only reporting over the existing Supply Agent workflow without mutating business records or changing formulas.
+This task is the Exception And Incident Management stage for the Supply / Procurement Agent.
 
-Required Reading: The task depends on the full workflow, security, audit and production-readiness docs, plus Codex rules.
+### Task Goal
 
-Non-Negotiable Rules: Analytics must not call AI, providers or external services, must not expose secrets, and must not advance workflow states.
+The goal is to make workflow blockers operationally visible, owned, timed, escalated, resolved with notes, and reported with audit history.
 
-Scope: The implementation includes report storage, report services, commands, policies, requests, routes, simple Blade views, tests and docs.
+### Required Reading
 
-Out Of Scope: This is not a BI integration, UI/UX design-system stage, real integration stage or operator command-palette stage.
+The workflow, status, architecture, no-DTO, no-secrets, testing and deployment documents define the boundaries for implementation.
 
-Required Implementation: Reports need filters, KPI definitions, warnings, CSV/JSON export, permissions and audit logs.
+### Non-Negotiable Rules
 
-Required Tests: Unit, feature, controller, command, export, saved-report and boundary tests must cover the analytics layer.
+Incidents must not perform business workflow actions, call AI/external/email/carrier providers, hide breaches, hard-delete records, expose secrets or bypass required resolution controls.
 
-Required Documentation: Create analytics docs and update workflow, roadmap, production readiness and README references.
+### Scope
 
-Acceptance Criteria: The checklist defines implementation artifacts, checks, commands, commit and push requirements.
+The scope includes incident schema, models, enums, services, FormRequests, policies, controllers, simple Blade UI, commands, tests, config and documentation.
 
-Required Commands: No-DTO, no-secrets, docs checks, migrations, focused analytics commands and full tests must be run or documented.
+### Out Of Scope
 
-Commit Message: The required commit message is `Add supply analytics and management reporting`.
+External ticketing, Slack/Teams, real email notifications, automatic recovery/approval, AI RCA and external monitoring integrations are out of scope.
+
+### Required Implementation
+
+Users must be able to create, assign, triage, comment, RCA, add corrective actions, resolve/close, detect, monitor, escalate, report and export incidents.
+
+### Required Tests
+
+Tests must cover resolvers, SLA, creation/deduplication, updates, assignment, escalation, RCA, corrective actions, detection, notifications, reports, exports, controllers, commands and boundaries.
+
+### Required Documentation
+
+Incident overview, types, SLA/escalation, RCA, corrective actions, workflow blockers, reports and implementation notes must be created, with roadmap/security/status docs updated.
+
+### Acceptance Criteria
+
+The checklist requires full implementation, checks, docs, no DTO/secrets/exports, commit and push attempt.
+
+### Required Commands
+
+The required checks include no-DTO, no-secrets, project docs, migrate:fresh --seed, incident commands and php artisan test.
+
+### Commit Message
+
+The required commit message is "Add exception and incident management workflow".
 
 ## Acceptance Criteria Copied
 
@@ -76,70 +105,69 @@ Commit Message: The required commit message is `Add supply analytics and managem
 - [ ] docs/current-task.md read from start to end.
 - [ ] docs/current-task-read-confirmation.md created.
 - [ ] docs/current-task-progress.md created.
-- [ ] Saved reports migration/model created if missing.
-- [ ] Report runs migration/model created if missing.
-- [ ] Report snapshots migration/model created or skipped with documented reason.
-- [ ] ReportType enum/constants created.
-- [ ] ReportRunStatus enum/constants created.
-- [ ] KpiDefinitionService created.
-- [ ] AnalyticsFilterService created.
-- [ ] ManagementDashboardAnalyticsService created.
-- [ ] SupplierPerformanceReportService created.
-- [ ] ForecastAccuracyReportService created.
-- [ ] StockoutRiskReportService created.
-- [ ] OrderProposalQualityReportService created.
-- [ ] SupplierConfirmationMismatchReportService created.
-- [ ] TransportPerformanceReportService created.
-- [ ] LogisticsPerformanceReportService created.
-- [ ] ReceivingAccuracyReportService created.
-- [ ] DataQualityReportService created.
-- [ ] AuditKpiReportService created.
-- [ ] OperatorEfficiencyReportService created.
-- [ ] ImportQualityReportService created.
-- [ ] EmailAiReviewQualityReportService created.
-- [ ] FormAutofillQualityReportService created.
-- [ ] SavedReportService created.
-- [ ] ReportRunService created.
-- [ ] AnalyticsExportService created.
-- [ ] Permissions/policies created.
-- [ ] FormRequests created.
-- [ ] Controllers created.
-- [ ] Routes created.
-- [ ] Views created with existing/simple layout.
-- [ ] Analytics commands created.
-- [ ] Supplier performance report implemented.
-- [ ] Forecast accuracy report implemented with insufficient data warning.
-- [ ] Stockout risk report implemented.
-- [ ] Order proposal quality report implemented.
-- [ ] Supplier confirmation mismatch report implemented.
-- [ ] Transport performance report implemented.
-- [ ] Logistics performance report implemented.
-- [ ] Receiving accuracy report implemented.
-- [ ] Data quality report implemented.
-- [ ] Audit KPI report implemented.
-- [ ] Operator efficiency report implemented.
-- [ ] Import quality report implemented.
-- [ ] Email AI review quality report implemented.
-- [ ] Form autofill quality report implemented.
-- [ ] Saved reports implemented.
-- [ ] Report runs implemented.
-- [ ] CSV export implemented.
-- [ ] JSON export implemented.
-- [ ] Exports do not include secrets or full email bodies.
-- [ ] Analytics audit events written.
-- [ ] Analytics is read-only for business records.
+- [ ] Incident migrations created if missing.
+- [ ] Incident models created.
+- [ ] Incident enums/constants created.
+- [ ] IncidentTypeResolver created.
+- [ ] IncidentSeverityResolver created.
+- [ ] IncidentSlaService created.
+- [ ] IncidentCreationService created.
+- [ ] IncidentUpdateService created.
+- [ ] IncidentAssignmentService created.
+- [ ] IncidentEscalationService created.
+- [ ] IncidentRootCauseService created.
+- [ ] IncidentCorrectiveActionService created.
+- [ ] IncidentWorkflowLinkService created.
+- [ ] IncidentAutoDetectionService created.
+- [ ] IncidentNotificationService created.
+- [ ] IncidentReportService created.
+- [ ] IncidentExportService created.
+- [ ] IncidentHealthIntegrationService created.
+- [ ] Manual incident creation implemented.
+- [ ] Incident assignment implemented.
+- [ ] Status transitions implemented.
+- [ ] Resolution note required before resolving.
+- [ ] Root cause required before closing critical incident.
+- [ ] Corrective action workflow implemented.
+- [ ] SLA policy implemented.
+- [ ] SLA breach detection implemented.
+- [ ] Escalation implemented.
+- [ ] Duplicate incident deduplication implemented.
+- [ ] Workflow object links implemented.
+- [ ] Auto-detection from failed imports implemented.
+- [ ] Auto-detection from calculation warnings implemented.
+- [ ] Auto-detection from AI extraction needs_review implemented.
+- [ ] Auto-detection from form autofill validation failures implemented.
+- [ ] Auto-detection from supplier confirmation mismatch implemented.
+- [ ] Auto-detection from carrier quote needs_review implemented.
+- [ ] Auto-detection from logistics delay implemented.
+- [ ] Auto-detection from receiving mismatch implemented.
+- [ ] Auto-detection from procurement gate blocked implemented if procurement exists.
+- [ ] Auto-detection from unknown SKU unresolved implemented if master data exists.
+- [ ] Notifications implemented or skipped with documented reason.
+- [ ] Incident reports implemented.
+- [ ] Incident export implemented.
+- [ ] Commands created.
+- [ ] UI/routes/controllers created.
+- [ ] Policies/FormRequests created.
+- [ ] Audit events written.
+- [ ] Tests created.
 - [ ] Boundary test confirms no AI/external/email/carrier calls.
-- [ ] Boundary test confirms no business mutation.
+- [ ] Boundary test confirms incidents do not auto-resolve workflow actions.
+- [ ] Boundary test confirms no automatic approvals.
+- [ ] Boundary test confirms no hard delete.
 - [ ] No DTO test updated.
-- [ ] docs/analytics/* created.
+- [ ] docs/incidents/* created.
 - [ ] docs/workflow-map.md updated.
-- [ ] docs/implementation-roadmap.md updated.
+- [ ] docs/status-machines.md updated.
+- [ ] docs/audit-and-security.md updated.
 - [ ] docs/production-readiness.md updated.
+- [ ] docs/implementation-roadmap.md updated.
 - [ ] README.md updated.
 - [ ] php artisan migrate:fresh --seed passed or blocker documented.
-- [ ] php artisan supply:analytics-report supplier_performance --format=json passed or blocker documented.
-- [ ] php artisan supply:analytics-report stockout_risk --format=json passed or blocker documented.
-- [ ] php artisan supply:analytics-report logistics_performance --format=json passed or blocker documented.
+- [ ] php artisan supply:detect-incidents --dry-run passed or blocker documented.
+- [ ] php artisan supply:monitor-incident-sla --dry-run passed or blocker documented.
+- [ ] php artisan supply:incident-report --json passed or blocker documented.
 - [ ] ./scripts/check-no-dto.sh passed.
 - [ ] ./scripts/check-no-secrets.sh passed.
 - [ ] ./scripts/check-project-docs.sh passed.
@@ -148,7 +176,7 @@ Commit Message: The required commit message is `Add supply analytics and managem
 - [ ] npm build passed if applicable.
 - [ ] No secrets committed.
 - [ ] No DTO created.
-- [ ] No generated report exports committed.
+- [ ] No generated exports committed.
 - [ ] git status reviewed.
 - [ ] Commit created.
 - [ ] Push attempted.

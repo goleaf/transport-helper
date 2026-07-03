@@ -102,6 +102,9 @@ Important docs:
 - `docs/analytics/overview.md`
 - `docs/analytics/kpi-definitions.md`
 - `docs/analytics/stockout-risk.md`
+- `docs/incidents/overview.md`
+- `docs/incidents/sla-and-escalation.md`
+- `docs/incidents/workflow-blockers.md`
 - `docs/ui-ux/design-system.md`
 - `docs/ui-ux/navigation.md`
 - `docs/ui-ux/workflow-screens.md`
@@ -120,6 +123,10 @@ php artisan supply:pilot-onboarding-checklist --json
 php artisan supply:analytics-report supplier_performance --format=json
 php artisan supply:analytics-report stockout_risk --format=json
 php artisan supply:analytics-report logistics_performance --format=json
+php artisan supply:detect-incidents --dry-run
+php artisan supply:monitor-incident-sla --dry-run
+php artisan supply:incident-report --json
+php artisan supply:incident-health --json
 ./scripts/run-supply-checks.sh
 ```
 
@@ -130,6 +137,7 @@ Core safety rules:
 - Human approval is required for critical actions.
 - Pilot mode stores real supplier samples privately and does not send real email, call external APIs, call external AI, or select carriers by default.
 - Analytics is read-only and may only create saved reports, report runs, report snapshots, private exports and audit logs.
+- Incident management tracks blockers but does not approve, send, apply, select carrier or update logistics automatically.
 - The UI shows AI, integration and real-email safety states explicitly and keeps dangerous workflow actions behind existing approvals.
 - DTOs are forbidden.
 - No secrets in git.

@@ -284,3 +284,30 @@ Task 17 writes audit logs for:
 
 Analytics metadata records report type, run status, warning count, export format and snapshot date.
 Secrets, encrypted config values and full email bodies are not stored in analytics audit metadata.
+
+## Incident Audit Events
+
+Task 21 writes audit logs for:
+
+* `operational_incident_created`;
+* `operational_incident_deduped`;
+* `incident_assigned`;
+* `incident_status_changed`;
+* `incident_comment_added`;
+* `incident_root_cause_updated`;
+* `incident_corrective_action_created`;
+* `incident_corrective_action_updated`;
+* `incident_corrective_action_done`;
+* `incident_corrective_action_verified`;
+* `incident_escalated`;
+* `incident_sla_breached`;
+* `incident_resolved`;
+* `incident_closed`;
+* `incident_cancelled`;
+* `incident_detection_completed`;
+* `incident_report_exported`;
+* `incident_sla_policy_created`;
+* `incident_notification_created`.
+
+Incident audit metadata stores ids, status changes, owner changes, SLA status and report/export metadata only.
+It must not store secrets, encrypted config, full email bodies or credentials.

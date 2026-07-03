@@ -81,4 +81,29 @@ return [
         'allow_external_ai' => env('SUPPLY_PILOT_ALLOW_EXTERNAL_AI', false),
         'max_upload_size_kb' => env('SUPPLY_PILOT_MAX_UPLOAD_SIZE_KB', 10240),
     ],
+    'incidents' => [
+        'enabled' => env('SUPPLY_INCIDENTS_ENABLED', true),
+        'auto_detection_enabled' => env('SUPPLY_INCIDENT_AUTO_DETECTION_ENABLED', true),
+        'sla_monitor_enabled' => env('SUPPLY_INCIDENT_SLA_MONITOR_ENABLED', true),
+        'dedupe_active_incidents' => true,
+        'default_response_minutes' => [
+            'critical' => 60,
+            'high' => 240,
+            'medium' => 1440,
+            'low' => 4320,
+        ],
+        'default_resolution_minutes' => [
+            'critical' => 480,
+            'high' => 1440,
+            'medium' => 4320,
+            'low' => 14400,
+        ],
+        'detection_thresholds' => [
+            'ai_review_overdue_hours' => env('SUPPLY_INCIDENT_AI_REVIEW_OVERDUE_HOURS', 24),
+            'form_review_overdue_hours' => env('SUPPLY_INCIDENT_FORM_REVIEW_OVERDUE_HOURS', 24),
+            'proposal_review_overdue_hours' => env('SUPPLY_INCIDENT_PROPOSAL_REVIEW_OVERDUE_HOURS', 48),
+            'email_approval_overdue_hours' => env('SUPPLY_INCIDENT_EMAIL_APPROVAL_OVERDUE_HOURS', 24),
+            'unknown_sku_overdue_hours' => env('SUPPLY_INCIDENT_UNKNOWN_SKU_OVERDUE_HOURS', 24),
+        ],
+    ],
 ];

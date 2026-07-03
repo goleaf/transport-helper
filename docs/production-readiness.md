@@ -87,3 +87,16 @@ Before relying on management reports:
 - review logistics performance report;
 - verify analytics report/export audit logs are written;
 - verify private analytics export storage is backed up.
+
+## Incident Readiness
+
+Before live operations:
+
+- review open critical incidents;
+- review SLA breaches;
+- review unassigned incidents;
+- review overdue corrective actions;
+- run `php artisan supply:detect-incidents --dry-run`;
+- run `php artisan supply:monitor-incident-sla --dry-run`;
+- run `php artisan supply:incident-health --json`;
+- confirm incident reports and exports do not expose secrets.

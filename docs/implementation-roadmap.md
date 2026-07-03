@@ -344,3 +344,22 @@ Implementation:
 * analytics commands added;
 * simple Blade analytics pages added without depending on the skipped UI/UX design-system stage;
 * read-only boundary tests added for no AI, no external calls and no business mutation.
+
+## Step 21. Exception And Incident Management
+
+Status: implemented in Task 21.
+
+Result:
+
+* incident queue;
+* SLA timers and escalation;
+* RCA and corrective actions;
+* incident reports.
+
+Implementation:
+
+* operational incident, event, comment, corrective action, SLA policy and escalation tables added;
+* type, severity, SLA, creation, assignment, escalation, RCA, corrective action, detection, notification, report, export and health services added;
+* simple Blade incident UI added without depending on the skipped UI/UX design-system components;
+* commands added for detection, SLA monitoring, report and health;
+* boundary tests confirm incident management does not call AI/external/email/carrier services and does not execute business workflow actions automatically.
