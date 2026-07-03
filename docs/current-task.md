@@ -2,29 +2,33 @@
 
 ## Task Title
 
-Transport Module With Carrier Quotes, Scoring And User Selection
+Logistics Dashboard, Receiving Workflow, Notifications, Delay Monitoring And Health Checks
 
 ## Task Goal
 
-Create Transport Module for the Laravel Supply / Procurement Agent.
+Create Logistics Dashboard and Receiving Workflow for the Laravel Supply / Procurement Agent.
 
 This task implements:
-- carrier quote request draft;
-- manual carrier quote entry;
-- carrier quote application from accepted AI extraction;
-- carrier quote application from validated form autofill run;
-- quote normalization;
-- quote validation;
-- quote scoring;
-- quote comparison;
-- visible score explanation;
-- user carrier selection;
-- logistics update after selection;
+- logistics records list/detail/edit;
+- logistics status resolver;
+- manual logistics update;
+- goods receiving workflow;
+- received quantity updates;
+- receiving discrepancy detection;
+- supplier order status updates after receiving;
+- inbound order item receiving updates;
+- logistics delay monitoring;
+- database notifications;
+- notification center;
+- logistics CSV export;
+- Google Sheets sync placeholder;
+- health check command;
+- security check service;
 - audit logs;
 - tests and docs.
 
-Carrier must never be selected automatically.
-Lowest price must not automatically win if delivery date is bad.
+The logistics workflow completes the operational chain:
+order proposal -> supplier order -> supplier confirmation -> carrier selection -> logistics tracking -> receiving -> completed or needs review.
 
 ## Required Reading
 
@@ -41,10 +45,10 @@ Lowest price must not automatically win if delivery date is bad.
 - docs/workflow-map.md
 - docs/status-machines.md
 - docs/decision-log.md
-- docs/email-ai-boundary.md
-- docs/email-form-autofill.md
 - docs/supplier-confirmation-workflow.md
+- docs/transport-workflow.md
 - docs/audit-and-security.md
+- docs/backup-plan.md
 
 ## Non-Negotiable Rules
 
@@ -57,153 +61,134 @@ Lowest price must not automatically win if delivery date is bad.
 - Do not call OpenAI.
 - Do not call external APIs.
 - Do not call real email providers.
+- Do not call real Google Sheets API.
 - Do not call carrier APIs.
-- Do not select carrier automatically.
-- Do not select carrier during scoring.
-- Do not select carrier during comparison.
-- Do not select carrier during quote creation.
-- Do not select carrier from AI extraction automatically.
-- Do not select carrier from form autofill automatically.
-- Do not mark goods in transit.
-- Do not mark goods completed.
-- Do not send booking email automatically.
+- Do not update confirmed_quantity during receiving.
+- Do not mark order completed without received quantities.
+- Do not hide receiving mismatches.
+- Do not change selected carrier during receiving.
+- Do not send external email notifications.
 - Do not commit secrets.
+- Do not commit generated exports or attachments.
 - Do not claim success without checks.
 
 ## Scope
 
 Create or update:
 
-- app/Services/Supply/Transport/CarrierQuoteSourceNormalizer.php
-- app/Services/Supply/Transport/CarrierQuoteValidationService.php
-- app/Services/Supply/Transport/CarrierQuoteApplicationService.php
-- app/Services/Supply/Transport/CarrierQuoteManualService.php
-- app/Services/Supply/Transport/CarrierQuoteFromAiExtractionService.php
-- app/Services/Supply/Transport/CarrierQuoteFromFormAutofillService.php
-- app/Services/Supply/Transport/CarrierQuoteScoringService.php
-- app/Services/Supply/Transport/CarrierQuoteComparisonService.php
-- app/Services/Supply/Transport/CarrierSelectionService.php
-- app/Services/Supply/Transport/CarrierQuoteRequestService.php
-- app/Services/Supply/Transport/TransportLogisticsUpdater.php
-- app/Http/Requests/Supply/StoreManualCarrierQuoteRequest.php
-- app/Http/Requests/Supply/ApplyAiCarrierQuoteRequest.php
-- app/Http/Requests/Supply/ApplyFormAutofillCarrierQuoteRequest.php
-- app/Http/Requests/Supply/ScoreCarrierQuotesRequest.php
-- app/Http/Requests/Supply/SelectCarrierQuoteRequest.php
-- app/Http/Requests/Supply/RejectCarrierQuoteRequest.php
-- app/Http/Requests/Supply/PrepareCarrierQuoteRequestRequest.php
-- app/Policies/CarrierPolicy.php
-- app/Policies/CarrierQuotePolicy.php
-- app/Policies/AiEmailExtractionPolicy.php update
-- app/Policies/FormAutofillRunPolicy.php update
-- app/Http/Controllers/Supply/CarrierController.php
-- app/Http/Controllers/Supply/CarrierQuoteController.php
-- app/Http/Controllers/Supply/ManualCarrierQuoteController.php
-- app/Http/Controllers/Supply/ApplyAiCarrierQuoteController.php
-- app/Http/Controllers/Supply/ApplyFormAutofillCarrierQuoteController.php
-- app/Http/Controllers/Supply/CarrierQuoteScoringController.php
-- app/Http/Controllers/Supply/CarrierSelectionController.php
-- app/Http/Controllers/Supply/CarrierQuoteRejectionController.php
-- app/Http/Controllers/Supply/CarrierQuoteRequestController.php
+- app/Services/Supply/Logistics/LogisticsStatusResolver.php
+- app/Services/Supply/Logistics/LogisticsRecordService.php
+- app/Services/Supply/Logistics/LogisticsReceivingDiscrepancyService.php
+- app/Services/Supply/Logistics/LogisticsReceivingService.php
+- app/Services/Supply/Logistics/LogisticsDelayMonitoringService.php
+- app/Services/Supply/Logistics/LogisticsExportService.php
+- app/Services/Supply/Logistics/LogisticsGoogleSheetsSyncService.php
+- app/Services/Supply/Logistics/NotificationRecipientResolver.php
+- app/Services/Supply/Logistics/LogisticsNotificationService.php
+- app/Services/Supply/Logistics/SupplyHealthCheckService.php
+- app/Services/Supply/Logistics/SupplySecurityCheckService.php
+- app/Notifications/SupplyDatabaseNotification.php
+- app/Console/Commands/MonitorLogisticsCommand.php
+- app/Console/Commands/SupplyHealthCheckCommand.php
+- app/Http/Requests/Supply/UpdateLogisticsRecordRequest.php
+- app/Http/Requests/Supply/UpdateLogisticsStatusRequest.php
+- app/Http/Requests/Supply/RecordGoodsReceiptRequest.php
+- app/Http/Requests/Supply/ExportLogisticsRequest.php
+- app/Http/Requests/Supply/SyncLogisticsGoogleSheetsRequest.php
+- app/Policies/LogisticsRecordPolicy.php
+- app/Policies/NotificationPolicy.php optional
+- app/Http/Controllers/Supply/LogisticsController.php
+- app/Http/Controllers/Supply/LogisticsStatusController.php
+- app/Http/Controllers/Supply/GoodsReceiptController.php
+- app/Http/Controllers/Supply/LogisticsExportController.php
+- app/Http/Controllers/Supply/LogisticsGoogleSheetsSyncController.php
+- app/Http/Controllers/Supply/NotificationCenterController.php
+- app/Http/Controllers/Supply/NotificationReadController.php
+- app/Http/Controllers/Supply/HealthCheckController.php
 - routes/web.php
-- resources/views/supply/carriers/*
-- resources/views/supply/transport/quotes/*
-- resources/views/supply/transport/quote-requests/*
-- resources/views/supply/transport/partials/*
-- resources/views/supply/supplier-orders/show.blade.php update
-- resources/views/supply/ai-extractions/show.blade.php update
-- resources/views/supply/form-autofill-runs/show.blade.php update
-- tests/Unit/CarrierQuoteSourceNormalizerTest.php
-- tests/Unit/CarrierQuoteValidationServiceTest.php
-- tests/Feature/CarrierQuoteScoringServiceTest.php
-- tests/Feature/CarrierQuoteComparisonServiceTest.php
-- tests/Feature/CarrierQuoteApplicationServiceTest.php
-- tests/Feature/CarrierQuoteFromAiExtractionServiceTest.php
-- tests/Feature/CarrierQuoteFromFormAutofillServiceTest.php
-- tests/Feature/CarrierSelectionServiceTest.php
-- tests/Feature/CarrierQuoteRequestServiceTest.php
-- tests/Feature/TransportControllerTest.php
-- tests/Feature/CarrierQuoteControllerTest.php
-- tests/Feature/CarrierSelectionControllerTest.php
-- tests/Unit/TransportBoundaryTest.php
-- tests/Unit/NoDtoRuleTest.php update
-- docs/transport-workflow.md
-- docs/transport-module-implementation-notes.md
+- resources/views/supply/logistics/*
+- resources/views/supply/notifications/*
+- resources/views/supply/health/*
+- config/supply.php
+- .env.example
+- tests for services, commands, controllers, boundary and no DTO rules
+- docs/logistics-workflow.md
+- docs/logistics-workflow-implementation-notes.md
 - docs/workflow-map.md update
 - docs/status-machines.md update
-- docs/email-ai-boundary.md update
-- docs/email-form-autofill.md update
-- docs/implementation-roadmap.md update
 - docs/audit-and-security.md update
+- docs/backup-plan.md update/create
+- docs/implementation-roadmap.md update
 
 ## Out Of Scope
 
 Do not implement:
+- real Google Sheets API;
+- real ERP API;
 - real carrier API;
-- automatic transport booking;
-- automatic carrier selection;
-- goods receiving workflow;
-- full logistics dashboard;
-- invoice/proforma workflow;
-- real external email provider;
-- real AI calls;
-- OpenAI integration;
-- Google Sheets sync.
+- invoice/proforma accounting;
+- warehouse barcode scanning;
+- AI-based receiving decisions;
+- automatic external email alerts;
+- production scheduler installation on server;
+- destructive backup scripts.
 
 ## Required Implementation
 
-Implement carrier quote workflow.
+Implement logistics and receiving workflow.
 
 User must be able to:
-- view carriers;
-- create/edit carrier;
-- view carrier quotes;
-- open carrier quote detail;
-- add manual carrier quote for supplier order;
-- apply accepted AI extraction as carrier quote candidate;
-- apply validated form autofill run as carrier quote candidate;
-- validate quote data;
-- score quote;
-- compare quotes for supplier order;
-- see score explanation;
-- see warning that recommendation is not automatic selection;
-- select carrier manually with confirmation;
-- override needs_review quote only with explicit reason;
-- update logistics after user selection;
-- reject quote;
-- prepare carrier quote request draft without sending automatically.
+- open logistics dashboard;
+- filter logistics records;
+- open logistics record detail;
+- manually update logistics status/dates with reason;
+- record goods received;
+- update received quantities;
+- detect receiving mismatches;
+- confirm mismatches with note;
+- update inbound received quantities where linked;
+- see logistics status changes;
+- receive database notifications;
+- run delay monitoring command;
+- run health check command;
+- export logistics CSV;
+- see Google Sheets sync placeholder;
+- see audit history.
 
 ## Required Tests
 
 Create or update:
-- CarrierQuoteSourceNormalizerTest
-- CarrierQuoteValidationServiceTest
-- CarrierQuoteScoringServiceTest
-- CarrierQuoteComparisonServiceTest
-- CarrierQuoteApplicationServiceTest
-- CarrierQuoteFromAiExtractionServiceTest
-- CarrierQuoteFromFormAutofillServiceTest
-- CarrierSelectionServiceTest
-- CarrierQuoteRequestServiceTest
-- TransportControllerTest
-- CarrierQuoteControllerTest
-- CarrierSelectionControllerTest
-- TransportBoundaryTest
+- LogisticsStatusResolverTest
+- LogisticsRecordServiceTest
+- LogisticsReceivingDiscrepancyServiceTest
+- LogisticsReceivingServiceTest
+- LogisticsDelayMonitoringServiceTest
+- MonitorLogisticsCommandTest
+- LogisticsNotificationServiceTest
+- LogisticsExportServiceTest
+- SupplyHealthCheckServiceTest
+- SupplySecurityCheckServiceTest
+- SupplyHealthCheckCommandTest
+- SupplyHealthPageTest
+- LogisticsControllerTest
+- GoodsReceiptControllerTest
+- NotificationCenterControllerTest
+- HealthCheckControllerTest
+- LogisticsBoundaryTest
 - NoDtoRuleTest
 
 ## Required Documentation
 
 Create:
-- docs/transport-workflow.md
-- docs/transport-module-implementation-notes.md
+- docs/logistics-workflow.md
+- docs/logistics-workflow-implementation-notes.md
 
 Update:
 - docs/workflow-map.md
 - docs/status-machines.md
-- docs/email-ai-boundary.md
-- docs/email-form-autofill.md
-- docs/implementation-roadmap.md
 - docs/audit-and-security.md
+- docs/backup-plan.md
+- docs/implementation-roadmap.md
 
 ## Acceptance Criteria
 
@@ -213,53 +198,62 @@ Update:
 - [ ] docs/current-task-read-confirmation.md created.
 - [ ] docs/current-task-progress.md created.
 - [ ] Optional safe migrations added if missing fields block implementation.
-- [ ] CarrierQuoteSourceNormalizer created.
-- [ ] CarrierQuoteValidationService created.
-- [ ] CarrierQuoteApplicationService created.
-- [ ] CarrierQuoteManualService created.
-- [ ] CarrierQuoteFromAiExtractionService created.
-- [ ] CarrierQuoteFromFormAutofillService created.
-- [ ] CarrierQuoteScoringService created.
-- [ ] CarrierQuoteComparisonService created.
-- [ ] CarrierSelectionService created.
-- [ ] CarrierQuoteRequestService created.
-- [ ] TransportLogisticsUpdater created.
-- [ ] Manual quote entry implemented.
-- [ ] Accepted AI extraction can create quote candidate.
-- [ ] Unaccepted AI extraction cannot create quote.
-- [ ] Validated form autofill run can create quote candidate.
-- [ ] Unvalidated form autofill run cannot create quote.
-- [ ] Quote creation does not select carrier.
-- [ ] Scoring does not select carrier.
-- [ ] Comparison does not select carrier.
-- [ ] Lowest price does not automatically win when date is bad.
-- [ ] Score explanation includes price/date/reliability/penalties.
-- [ ] User carrier selection implemented.
-- [ ] Needs_review quote cannot be selected without override reason.
-- [ ] Existing selected quote replacement requires replace_existing option.
-- [ ] LogisticsRecord updates only after carrier selection.
-- [ ] Quote request draft does not send real email automatically.
+- [ ] LogisticsStatusResolver created.
+- [ ] LogisticsRecordService created.
+- [ ] LogisticsReceivingDiscrepancyService created.
+- [ ] LogisticsReceivingService created.
+- [ ] LogisticsDelayMonitoringService created.
+- [ ] LogisticsExportService created.
+- [ ] LogisticsGoogleSheetsSyncService placeholder created.
+- [ ] NotificationRecipientResolver created.
+- [ ] LogisticsNotificationService created.
+- [ ] SupplyHealthCheckService created.
+- [ ] SupplySecurityCheckService created.
+- [ ] SupplyDatabaseNotification created.
+- [ ] MonitorLogisticsCommand created.
+- [ ] SupplyHealthCheckCommand created.
+- [ ] Manual logistics update implemented.
+- [ ] Manual logistics update requires reason.
+- [ ] Goods receiving implemented.
+- [ ] Receiving updates SupplierOrderItem.received_quantity.
+- [ ] Receiving updates InboundOrderItem.received_quantity where linked.
+- [ ] Receiving does not update confirmed_quantity.
+- [ ] Receiving mismatch detection implemented.
+- [ ] Receiving mismatch requires confirmation or marks needs_review.
+- [ ] Logistics status resolver implemented.
+- [ ] Delay monitoring implemented.
+- [ ] Goods expected soon notification implemented.
+- [ ] Missing ready date notification implemented.
+- [ ] Database notifications implemented or skipped with documented reason.
+- [ ] Notification center UI implemented.
+- [ ] Logistics CSV export implemented.
+- [ ] Google Sheets sync placeholder throws NotConfiguredYetException.
+- [ ] Health check command implemented.
+- [ ] Security check implemented.
 - [ ] FormRequests created.
-- [ ] Policies created/updated.
+- [ ] Policies created.
 - [ ] Controllers created.
 - [ ] Routes created.
-- [ ] Views created/updated.
-- [ ] Supplier order show page has transport panel.
-- [ ] AI extraction show page has apply carrier quote panel only when accepted and compatible.
-- [ ] Form autofill run show page has apply carrier quote panel only when validated and compatible.
+- [ ] Views created.
+- [ ] Supplier order show page has logistics/receiving panel.
+- [ ] Supplier confirmation show page links logistics record.
+- [ ] Transport quote show page links logistics record when selected.
 - [ ] Audit events written.
 - [ ] Tests created.
-- [ ] Boundary test confirms no AI/external/carrier API/email sending.
-- [ ] Boundary test confirms only CarrierSelectionService selects carrier.
+- [ ] Boundary test confirms no AI/external APIs/real email.
+- [ ] Boundary test confirms Google Sheets is placeholder only.
+- [ ] Boundary test confirms receiving does not update confirmed_quantity.
 - [ ] No DTO test updated.
-- [ ] docs/transport-workflow.md created.
-- [ ] docs/transport-module-implementation-notes.md created.
+- [ ] docs/logistics-workflow.md created.
+- [ ] docs/logistics-workflow-implementation-notes.md created.
 - [ ] docs/workflow-map.md updated.
 - [ ] docs/status-machines.md updated.
-- [ ] docs/email-ai-boundary.md updated.
-- [ ] docs/email-form-autofill.md updated.
+- [ ] docs/audit-and-security.md updated.
+- [ ] docs/backup-plan.md updated or created.
 - [ ] docs/implementation-roadmap.md updated.
 - [ ] php artisan migrate:fresh --seed passed or blocker documented.
+- [ ] php artisan supply:monitor-logistics --dry-run passed or blocker documented.
+- [ ] php artisan supply:health-check passed or blocker documented.
 - [ ] ./scripts/check-no-dto.sh passed.
 - [ ] ./scripts/check-no-secrets.sh passed.
 - [ ] ./scripts/check-project-docs.sh passed.
@@ -268,6 +262,7 @@ Update:
 - [ ] npm build passed if applicable.
 - [ ] No secrets committed.
 - [ ] No DTO created.
+- [ ] No generated exports committed.
 - [ ] git status reviewed.
 - [ ] Commit created.
 - [ ] Push attempted.
@@ -278,6 +273,8 @@ Update:
 ./scripts/check-no-secrets.sh
 ./scripts/check-project-docs.sh
 php artisan migrate:fresh --seed
+php artisan supply:monitor-logistics --dry-run
+php artisan supply:health-check
 php artisan test
 
 Optional:
@@ -286,4 +283,4 @@ npm run build
 
 ## Commit Message
 
-Add transport quote scoring and carrier selection workflow
+Add logistics dashboard receiving notifications and health checks

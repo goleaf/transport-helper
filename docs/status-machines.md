@@ -175,3 +175,26 @@ Transitions:
 * completed
 * cancelled
 * needs_review
+
+Transitions:
+
+* planned -> order_sent after supplier order email is sent;
+* order_sent -> confirmed after supplier confirmation is applied;
+* confirmed -> waiting_for_ready_date when confirmation exists but ready date is missing;
+* confirmed -> ready_for_pickup when ready date is reached and pickup is not scheduled;
+* ready_for_pickup -> pickup_scheduled after user selects carrier with pickup date;
+* pickup_scheduled -> in_transit by manual logistics update when goods are picked up;
+* in_transit -> arrived when receipt is recorded but not fully reconciled;
+* arrived -> completed when received quantities reconcile;
+* any open status -> delayed when date monitoring detects late ready/pickup/delivery;
+* any open status -> needs_review when critical data, date conflicts or receiving mismatches require review;
+* any open status -> cancelled by manual logistics update where allowed;
+* delayed -> completed after receipt;
+* needs_review -> completed only after manual resolution and reconciled receipt.
+
+SupplierOrder after receiving:
+
+* confirmed -> completed after all received quantities reconcile;
+* partially_confirmed -> needs_review or completed depending receiving result;
+* needs_review -> completed only after manual resolution and reconciled receipt;
+* receiving never updates confirmed quantities.

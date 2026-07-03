@@ -33,3 +33,13 @@ it('transport workflow does not introduce dto style data objects', function () {
 
     expect($files->filter(fn (string $file): bool => str_contains($file, 'DTO') || str_contains($file, 'Dto'))->values()->all())->toBe([]);
 });
+
+it('logistics workflow does not introduce dto style data objects', function () {
+    $path = dirname(__DIR__, 2).'/app/Services/Supply/Logistics';
+
+    $files = collect(new RecursiveIteratorIterator(new RecursiveDirectoryIterator($path)))
+        ->filter(fn (SplFileInfo $file): bool => $file->isFile())
+        ->map(fn (SplFileInfo $file): string => $file->getPathname());
+
+    expect($files->filter(fn (string $file): bool => str_contains($file, 'DTO') || str_contains($file, 'Dto'))->values()->all())->toBe([]);
+});

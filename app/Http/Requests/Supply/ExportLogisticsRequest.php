@@ -4,7 +4,6 @@ namespace App\Http\Requests\Supply;
 
 use App\Enums\LogisticsStatus;
 use App\Models\LogisticsRecord;
-use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -16,14 +15,17 @@ class ExportLogisticsRequest extends FormRequest
     }
 
     /**
-     * @return array<string, ValidationRule|array<mixed>|string>
+     * @return array<string, mixed>
      */
     public function rules(): array
     {
         return [
-            'company_id' => ['nullable', 'integer', 'exists:companies,id'],
             'status' => ['nullable', 'string', Rule::in(array_column(LogisticsStatus::cases(), 'value'))],
-            'limit' => ['nullable', 'integer', 'min:1', 'max:5000'],
+            'supplier_id' => ['nullable', 'integer', 'exists:suppliers,id'],
+            'carrier_id' => ['nullable', 'integer', 'exists:carriers,id'],
+            'date_from' => ['nullable', 'date'],
+            'date_to' => ['nullable', 'date'],
+            'delayed_only' => ['nullable', 'boolean'],
         ];
     }
 }

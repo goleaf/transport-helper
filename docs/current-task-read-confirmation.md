@@ -16,41 +16,41 @@
 - docs/workflow-map.md
 - docs/status-machines.md
 - docs/decision-log.md
-- docs/email-ai-boundary.md
-- docs/email-form-autofill.md
 - docs/supplier-confirmation-workflow.md
+- docs/transport-workflow.md
 - docs/audit-and-security.md
+- docs/backup-plan.md
 
 ## Headings Found In Current Task
 
-- # Current Task
-- ## Task Title
-- ## Task Goal
-- ## Required Reading
-- ## Non-Negotiable Rules
-- ## Scope
-- ## Out Of Scope
-- ## Required Implementation
-- ## Required Tests
-- ## Required Documentation
-- ## Acceptance Criteria
-- ## Required Commands
-- ## Commit Message
+- Current Task
+- Task Title
+- Task Goal
+- Required Reading
+- Non-Negotiable Rules
+- Scope
+- Out Of Scope
+- Required Implementation
+- Required Tests
+- Required Documentation
+- Acceptance Criteria
+- Required Commands
+- Commit Message
 
 ## Understanding
 
-- Task Title: This task is the transport module with carrier quote collection, scoring, comparison and user-only carrier selection.
-- Task Goal: The workflow creates quote candidates, scores and compares them, then updates logistics only after explicit user selection.
-- Required Reading: The implementation must follow project rules, domain docs and prior AI/form/supplier confirmation boundaries.
-- Non-Negotiable Rules: No DTOs, external APIs, real AI/email/carrier calls, automatic selection, booking email or goods status automation.
-- Scope: The task spans transport services, FormRequests, policies, controllers, routes, views, tests and transport docs.
-- Out Of Scope: Real carrier integrations, automatic booking/selection, receiving, invoice workflow and AI/email integrations remain excluded.
-- Required Implementation: Users must manage carriers/quotes, create candidates from approved sources, score/compare quotes, select manually and prepare unsent request drafts.
-- Required Tests: Unit and feature tests must cover normalization, validation, scoring, comparison, application, selection, controllers, boundaries and no DTO rules.
-- Required Documentation: Transport workflow docs are created and workflow/status/boundary/audit/roadmap docs are updated.
-- Acceptance Criteria: The checklist captures all required files, behaviors, safety boundaries, verification commands, commit and push.
-- Required Commands: No DTO, no secrets, project docs, migration/seed, full tests, Pint and npm build must be run where applicable.
-- Commit Message: The required commit message is "Add transport quote scoring and carrier selection workflow".
+- Task Title: Implement the logistics, receiving, notification, delay monitoring and health-check slice.
+- Task Goal: Complete the operational chain after carrier selection through tracking, receiving, mismatches, notifications, exports and checks.
+- Required Reading: The work is governed by repo rules, no-DTO/no-secrets rules and the existing supplier confirmation and transport docs.
+- Non-Negotiable Rules: No AI, OpenAI, external APIs, real email, real Google Sheets, hidden mismatches, or confirmed quantity changes during receiving.
+- Scope: Add the new `App\Services\Supply\Logistics` workflow layer plus requests, policies, controllers, routes, views, commands, tests and docs.
+- Out Of Scope: Real integrations, accounting, barcode workflows, AI receiving decisions and production scheduler installation are excluded.
+- Required Implementation: Users must review logistics, update status with reasons, receive goods, see discrepancies, receive database notifications, run commands and export CSV.
+- Required Tests: Unit and feature tests must cover status, receiving, delay monitoring, notifications, exports, health/security, controllers and boundaries.
+- Required Documentation: Create logistics workflow docs and update workflow/status/audit/backup/roadmap docs.
+- Acceptance Criteria: The checklist below controls completion and verification.
+- Required Commands: The task requires no-DTO/no-secrets/project-doc scripts, migrate/seed, logistics monitor, health check and full tests.
+- Commit Message: Use `Add logistics dashboard receiving notifications and health checks`.
 
 ## Acceptance Criteria Copied
 
@@ -60,53 +60,62 @@
 - [ ] docs/current-task-read-confirmation.md created.
 - [ ] docs/current-task-progress.md created.
 - [ ] Optional safe migrations added if missing fields block implementation.
-- [ ] CarrierQuoteSourceNormalizer created.
-- [ ] CarrierQuoteValidationService created.
-- [ ] CarrierQuoteApplicationService created.
-- [ ] CarrierQuoteManualService created.
-- [ ] CarrierQuoteFromAiExtractionService created.
-- [ ] CarrierQuoteFromFormAutofillService created.
-- [ ] CarrierQuoteScoringService created.
-- [ ] CarrierQuoteComparisonService created.
-- [ ] CarrierSelectionService created.
-- [ ] CarrierQuoteRequestService created.
-- [ ] TransportLogisticsUpdater created.
-- [ ] Manual quote entry implemented.
-- [ ] Accepted AI extraction can create quote candidate.
-- [ ] Unaccepted AI extraction cannot create quote.
-- [ ] Validated form autofill run can create quote candidate.
-- [ ] Unvalidated form autofill run cannot create quote.
-- [ ] Quote creation does not select carrier.
-- [ ] Scoring does not select carrier.
-- [ ] Comparison does not select carrier.
-- [ ] Lowest price does not automatically win when date is bad.
-- [ ] Score explanation includes price/date/reliability/penalties.
-- [ ] User carrier selection implemented.
-- [ ] Needs_review quote cannot be selected without override reason.
-- [ ] Existing selected quote replacement requires replace_existing option.
-- [ ] LogisticsRecord updates only after carrier selection.
-- [ ] Quote request draft does not send real email automatically.
+- [ ] LogisticsStatusResolver created.
+- [ ] LogisticsRecordService created.
+- [ ] LogisticsReceivingDiscrepancyService created.
+- [ ] LogisticsReceivingService created.
+- [ ] LogisticsDelayMonitoringService created.
+- [ ] LogisticsExportService created.
+- [ ] LogisticsGoogleSheetsSyncService placeholder created.
+- [ ] NotificationRecipientResolver created.
+- [ ] LogisticsNotificationService created.
+- [ ] SupplyHealthCheckService created.
+- [ ] SupplySecurityCheckService created.
+- [ ] SupplyDatabaseNotification created.
+- [ ] MonitorLogisticsCommand created.
+- [ ] SupplyHealthCheckCommand created.
+- [ ] Manual logistics update implemented.
+- [ ] Manual logistics update requires reason.
+- [ ] Goods receiving implemented.
+- [ ] Receiving updates SupplierOrderItem.received_quantity.
+- [ ] Receiving updates InboundOrderItem.received_quantity where linked.
+- [ ] Receiving does not update confirmed_quantity.
+- [ ] Receiving mismatch detection implemented.
+- [ ] Receiving mismatch requires confirmation or marks needs_review.
+- [ ] Logistics status resolver implemented.
+- [ ] Delay monitoring implemented.
+- [ ] Goods expected soon notification implemented.
+- [ ] Missing ready date notification implemented.
+- [ ] Database notifications implemented or skipped with documented reason.
+- [ ] Notification center UI implemented.
+- [ ] Logistics CSV export implemented.
+- [ ] Google Sheets sync placeholder throws NotConfiguredYetException.
+- [ ] Health check command implemented.
+- [ ] Security check implemented.
 - [ ] FormRequests created.
-- [ ] Policies created/updated.
+- [ ] Policies created.
 - [ ] Controllers created.
 - [ ] Routes created.
-- [ ] Views created/updated.
-- [ ] Supplier order show page has transport panel.
-- [ ] AI extraction show page has apply carrier quote panel only when accepted and compatible.
-- [ ] Form autofill run show page has apply carrier quote panel only when validated and compatible.
+- [ ] Views created.
+- [ ] Supplier order show page has logistics/receiving panel.
+- [ ] Supplier confirmation show page links logistics record.
+- [ ] Transport quote show page links logistics record when selected.
 - [ ] Audit events written.
 - [ ] Tests created.
-- [ ] Boundary test confirms no AI/external/carrier API/email sending.
-- [ ] Boundary test confirms only CarrierSelectionService selects carrier.
+- [ ] Boundary test confirms no AI/external APIs/real email.
+- [ ] Boundary test confirms Google Sheets is placeholder only.
+- [ ] Boundary test confirms receiving does not update confirmed_quantity.
 - [ ] No DTO test updated.
-- [ ] docs/transport-workflow.md created.
-- [ ] docs/transport-module-implementation-notes.md created.
+- [ ] docs/logistics-workflow.md created.
+- [ ] docs/logistics-workflow-implementation-notes.md created.
 - [ ] docs/workflow-map.md updated.
 - [ ] docs/status-machines.md updated.
-- [ ] docs/email-ai-boundary.md updated.
-- [ ] docs/email-form-autofill.md updated.
+- [ ] docs/audit-and-security.md updated.
+- [ ] docs/backup-plan.md updated or created.
 - [ ] docs/implementation-roadmap.md updated.
 - [ ] php artisan migrate:fresh --seed passed or blocker documented.
+- [ ] php artisan supply:monitor-logistics --dry-run passed or blocker documented.
+- [ ] php artisan supply:health-check passed or blocker documented.
 - [ ] ./scripts/check-no-dto.sh passed.
 - [ ] ./scripts/check-no-secrets.sh passed.
 - [ ] ./scripts/check-project-docs.sh passed.
@@ -115,6 +124,7 @@
 - [ ] npm build passed if applicable.
 - [ ] No secrets committed.
 - [ ] No DTO created.
+- [ ] No generated exports committed.
 - [ ] git status reviewed.
 - [ ] Commit created.
 - [ ] Push attempted.

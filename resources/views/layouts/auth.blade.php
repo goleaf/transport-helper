@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>@yield('title', 'Sign in') - Supply / Procurement Agent</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' rx='3' fill='%230f766e'/%3E%3Cpath d='M4 8h8M8 4v8' stroke='white' stroke-width='1.5'/%3E%3C/svg%3E">
+
+    @fonts
+
+    @if (file_exists(public_path('build/manifest.json')) || file_exists(public_path('hot')))
+        @vite(['resources/css/app.scss', 'resources/js/app.js'])
+    @endif
+</head>
+<body>
+    <a class="skip-link" href="#content">Skip to content</a>
+
+    <main id="content" class="auth-shell">
+        @yield('content')
+    </main>
+</body>
+</html>

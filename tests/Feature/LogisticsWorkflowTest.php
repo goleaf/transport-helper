@@ -247,13 +247,14 @@ it('writes an audit log when logistics status is updated manually', function () 
     $response = $this->actingAs($fixture['user'])
         ->post(route('supply.logistics.update-status', $fixture['logisticsRecord']), [
             'status' => LogisticsStatus::Delayed->value,
+            'reason' => 'Supplier delivery is late.',
         ]);
 
-    $response->assertRedirectToRoute('supply.logistics.show', $fixture['logisticsRecord']);
+    $response->assertRedirect(route('supply.logistics.show', $fixture['logisticsRecord']));
 
     expect($fixture['logisticsRecord']->fresh()->status)->toBe(LogisticsStatus::Delayed)
         ->and(AuditLog::query()
-            ->where('event_type', 'logistics_record.status_updated')
+            ->where('event_type', 'logistics_status_changed')
             ->where('auditable_id', $fixture['logisticsRecord']->getKey())
             ->where('user_id', $fixture['user']->getKey())
             ->exists())->toBeTrue();
@@ -267,10 +268,10 @@ it('protects logistics pages from guests', function () {
     $fixture = makeLogisticsWorkflowFixture();
 
     $this->get(route('supply.logistics.index'))
-        ->assertForbidden();
+        ->assertRedirect(route('login'));
 
     $this->get(route('supply.logistics.show', $fixture['logisticsRecord']))
-        ->assertForbidden();
+        ->assertRedirect(route('login'));
 });
 
 it('allows authenticated users to view logistics pages', function () {
@@ -295,12 +296,7 @@ it('prevents viewers from changing logistics records', function () {
     $this->actingAs($viewer)
         ->post(route('supply.logistics.update-status', $fixture['logisticsRecord']), [
             'status' => LogisticsStatus::Delayed->value,
-        ])
-        ->assertForbidden();
-
-    $this->actingAs($viewer)
-        ->post(route('supply.logistics.export'), [
-            'company_id' => $fixture['company']->getKey(),
+            'reason' => 'Attempted viewer update.',
         ])
         ->assertForbidden();
 

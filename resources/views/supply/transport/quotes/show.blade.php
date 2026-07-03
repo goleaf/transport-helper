@@ -30,6 +30,22 @@ Carrier Quote
 </section>
 
 <section>
+    <h2>Linked Logistics</h2>
+    @forelse ($quote->supplierOrder?->logisticsRecords ?? [] as $record)
+        @if ((int) $record->selected_carrier_quote_id === (int) $quote->id)
+            <p>
+                <a href="{{ route('supply.logistics.show', $record) }}">Logistics record #{{ $record->id }}</a>
+                @include('supply.logistics.partials.status-badge', ['status' => $record->status])
+                Pickup {{ $record->pickup_date?->toDateString() ?? 'not set' }},
+                delivery {{ $record->delivery_date?->toDateString() ?? 'not set' }}.
+            </p>
+        @endif
+    @empty
+        <p>No logistics record linked.</p>
+    @endforelse
+</section>
+
+<section>
     <h2>Score explanation</h2>
     @include('supply.transport.partials.score-explanation', ['explanation' => $quote->score_explanation_json])
 </section>

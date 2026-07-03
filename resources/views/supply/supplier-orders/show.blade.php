@@ -67,6 +67,34 @@ Supplier Order {{ $order->order_number }}
     </dl>
 </section>
 
+<section>
+    <h2>Logistics and Receiving</h2>
+    @if ($firstLogisticsRecord)
+        <dl>
+            <dt>Status</dt>
+            <dd>@include('supply.logistics.partials.status-badge', ['status' => $firstLogisticsRecord->status])</dd>
+            <dt>Ready date</dt>
+            <dd>{{ $firstLogisticsRecord->ready_date?->toDateString() ?? 'Not set' }}</dd>
+            <dt>Pickup date</dt>
+            <dd>{{ $firstLogisticsRecord->pickup_date?->toDateString() ?? 'Not set' }}</dd>
+            <dt>Delivery date</dt>
+            <dd>{{ $firstLogisticsRecord->delivery_date?->toDateString() ?? 'Not set' }}</dd>
+            <dt>Actual received date</dt>
+            <dd>{{ $firstLogisticsRecord->actual_received_date?->toDateString() ?? 'Not received' }}</dd>
+            <dt>Carrier</dt>
+            <dd>{{ $firstLogisticsRecord->carrier?->name ?? 'Not selected' }}</dd>
+            <dt>Transport price</dt>
+            <dd>{{ $firstLogisticsRecord->transport_price }} {{ $firstLogisticsRecord->currency }}</dd>
+        </dl>
+        <p>
+            <a href="{{ route('supply.logistics.show', $firstLogisticsRecord) }}">Open logistics record</a>
+            <a href="{{ route('supply.logistics.receive.create', $firstLogisticsRecord) }}">Receive goods</a>
+        </p>
+    @else
+        <p>No logistics record is linked yet.</p>
+    @endif
+</section>
+
         @include('supply.supplier-orders.partials.items-table', ['order' => $order])
         <section>
             <h2>Supplier confirmations</h2>
@@ -94,7 +122,7 @@ Supplier Order {{ $order->order_number }}
                             <td>{{ $confirmation->ready_date?->toDateString() }}</td>
                             <td>{{ $confirmation->expected_arrival_date?->toDateString() }}</td>
                             <td>{{ $confirmation->discrepancy_summary }}</td>
-                            <td><a href="{{ route('supply.supplier-confirmations.show', $confirmation) }}">Open</a></td>
+                            <td><x-supply.table-action :href="route('supply.supplier-confirmations.show', $confirmation)" label="Open" /></td>
                         </tr>
                     @empty
                         <tr>

@@ -38,6 +38,20 @@ Supplier Confirmation {{ $confirmation->id }}
     </dl>
 </section>
 
+<section>
+    <h2>Logistics</h2>
+    @forelse ($confirmation->supplierOrder?->logisticsRecords ?? [] as $record)
+        <p>
+            <a href="{{ route('supply.logistics.show', $record) }}">Logistics record #{{ $record->id }}</a>
+            @include('supply.logistics.partials.status-badge', ['status' => $record->status])
+            Ready {{ $record->ready_date?->toDateString() ?? 'not set' }},
+            delivery {{ $record->delivery_date?->toDateString() ?? 'not set' }}.
+        </p>
+    @empty
+        <p>No logistics record linked.</p>
+    @endforelse
+</section>
+
 @include('supply.supplier-confirmations.partials.source-panel', ['confirmation' => $confirmation])
 @include('supply.supplier-confirmations.partials.discrepancies', ['confirmation' => $confirmation])
 @include('supply.supplier-confirmations.partials.items-table', ['confirmation' => $confirmation])

@@ -217,12 +217,30 @@ Implementation:
 
 ## Step 12. Logistics And Receiving
 
+Status: implemented in Task 12.
+
 Result:
 
 * logistics dashboard;
 * delay monitoring;
 * receiving;
-* notifications.
+* notifications;
+* health checks.
+
+Implementation:
+
+* logistics dashboard/detail/edit screens added;
+* manual logistics update with required reason added;
+* logistics status resolver added;
+* goods receiving updates received quantities only;
+* receiving mismatches are detected and require confirmation;
+* linked inbound order items are updated where available;
+* delay monitoring command added with dry-run and JSON modes;
+* database notification center added;
+* private logistics CSV exports added;
+* Google Sheets sync placeholder added with no external call;
+* supply health and security checks added;
+* audit events and focused tests added.
 
 ## Step 13. Production Readiness
 

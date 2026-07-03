@@ -10,6 +10,46 @@ class LogisticsRecordPolicy
 {
     public function viewAny(User $user): bool
     {
+        return $this->canView($user);
+    }
+
+    public function view(User $user, LogisticsRecord $logisticsRecord): bool
+    {
+        return $this->canView($user);
+    }
+
+    public function update(User $user, LogisticsRecord $logisticsRecord): bool
+    {
+        return $this->canManage($user);
+    }
+
+    public function updateStatus(User $user, LogisticsRecord $logisticsRecord): bool
+    {
+        return $this->canManage($user);
+    }
+
+    public function recordReceipt(User $user, LogisticsRecord $logisticsRecord): bool
+    {
+        return $this->canManage($user);
+    }
+
+    public function export(User $user): bool
+    {
+        return $this->canView($user) || $this->canManage($user);
+    }
+
+    public function sync(User $user): bool
+    {
+        return $this->canManage($user) || $user->hasPermissionTo('manage_integrations');
+    }
+
+    public function syncGoogleSheets(User $user): bool
+    {
+        return $this->sync($user);
+    }
+
+    private function canView(User $user): bool
+    {
         return $user->hasAnyRole([
             UserRole::Admin,
             UserRole::SupplyManager,
@@ -19,43 +59,8 @@ class LogisticsRecordPolicy
         ]) || $user->hasPermissionTo('view_logistics');
     }
 
-    public function view(User $user, LogisticsRecord $logisticsRecord): bool
+    private function canManage(User $user): bool
     {
-        return $this->viewAny($user);
-    }
-
-    public function create(User $user): bool
-    {
-        return $user->canManageLogisticsWorkflow();
-    }
-
-    public function update(User $user, LogisticsRecord $logisticsRecord): bool
-    {
-        return $user->canManageLogisticsWorkflow();
-    }
-
-    public function export(User $user): bool
-    {
-        return $user->canManageLogisticsWorkflow();
-    }
-
-    public function syncGoogleSheets(User $user): bool
-    {
-        return $user->canManageLogisticsWorkflow();
-    }
-
-    public function delete(User $user, LogisticsRecord $logisticsRecord): bool
-    {
-        return $user->hasRole(UserRole::Admin);
-    }
-
-    public function restore(User $user, LogisticsRecord $logisticsRecord): bool
-    {
-        return $user->hasRole(UserRole::Admin);
-    }
-
-    public function forceDelete(User $user, LogisticsRecord $logisticsRecord): bool
-    {
-        return $user->hasRole(UserRole::Admin);
+        return $user->canManageLogisticsWorkflow() || $user->hasPermissionTo('manage_logistics');
     }
 }

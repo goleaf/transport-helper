@@ -1,128 +1,124 @@
-<!doctype html>
-<html lang="en">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Logistics Record {{ $record->id }}</title>
-</head>
-<body>
-    <main>
-        <x-supply.navigation />
+@extends('layouts.app')
 
-        <header>
-            <p><a href="{{ route('supply.logistics.index') }}">Back to logistics</a></p>
-            <h1>Logistics Record {{ $record->id }}</h1>
-        </header>
+@section('title')
+Logistics Record {{ $record->id }}
+@endsection
 
-        @if (session('status'))
-            <p>{{ session('status') }}</p>
-        @endif
+@section('content')
+<header>
+    <p><a href="{{ route('supply.logistics.index') }}">Back to logistics</a></p>
+    <h1>Logistics Record {{ $record->id }}</h1>
+    <p>
+        <a href="{{ route('supply.logistics.edit', $record) }}">Edit logistics</a>
+        <a href="{{ route('supply.logistics.receive.create', $record) }}">Record goods received</a>
+    </p>
+</header>
 
-        @if ($errors->any())
-            <section>
-                <h2>Errors</h2>
-                <ul>
-                    @forelse ($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                    @empty
-                        <li>No errors.</li>
-                    @endforelse
-                </ul>
-            </section>
-        @endif
+@if (session('status'))
+    <p>{{ session('status') }}</p>
+@endif
 
-        <section>
-            <h2>Details</h2>
-            <dl>
-                <dt>Company</dt>
-                <dd>{{ $record->company?->name }}</dd>
+@if ($errors->any())
+    <section>
+        <h2>Errors</h2>
+        <ul>
+            @forelse ($errors->all() as $error)
+                <li>{{ $error }}</li>
+            @empty
+                <li>No errors.</li>
+            @endforelse
+        </ul>
+    </section>
+@endif
 
-                <dt>Supplier order</dt>
-                <dd>{{ $record->supplierOrder?->order_number }}</dd>
+<section>
+    <h2>Details</h2>
+    <dl>
+        <dt>Company</dt>
+        <dd>{{ $record->company?->name }}</dd>
 
-                <dt>Supplier</dt>
-                <dd>{{ $record->supplier?->name }}</dd>
+        <dt>Supplier order</dt>
+        <dd>{{ $record->supplierOrder?->order_number }}</dd>
 
-                <dt>Carrier</dt>
-                <dd>{{ $record->carrier?->name }}</dd>
+        <dt>Supplier</dt>
+        <dd>{{ $record->supplier?->name }}</dd>
 
-                <dt>Order date</dt>
-                <dd>{{ $record->order_date?->toDateString() }}</dd>
+        <dt>Carrier</dt>
+        <dd>{{ $record->carrier?->name }}</dd>
 
-                <dt>Confirmation date</dt>
-                <dd>{{ $record->confirmation_date?->toDateString() }}</dd>
+        <dt>Order date</dt>
+        <dd>{{ $record->order_date?->toDateString() }}</dd>
 
-                <dt>Ready date</dt>
-                <dd>{{ $record->ready_date?->toDateString() }}</dd>
+        <dt>Confirmation date</dt>
+        <dd>{{ $record->confirmation_date?->toDateString() }}</dd>
 
-                <dt>Pickup date</dt>
-                <dd>{{ $record->pickup_date?->toDateString() }}</dd>
+        <dt>Ready date</dt>
+        <dd>{{ $record->ready_date?->toDateString() }}</dd>
 
-                <dt>Delivery date</dt>
-                <dd>{{ $record->delivery_date?->toDateString() }}</dd>
+        <dt>Pickup date</dt>
+        <dd>{{ $record->pickup_date?->toDateString() }}</dd>
 
-                <dt>Actual received date</dt>
-                <dd>{{ $record->actual_received_date?->toDateString() }}</dd>
+        <dt>Delivery date</dt>
+        <dd>{{ $record->delivery_date?->toDateString() }}</dd>
 
-                <dt>Transport price</dt>
-                <dd>{{ $record->transport_price }} {{ $record->currency }}</dd>
+        <dt>Actual received date</dt>
+        <dd>{{ $record->actual_received_date?->toDateString() }}</dd>
 
-                <dt>Status</dt>
-                <dd>{{ $record->status instanceof \BackedEnum ? $record->status->value : $record->status }}</dd>
+        <dt>Transport price</dt>
+        <dd>{{ $record->transport_price }} {{ $record->currency }}</dd>
 
-                <dt>External sheet reference</dt>
-                <dd>{{ $record->external_sheet_reference }}</dd>
+        <dt>Status</dt>
+        <dd>@include('supply.logistics.partials.status-badge', ['status' => $record->status])</dd>
 
-                <dt>Notes</dt>
-                <dd>{{ $record->notes }}</dd>
-            </dl>
-        </section>
+        <dt>External sheet reference</dt>
+        <dd>{{ $record->external_sheet_reference }}</dd>
 
-        <section>
-            <h2>Update Status</h2>
-            <form method="post" action="{{ route('supply.logistics.update-status', $record) }}">
-                @csrf
-                <label for="status">Status</label>
-                <select id="status" name="status">
-                    @forelse ($statuses as $status)
-                        <option value="{{ $status->value }}" @selected($record->status instanceof \BackedEnum && $record->status->value === $status->value)>{{ $status->value }}</option>
-                    @empty
-                        <option value="" disabled>No statuses.</option>
-                    @endforelse
-                </select>
-                <button type="submit">Update status</button>
-            </form>
-        </section>
+        <dt>Supplier confirmation</dt>
+        <dd>{{ $record->supplierConfirmation?->supplier_reference ?? 'Not linked' }}</dd>
 
-        <section>
-            <h2>Audit History</h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Time</th>
-                        <th>Event</th>
-                        <th>User</th>
-                        <th>Old values</th>
-                        <th>New values</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @forelse ($auditLogs as $auditLog)
-                        <tr>
-                            <td>{{ $auditLog->created_at?->toDateTimeString() }}</td>
-                            <td>{{ $auditLog->event_type }}</td>
-                            <td>{{ $auditLog->user?->name }}</td>
-                            <td><pre>{{ json_encode($auditLog->old_values_json, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) }}</pre></td>
-                            <td><pre>{{ json_encode($auditLog->new_values_json, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) }}</pre></td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="5">No audit logs.</td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </section>
-    </main>
-</body>
-</html>
+        <dt>Selected quote</dt>
+        <dd>
+            @if ($record->selectedCarrierQuote)
+                {{ $record->selectedCarrierQuote->price }} {{ $record->selectedCarrierQuote->currency }}
+            @else
+                Not linked
+            @endif
+        </dd>
+
+        <dt>Notes</dt>
+        <dd>{{ $record->notes }}</dd>
+    </dl>
+</section>
+
+<section>
+    @include('supply.logistics.partials.timeline', ['record' => $record])
+</section>
+
+<section>
+    @include('supply.logistics.partials.receiving-discrepancies', ['record' => $record])
+</section>
+
+<section>
+    <h2>Update Status</h2>
+    <form method="post" action="{{ route('supply.logistics.status.update', $record) }}">
+        @csrf
+        <label for="status">Status</label>
+        <select id="status" name="status">
+            @forelse ($statuses as $status)
+                <option value="{{ $status->value }}" @selected($record->status instanceof \BackedEnum && $record->status->value === $status->value)>{{ $status->value }}</option>
+            @empty
+                <option value="" disabled>No statuses.</option>
+            @endforelse
+        </select>
+
+        <label for="reason">Reason</label>
+        <textarea id="reason" name="reason" required>{{ old('reason') }}</textarea>
+
+        <button type="submit">Update status</button>
+    </form>
+</section>
+
+<section>
+    @include('supply.logistics.partials.audit-history', ['auditLogs' => $auditLogs])
+</section>
+@endsection

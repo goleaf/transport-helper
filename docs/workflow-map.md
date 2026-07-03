@@ -183,11 +183,19 @@ System:
 
 System:
 
-* tracks dates/status;
-* monitors delays;
-* records receipt;
+* opens logistics dashboard and detail pages;
+* filters logistics by supplier, carrier, status, delayed and needs-review state;
+* tracks order, confirmation, ready, pickup, delivery and actual receipt dates;
+* manually updates logistics status/dates with a reason;
+* records goods receipt;
+* updates supplier order item and inbound order item received quantities;
 * detects receiving mismatches;
-* notifies responsible users.
+* keeps confirmed quantities unchanged during receiving;
+* monitors delays and missing logistics data;
+* creates database notifications for delays, expected arrivals and receiving mismatches;
+* exports logistics records to private CSV files;
+* provides a Google Sheets sync placeholder without external API calls;
+* runs supply health and security checks.
 
 ## 11. Pilot And Integrations
 

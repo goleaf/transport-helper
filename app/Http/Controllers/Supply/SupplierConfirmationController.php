@@ -61,6 +61,7 @@ class SupplierConfirmationController extends Controller
         $confirmation->load([
             'supplierOrder.supplier:id,name',
             'supplierOrder.items.product:id,sku,name,manufacturer_sku',
+            'supplierOrder.logisticsRecords:id,supplier_order_id,status,ready_date,pickup_date,delivery_date,actual_received_date',
             'emailMessage:id,subject,from_email',
             'aiEmailExtraction:id,email_message_id,accepted_at,rejected_at',
             'formAutofillRun:id,status,form_template_id',

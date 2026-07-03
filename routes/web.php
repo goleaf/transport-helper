@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Supply\AiEmailExtractionController;
 use App\Http\Controllers\Supply\AiEmailExtractionReviewController;
 use App\Http\Controllers\Supply\AnalyzeInboundEmailController;
@@ -25,14 +26,19 @@ use App\Http\Controllers\Supply\FormAutofillRunController;
 use App\Http\Controllers\Supply\FormAutofillRunValidationController;
 use App\Http\Controllers\Supply\FormTemplateController;
 use App\Http\Controllers\Supply\FormTemplateFieldController;
+use App\Http\Controllers\Supply\GoodsReceiptController;
+use App\Http\Controllers\Supply\HealthCheckController;
 use App\Http\Controllers\Supply\ImportController;
 use App\Http\Controllers\Supply\ImportRollbackController;
 use App\Http\Controllers\Supply\LogisticsController;
 use App\Http\Controllers\Supply\LogisticsExportController;
 use App\Http\Controllers\Supply\LogisticsGoogleSheetsSyncController;
+use App\Http\Controllers\Supply\LogisticsStatusController;
 use App\Http\Controllers\Supply\ManualCarrierQuoteController;
 use App\Http\Controllers\Supply\ManualInboundEmailController;
 use App\Http\Controllers\Supply\ManualSupplierConfirmationController;
+use App\Http\Controllers\Supply\NotificationCenterController;
+use App\Http\Controllers\Supply\NotificationReadController;
 use App\Http\Controllers\Supply\OrderProposalApprovalController;
 use App\Http\Controllers\Supply\OrderProposalController;
 use App\Http\Controllers\Supply\OrderProposalItemDecisionController;
@@ -50,7 +56,19 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::middleware(['web'])
+Route::middleware(['web', 'guest'])
+    ->group(function (): void {
+        Route::get('login', [AuthenticatedSessionController::class, 'create'])->name('login');
+        Route::post('login', [AuthenticatedSessionController::class, 'store'])
+            ->middleware('throttle:6,1')
+            ->name('login.store');
+    });
+
+Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])
+    ->middleware(['web', 'auth'])
+    ->name('logout');
+
+Route::middleware(['web', 'auth'])
     ->prefix('supply')
     ->name('supply.')
     ->group(function (): void {
@@ -153,7 +171,18 @@ Route::middleware(['web'])
 
         Route::get('logistics', [LogisticsController::class, 'index'])->name('logistics.index');
         Route::get('logistics/{record}', [LogisticsController::class, 'show'])->name('logistics.show');
-        Route::post('logistics/{record}/update-status', [LogisticsController::class, 'updateStatus'])->name('logistics.update-status');
+        Route::get('logistics/{record}/edit', [LogisticsController::class, 'edit'])->name('logistics.edit');
+        Route::match(['put', 'patch'], 'logistics/{record}', [LogisticsController::class, 'update'])->name('logistics.update');
+        Route::post('logistics/{record}/status', [LogisticsStatusController::class, 'store'])->name('logistics.status.update');
+        Route::post('logistics/{record}/update-status', [LogisticsStatusController::class, 'store'])->name('logistics.update-status');
+        Route::get('logistics/{record}/receive', [GoodsReceiptController::class, 'create'])->name('logistics.receive.create');
+        Route::post('logistics/{record}/receive', [GoodsReceiptController::class, 'store'])->name('logistics.receive.store');
         Route::post('logistics/export', [LogisticsExportController::class, 'store'])->name('logistics.export');
         Route::post('logistics/sync/google-sheets', [LogisticsGoogleSheetsSyncController::class, 'store'])->name('logistics.sync.google-sheets');
+
+        Route::get('notifications', [NotificationCenterController::class, 'index'])->name('notifications.index');
+        Route::post('notifications/{notification}/read', [NotificationReadController::class, 'markAsRead'])->name('notifications.read');
+        Route::post('notifications/read-all', [NotificationReadController::class, 'markAllAsRead'])->name('notifications.read-all');
+
+        Route::get('health', [HealthCheckController::class, 'index'])->name('health.index');
     });

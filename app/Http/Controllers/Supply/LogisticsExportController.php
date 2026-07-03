@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Supply;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Supply\ExportLogisticsRequest;
-use App\Services\Supply\LogisticsExportService;
+use App\Services\Supply\Logistics\LogisticsExportService;
 use Illuminate\Http\RedirectResponse;
 
 class LogisticsExportController extends Controller

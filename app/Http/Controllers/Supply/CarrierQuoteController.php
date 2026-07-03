@@ -29,7 +29,14 @@ class CarrierQuoteController extends Controller
 
     public function show(CarrierQuote $quote): View
     {
-        $quote->load(['supplierOrder.supplier', 'carrier', 'emailMessage:id,subject', 'aiEmailExtraction:id,email_message_id,accepted_at,rejected_at', 'formAutofillRun:id,status']);
+        $quote->load([
+            'supplierOrder.supplier',
+            'supplierOrder.logisticsRecords:id,supplier_order_id,selected_carrier_quote_id,status,pickup_date,delivery_date,actual_received_date',
+            'carrier',
+            'emailMessage:id,subject',
+            'aiEmailExtraction:id,email_message_id,accepted_at,rejected_at',
+            'formAutofillRun:id,status',
+        ]);
 
         return view('supply.transport.quotes.show', ['quote' => $quote]);
     }

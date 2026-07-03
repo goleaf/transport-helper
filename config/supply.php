@@ -28,4 +28,14 @@ return [
         'currency_field_min_confidence' => 0.85,
         'human_review_by_default' => true,
     ],
+    'logistics' => [
+        'expected_soon_days' => env('SUPPLY_LOGISTICS_EXPECTED_SOON_DAYS', 3),
+        'missing_confirmation_after_days' => env('SUPPLY_MISSING_CONFIRMATION_AFTER_DAYS', 5),
+        'ready_date_missing_after_confirmation_days' => env('SUPPLY_READY_DATE_MISSING_AFTER_CONFIRMATION_DAYS', 2),
+        'auto_update_delayed_status' => env('SUPPLY_LOGISTICS_AUTO_DELAY_STATUS', true),
+    ],
+    'health' => [
+        'backup_marker_path' => env('SUPPLY_BACKUP_MARKER_PATH', storage_path('app/backups/last_successful_backup.txt')),
+        'external_ai_allowed' => env('SUPPLY_EXTERNAL_AI_ALLOWED', false),
+    ],
 ];

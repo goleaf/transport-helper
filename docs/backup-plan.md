@@ -38,4 +38,17 @@ Expected private storage:
 ## Health Check
 
 Backup marker path can be checked by:
-php artisan supply:backup-verify
+
+`php artisan supply:health-check`
+
+The marker path is configured by `SUPPLY_BACKUP_MARKER_PATH`.
+
+## Restore Verification
+
+After restore:
+
+1. Run `php artisan migrate --force`.
+2. Run `php artisan supply:health-check`.
+3. Open a supplier order with logistics and receiving history.
+4. Verify private storage files exist for exports, form autofill outputs and email attachments.
+5. Verify encrypted integration credentials are present through configuration screens without printing secrets.

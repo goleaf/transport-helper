@@ -194,3 +194,28 @@ Task 11 writes audit logs for:
 
 Audit metadata records quote ids, supplier order ids, carrier ids, source type/id, price/date values, calculated score details, warnings, replacement decisions, override reasons and logistics record ids.
 Full email bodies, secrets, carrier credentials and external provider payloads are not stored in audit metadata.
+
+## Logistics, Receiving And Health Audit Events
+
+Task 12 writes audit logs for:
+
+* `logistics_record_created`;
+* `logistics_record_updated`;
+* `logistics_status_changed`;
+* `logistics_manual_update`;
+* `goods_receipt_recorded`;
+* `supplier_order_item_received`;
+* `inbound_order_item_received`;
+* `receiving_mismatch_detected`;
+* `logistics_delay_detected`;
+* `logistics_delay_monitoring_completed`;
+* `goods_expected_soon`;
+* `logistics_exported`;
+* `google_sheets_sync_not_configured`;
+* `notification_created`;
+* `notification_marked_read`;
+* `health_check_run`;
+* `security_check_warning`.
+
+Audit metadata records logistics record ids, supplier order ids, old/new logistics values, manual update reasons, received item counts, receiving discrepancies, delay-monitoring counts, export file ids and health summary counts.
+Confirmed quantities are not changed during receiving, and health/security output does not expose secret values.

@@ -4,10 +4,12 @@ namespace App\Http\Controllers\Supply;
 
 use App\Enums\LogisticsStatus;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Supply\UpdateLogisticsStatusRequest;
+use App\Http\Requests\Supply\UpdateLogisticsRecordRequest;
 use App\Models\AuditLog;
+use App\Models\Carrier;
 use App\Models\LogisticsRecord;
-use App\Services\Supply\LogisticsRecordService;
+use App\Models\Supplier;
+use App\Services\Supply\Logistics\LogisticsRecordService;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -18,8 +20,6 @@ class LogisticsController extends Controller
     public function index(Request $request): View
     {
         Gate::authorize('viewAny', LogisticsRecord::class);
-
-        $status = $request->string('status')->toString();
 
         $records = LogisticsRecord::query()
             ->select([
@@ -38,23 +38,36 @@ class LogisticsController extends Controller
                 'currency',
                 'status',
                 'external_sheet_reference',
+                'delay_reason',
                 'notes',
             ])
-            ->with([
-                'company:id,name',
-                'supplierOrder:id,order_number,status',
-                'supplier:id,name',
-                'carrier:id,name',
-            ])
-            ->when($status !== '', fn ($query) => $query->where('status', $status))
+            ->with(['supplierOrder:id,order_number,status', 'supplier:id,name', 'carrier:id,name'])
+            ->when($request->filled('status'), fn ($query) => $query->where('status', $request->string('status')->toString()))
+            ->when($request->filled('supplier_id'), fn ($query) => $query->where('supplier_id', $request->integer('supplier_id')))
+            ->when($request->filled('carrier_id'), fn ($query) => $query->where('carrier_id', $request->integer('carrier_id')))
+            ->when($request->boolean('delayed_only'), fn ($query) => $query->where('status', LogisticsStatus::Delayed->value))
+            ->when($request->boolean('needs_review'), fn ($query) => $query->where('status', LogisticsStatus::NeedsReview->value))
             ->latest('id')
             ->paginate(25)
             ->withQueryString();
 
+        $summary = [
+            'delayed' => LogisticsRecord::query()->where('status', LogisticsStatus::Delayed->value)->count(),
+            'needs_review' => LogisticsRecord::query()->where('status', LogisticsStatus::NeedsReview->value)->count(),
+            'expected_soon' => LogisticsRecord::query()->whereDate('delivery_date', '>=', now()->toDateString())->whereDate('delivery_date', '<=', now()->addDays(3)->toDateString())->whereNull('actual_received_date')->count(),
+            'ready_for_pickup' => LogisticsRecord::query()->where('status', LogisticsStatus::ReadyForPickup->value)->count(),
+            'pickup_scheduled' => LogisticsRecord::query()->where('status', LogisticsStatus::PickupScheduled->value)->count(),
+            'in_transit' => LogisticsRecord::query()->where('status', LogisticsStatus::InTransit->value)->count(),
+            'completed' => LogisticsRecord::query()->where('status', LogisticsStatus::Completed->value)->count(),
+        ];
+
         return view('supply.logistics.index', [
             'records' => $records,
             'statuses' => LogisticsStatus::cases(),
-            'selectedStatus' => $status,
+            'summary' => $summary,
+            'suppliers' => Supplier::query()->select(['id', 'name'])->orderBy('name')->limit(200)->get(),
+            'carriers' => Carrier::query()->select(['id', 'name'])->orderBy('name')->limit(200)->get(),
+            'filters' => $request->only(['status', 'supplier_id', 'carrier_id', 'delayed_only', 'needs_review']),
         ]);
     }
 
@@ -64,9 +77,11 @@ class LogisticsController extends Controller
 
         $record->loadMissing([
             'company:id,name',
-            'supplierOrder:id,order_number,status,order_date',
+            'supplierOrder.items.product:id,sku,name',
             'supplier:id,name',
             'carrier:id,name',
+            'supplierConfirmation:id,supplier_reference,status',
+            'selectedCarrierQuote:id,price,currency,status',
         ]);
 
         $auditLogs = AuditLog::query()
@@ -85,17 +100,26 @@ class LogisticsController extends Controller
         ]);
     }
 
-    public function updateStatus(
-        UpdateLogisticsStatusRequest $request,
+    public function edit(LogisticsRecord $record): View
+    {
+        Gate::authorize('update', $record);
+
+        return view('supply.logistics.edit', [
+            'record' => $record->loadMissing(['supplierOrder:id,order_number', 'carrier:id,name']),
+            'statuses' => LogisticsStatus::cases(),
+            'carriers' => Carrier::query()->select(['id', 'name'])->orderBy('name')->limit(200)->get(),
+        ]);
+    }
+
+    public function update(
+        UpdateLogisticsRecordRequest $request,
         LogisticsRecord $record,
         LogisticsRecordService $recordService,
     ): RedirectResponse {
-        Gate::authorize('update', $record);
-
-        $recordService->updateStatus($record, $request->validated('status'), $request->user());
+        $recordService->manualUpdate($record, $request->validated(), $request->user());
 
         return redirect()
             ->route('supply.logistics.show', $record)
-            ->with('status', 'Logistics status updated.');
+            ->with('status', 'Logistics record updated.');
     }
 }
