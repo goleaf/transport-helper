@@ -1,42 +1,55 @@
 # No DTO Rule
 
-DTOs are forbidden.
+DTOs are forbidden in this project.
 
 Do not create:
+- DTO classes;
+- app/Data;
+- Spatie Data;
+- classes ending with DTO;
+- CalculationInputDTO;
+- CalculationResultDTO;
+- EmailFormAutofillDTO;
+- SupplierConfirmationDTO;
+- CarrierQuoteDTO;
+- TransportQuoteDTO;
+- LogisticsUpdateDTO.
 
-* app/Data
-* *DTO.php
-* *Dto.php
-* Spatie Data classes
-* DataTransferObject classes
+Use instead:
+- associative arrays;
+- Eloquent models;
+- FormRequest validated arrays;
+- Laravel Validator;
+- JSON columns;
+- PHPDoc array shapes;
+- Enums;
+- Services.
 
-Allowed:
+Allowed method style:
 
-* arrays
-* Eloquent models
-* FormRequest validated arrays
-* Laravel Validator
-* Services
-* JSON columns
-* Enums
-* PHPDoc array shapes
-
-Allowed example:
-
-```php
 /**
  * @param array<string,mixed> $input
  * @return array<string,mixed>
  */
 public function calculate(array $input): array
-```
 
-Forbidden example:
+Allowed service style:
 
-```php
+/**
+ * @param EmailMessage $email
+ * @param FormTemplate $template
+ * @param array<string,mixed> $options
+ * @return array<string,mixed>
+ */
+public function createAutofillRun(
+    EmailMessage $email,
+    FormTemplate $template,
+    array $options = []
+): array
+
+Forbidden:
 public function calculate(CalculationInputDTO $input): CalculationResultDTO
-```
 
-Before commit:
-
-* run ./scripts/check-no-dto.sh
+Before every commit, search for forbidden DTOs:
+- app/Data directory must not exist;
+- no class names ending with DTO should be introduced by this project.

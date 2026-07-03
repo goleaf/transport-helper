@@ -7,6 +7,27 @@
 <a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
 </p>
 
+## Supply Agent Architecture
+
+Project rules and implementation documentation are located in:
+
+- AGENTS.md
+- .codex/skills/
+- docs/architecture.md
+- docs/workflow-map.md
+- docs/calculation-engine.md
+- docs/email-ai-boundary.md
+- docs/email-form-autofill.md
+- docs/implementation-roadmap.md
+
+Core rules:
+- Laravel owns business logic.
+- AI is only used for email understanding, reply drafts and form autofill suggestions.
+- Deterministic calculation engine calculates order quantities.
+- Human approval is required at critical points.
+- DTO classes are forbidden.
+- Audit logs are required for important actions.
+
 ## Codex Execution Rules
 
 This repository uses strict Codex task execution rules.

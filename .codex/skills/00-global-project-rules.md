@@ -1,29 +1,58 @@
 # Global Project Rules
 
-## Architecture
+This project is a Laravel-based Supply / Procurement Agent.
 
-- Use Laravel, Blade, Eloquent models, form requests, services, actions, policies, jobs, events, notifications, and tests according to the existing codebase patterns.
-- Keep controllers thin and delegate business behavior to services or actions.
-- Do not put business logic in Blade templates.
-- Do not run queries from Blade templates.
-- Use named routes and route model binding.
+The system automates:
+- product stock analysis;
+- sales history analysis;
+- replenishment calculation;
+- supplier order proposal;
+- supplier order approval;
+- supplier order export;
+- supplier email preparation;
+- supplier email sending after human approval;
+- inbound supplier reply reading;
+- supplier confirmation extraction;
+- email-based form autofill;
+- carrier quote collection;
+- carrier quote comparison;
+- logistics record updates;
+- notifications;
+- audit logging.
 
-## External Boundaries
+Laravel is the only source of business truth.
 
-- Never call real external AI, email, Google, carrier, or ERP APIs in tests.
-- Tests must use fakes, mocks, stubs, local adapters, or explicit not-configured exceptions.
-- AI extraction output is review data. It must not mutate business records directly.
-- Supplier email must not be sent without approval.
-- Carrier quotes created from AI or form autofill must not be selected automatically.
+AI is allowed only for:
+- reading inbound email content;
+- extracting structured information from emails;
+- generating draft email replies;
+- suggesting form field values from email content;
+- providing non-authoritative explanations for users.
 
-## Verification
+AI is not allowed to:
+- calculate order quantities;
+- change formulas;
+- change MOQ rules;
+- change pack multiple rules;
+- change pallet rules;
+- change safety stock rules;
+- approve order proposals;
+- adjust approved quantities;
+- send supplier emails without human approval;
+- choose carriers;
+- apply supplier confirmations directly;
+- apply email form autofill directly;
+- update logistics records directly;
+- mutate business records without Laravel validation and human approval.
 
-Run the required project checks before every commit:
-- `php artisan test`
-- `./scripts/check-no-dto.sh`
-- `./scripts/check-no-secrets.sh`
-- `./scripts/check-project-docs.sh`
-
-When available, also run:
-- `./vendor/bin/pint`
-- `npm run build`
+All important actions must be auditable.
+All uncertain cases must go to human review.
+All calculation logic must be deterministic and testable.
+All AI outputs must be stored separately before they are reviewed or applied.
+All business state changes must go through Laravel services.
+Controllers must be thin.
+Do not put business logic in controllers.
+Do not put business logic in Blade views.
+Do not create DTO classes.
+Do not create app/Data.
+Use arrays, Eloquent models, FormRequest, Validator, JSON columns, Services, Jobs, Policies, Events, Listeners, Enums and PHPDoc array shapes.

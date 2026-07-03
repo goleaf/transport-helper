@@ -1,82 +1,97 @@
 # Calculation Engine
 
-The calculation engine is deterministic PHP. It does not depend on AI, email parsing, adapters, UI, or external providers.
+## Rule
 
-## Current Formula
+The calculation engine is deterministic.
+AI is not allowed inside calculation.
 
-Formula version: `v1`.
+## Timeline
 
-Inputs:
-- `requestedQuantity`
-- `availableQuantity`
-- `incomingQuantity`
-- `reservedQuantity`
-- `reservePercent`
+T0 = today / order date.
+T1 = expected goods arrival date.
+T2 = end of planned coverage period.
+T3 = end of safety horizon.
 
-Derived values:
-- `T0 = requested quantity`
-- `T1 = max(0, available + incoming - reserved)`
-- `T2 = max(T0 - T1, 0)`
-- `T3 = ceil(T2 * (100 + reservePercent) / 100)`
+T0-T1, T1-T2 and T2-T3 must not overlap.
 
-Default reserve:
-- `reservePercent = 4`
+## Formula
 
-Required example:
-- Requested: `150`
-- Available: `0`
-- Incoming: `0`
-- Reserved: `0`
-- T0: `150`
-- T1: `0`
-- T2: `150`
-- T3: `ceil(150 * 1.04) = 156`
+Trend = current_year_sales_for_trend / last_year_sales_for_trend
 
-## Engine Responsibilities
+Need_T0_T1 = LY(T0-T1) * Trend
 
-The calculation engine must:
-- reject negative quantities;
-- return explainable output;
-- preserve formula versioning;
-- produce the same result for the same input;
-- stay independent from email and AI code.
+Stock_T1 = free_stock + inbound_until_T1 - Need_T0_T1
 
-The calculation engine must not:
-- read email content;
-- call AI providers;
-- select carriers;
-- apply confirmations;
-- submit forms;
-- approve orders.
+Need_T1_T2 = LY(T1-T2) * Trend
 
-## Explainable Output
+Safety_Stock = LY(T2-T3) * Trend
 
-Every calculation result should expose:
-- requested quantity;
-- usable stock;
-- required quantity;
-- manufacturer quantity;
-- reserve percent;
-- formula version;
-- warnings if input is unusual.
+Raw_Need = Need_T1_T2 + Safety_Stock - Stock_T1 - inbound_T1_T3 + reserved_quantity
 
-## Future Rules
+Final_Order = Raw_Need adjusted by MOQ, pack multiple, pallet quantity and transport rules.
 
-Future deterministic rules may include:
-- MOQ;
-- pack size;
-- pallet rounding;
-- supplier-specific minimums;
-- customer priority;
-- stock safety buffer;
-- lead time buffer.
+## Required Test
 
-Each new formula rule must be:
-- versioned;
-- tested;
-- documented;
-- applied by Laravel only.
+Input:
+- current_year_sales_for_trend = 120;
+- last_year_sales_for_trend = 100;
+- trend = 1.20;
+- LY(T0-T1) = 40;
+- Need_T0_T1 = 48;
+- free_stock = 70;
+- inbound_until_T1 = 0;
+- Stock_T1 = 22;
+- LY(T1-T2) = 100;
+- Need_T1_T2 = 120;
+- LY(T2-T3) = 60;
+- Safety_Stock = 72;
+- inbound_T1_T3 = 20;
+- reserved_quantity = 0;
+- Raw_Need = 150;
+- pack_multiple = 12;
+- Final_Order = 156.
 
-## Tests
+Expected:
+- raw_need = 150;
+- recommended_quantity = 156.
 
-The required `150 -> 156` example must remain covered by automated tests. Any formula change must add or update tests before implementation.
+## Edge Cases
+
+### Missing Last Year Sales
+
+If last_year_sales_for_trend = 0:
+- do not guess;
+- use fallback only if configured;
+- otherwise mark needs_review.
+
+### Negative Raw Need
+
+If raw_need < 0:
+- recommend 0;
+- unless strategic minimum order rule is enabled.
+
+### Reservations
+
+Reservations are added to need only if they were not already removed from free_stock.
+The system must use one consistent reservation strategy.
+
+### Inbound
+
+Inbound until T1 increases projected stock at T1.
+Inbound between T1 and T3 decreases new order need because it already covers the planning/safety horizon.
+
+### Safety Stock
+
+Safety stock must only cover T2-T3.
+Do not double-count safety period.
+
+## Explanation
+
+Every calculated item must store explanation:
+- timeline;
+- inputs;
+- formula steps;
+- intermediate values;
+- rounding steps;
+- warnings;
+- final result.

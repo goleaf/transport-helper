@@ -1,78 +1,82 @@
 # Email Form Autofill
 
-Email form autofill turns email/order context into a proposed supplier form payload. It is an assisted workflow, not an automatic submission workflow.
+## Purpose
 
-## Flow
+The Email Form Autofill tool converts inbound email content into a pre-filled form.
 
-1. A supply order is prepared by Laravel.
-2. Supplier email or order context is inspected.
-3. AI may extract candidate form fields.
-4. Laravel stores the candidate fields as an `AiSuggestion` of type `form_autofill`.
-5. Laravel creates a `HumanReview`.
-6. A human reviews and approves or rejects the suggestion.
-7. Laravel validates the approved payload.
-8. Laravel creates `ManufacturerFormSubmission`.
-9. Audit records the action.
+It is used for:
+- supplier confirmations;
+- ready date updates;
+- quantity mismatch forms;
+- carrier quotes;
+- logistics updates;
+- custom supplier forms.
 
-## Current Form Payload
+## Main Flow
 
-The current suggestion payload shape:
+1. User opens inbound email.
+2. User clicks "Autofill form from this email".
+3. User selects form template.
+4. Laravel builds AI input.
+5. AI returns suggested fields.
+6. Laravel validates suggestions.
+7. Laravel creates autofill run.
+8. User reviews fields.
+9. User accepts, edits or rejects fields.
+10. User validates the run.
+11. User applies the run.
+12. Laravel updates business records according to context.
 
-```php
-[
-    'form_url' => 'https://supplier.example/form',
-    'fields' => [
-        'po_number' => 'SO-20260703-ABC123',
-        'sku' => 'AX-150',
-        'qty' => 156,
-        'unit' => 'pcs',
-    ],
-]
-```
+## Field Values
 
-The exact field names may be mapped per supplier through a field map.
+Every field has:
+- extracted_value;
+- normalized_value;
+- final_value;
+- confidence;
+- source_excerpt;
+- requires_review;
+- review_reason.
+
+## Important Rule
+
+AI suggestion is not a final value.
 
 ## Validation
 
-Laravel must validate:
-- payload contains a `fields` array;
-- target suggestion type is `form_autofill`;
-- suggestion is approved;
-- suggestion belongs to a supply order.
+Needs review when:
+- required field missing;
+- low confidence;
+- unknown SKU;
+- ambiguous date;
+- invalid quantity;
+- unknown carrier;
+- quantity mismatch;
+- date conflict.
 
-Supplier-specific validation should be added before production form submission.
+## Apply
 
-## Human Review
+Only validated runs can be applied.
+
+Context behavior:
+- supplier_confirmation creates supplier confirmation;
+- ready_date_update updates supplier order/logistics dates;
+- quantity_mismatch creates discrepancy review;
+- carrier_quote creates carrier quote;
+- logistics_update updates logistics record;
+- custom_email_form stores output only.
+
+## UI
 
 The review screen should show:
-- source order;
-- supplier;
-- form URL;
-- extracted fields;
+- email on the left;
+- form on the right;
+- extracted values;
+- normalized values;
+- final values;
 - confidence;
-- conflicts;
-- audit history;
-- approve and reject buttons.
-
-## Apply Behavior
-
-Applying an approved form autofill suggestion creates a `ManufacturerFormSubmission` with:
-- linked supply order;
-- submitted by user;
-- form URL;
-- payload;
-- automation source;
-- status `ready`.
-
-It does not submit to a remote website by itself.
-
-## Placeholders
-
-Future layers may add:
-- supplier custom form templates;
-- browser automation;
-- supplier portal API submitters;
-- PDF form fill;
-- Google Sheets form mapping.
-
-All of them must still pass through Laravel validation and human approval.
+- source excerpt;
+- warnings;
+- accept/edit/reject actions;
+- validate button;
+- apply button.

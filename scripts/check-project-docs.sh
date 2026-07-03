@@ -1,37 +1,37 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-echo "Checking required project control docs..."
-
 REQUIRED_FILES=(
-"AGENTS.md"
-".codex/skills/00-global-rules.md"
-".codex/skills/01-task-execution-loop.md"
-".codex/skills/02-no-dto-rule.md"
-".codex/skills/03-no-secrets-rule.md"
-".codex/skills/04-testing-and-checks.md"
-".codex/skills/05-git-commit-push.md"
-".codex/skills/06-blockers-and-not-complete.md"
-"docs/current-task-template.md"
-"docs/current-task-progress-template.md"
-"docs/current-task-read-confirmation.example.md"
-"docs/repository-control-setup-notes.md"
-"docs/current-task.md"
-"docs/current-task-read-confirmation.md"
-"docs/current-task-progress.md"
-"docs/blockers/.gitkeep"
-"scripts/check-no-dto.sh"
-"scripts/check-no-secrets.sh"
-"scripts/check-project-docs.sh"
-"scripts/agent-guard.sh"
-".github/workflows/tests.yml"
+  "AGENTS.md"
+  ".codex/skills/00-global-project-rules.md"
+  ".codex/skills/01-laravel-architecture.md"
+  ".codex/skills/02-no-dto-rule.md"
+  ".codex/skills/03-supply-workflow.md"
+  ".codex/skills/04-deterministic-calculation.md"
+  ".codex/skills/05-email-ai-boundary.md"
+  ".codex/skills/06-email-form-autofill.md"
+  ".codex/skills/07-human-review-and-audit.md"
+  ".codex/skills/08-import-export-adapters.md"
+  ".codex/skills/09-transport-logistics.md"
+  ".codex/skills/10-testing-rules.md"
+  ".codex/skills/11-git-commit-rules.md"
+  "docs/architecture.md"
+  "docs/decision-log.md"
+  "docs/workflow-map.md"
+  "docs/calculation-engine.md"
+  "docs/email-ai-boundary.md"
+  "docs/email-form-autofill.md"
+  "docs/status-machines.md"
+  "docs/implementation-roadmap.md"
+  "docs/next-codex-prompts.md"
+  "docs/repository-audit.md"
 )
 
 for file in "${REQUIRED_FILES[@]}"; do
-    if [ ! -f "$file" ]; then
-        echo "Missing required file: $file"
-        exit 1
-    fi
+  if [ ! -f "$file" ]; then
+    echo "Missing required file: $file"
+    exit 1
+  fi
 done
 
-echo "Required project control docs exist."
+echo "All required project documentation files exist."
