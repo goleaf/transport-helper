@@ -1,97 +1,199 @@
 # Architecture
 
-## System Definition
+## Purpose
 
-The Supply / Procurement Agent is a Laravel application for planning replenishment, preparing supplier orders, reviewing supplier communication, handling confirmations, collecting transport options, and recording logistics outcomes.
+This Laravel application is a Supply / Procurement Agent.
 
-Laravel is the business logic center. The application must make every business decision through Laravel validation, policies, services or actions, deterministic calculations, and audit logging.
+It helps users:
 
-AI and external systems are assistive inputs. They can provide source data, extraction suggestions, confidence scores, or draft text, but they cannot directly mutate business records.
+- import sales and stock data;
+- calculate replenishment need;
+- review order proposals;
+- approve, adjust or reject order quantities;
+- create supplier orders;
+- export supplier order files or manufacturer forms;
+- prepare supplier emails;
+- send supplier emails only after human approval;
+- read inbound supplier replies;
+- extract confirmations and dates;
+- autofill forms from email content;
+- compare carrier quotes;
+- select carrier manually;
+- update logistics;
+- record goods receiving;
+- notify users about delays, missing data and review actions;
+- keep audit history.
 
-## Primary Workflow
+## Architecture Principle
 
-1. Import inventory, demand, supplier, and logistics source data through adapters.
-2. Normalize imported data into associative arrays.
-3. Validate data with Laravel.
-4. Run deterministic replenishment calculation in PHP.
-5. Create order proposals with calculation explanations.
-6. Route uncertain or risky proposals to human review.
-7. Convert approved proposals into supplier orders.
-8. Draft supplier email or supplier form payloads.
-9. Require human approval before sending supplier email or using form output.
-10. Ingest inbound supplier email as source material.
-11. Create AI extraction suggestions for confirmations, dates, quantities, form fields, or reply drafts.
-12. Keep suggestions separate from business records.
-13. Apply only approved suggestions through Laravel application flows.
-14. Collect carrier quotes as logistics options.
-15. Require human carrier selection.
-16. Create logistics records and audit the selection.
+Laravel is the center of business logic.
 
-## Layer Map
+AI can suggest.
+Laravel validates.
+Human approves.
+Laravel applies.
+
+## Layers
 
 ### UI Layer
 
-Blade or future admin surfaces may display dashboards, review queues, forms, logistics options, and audit history. UI components must not contain business logic, run queries in loops, approve records directly, or call external services.
+Responsible for:
 
-### Application Layer
+- dashboards;
+- proposal screens;
+- calculation explanation screens;
+- email review screens;
+- form autofill review screens;
+- supplier order screens;
+- transport comparison screens;
+- logistics screens;
+- notifications;
+- audit views.
 
-Application services or actions own workflow commands such as imports, proposal generation, supplier order creation, suggestion approval, suggestion application, carrier selection, and audit logging.
+### Application Services
 
-### Domain Layer
+Responsible for:
 
-Eloquent models, enums, policies, validation rules, and service methods represent domain state and state transitions. DTO classes and app/Data are forbidden.
+- workflow orchestration;
+- transactions;
+- validation;
+- status changes;
+- audit logs;
+- applying user-approved actions.
 
-### Adapter Layer
+### Deterministic Calculation Engine
 
-Adapters isolate external data formats and providers. They read or write source data, normalize arrays, and report failures. They do not calculate order quantities, approve suggestions, send email without approval, select carriers, or mutate logistics records.
+Responsible for:
 
-### AI Assistance Layer
+- T0/T1/T2/T3 timeline;
+- trend;
+- need until T1;
+- projected stock at T1;
+- planned need T1-T2;
+- safety stock T2-T3;
+- raw need;
+- MOQ/pack/pallet/transport rounding;
+- formula explanation.
 
-AI is allowed only for:
+The calculation engine must not depend on AI, email or form autofill.
 
-- reading inbound email or text content;
-- extracting structured fields from email, attachments, or form context;
-- generating draft replies;
-- suggesting form autofill values.
+### Import Layer
 
-AI is not allowed to:
+Adapter-based:
 
-- calculate orders;
-- approve orders;
-- send supplier email;
-- select carriers;
-- apply confirmations;
-- update logistics;
-- mutate business records directly.
+- CSV;
+- Excel;
+- Google Sheets;
+- API;
+- ERP export;
+- ecommerce export;
+- warehouse export;
+- manual upload;
+- email attachment.
+
+### Export Layer
+
+Supports:
+
+- CSV;
+- JSON;
+- Excel-compatible CSV;
+- manufacturer form export;
+- PDF placeholder;
+- Google Sheets placeholder.
+
+### Email Layer
+
+Responsible for:
+
+- outbound email drafts;
+- email approval;
+- safe sending;
+- inbound email storage;
+- attachments;
+- deduplication;
+- linking supplier/order.
+
+### AI Email Layer
+
+Responsible for:
+
+- reading email text;
+- extracting structured data;
+- extracting dates;
+- extracting carrier quote data;
+- generating draft reply suggestions;
+- never applying business changes directly.
+
+### Email Form Autofill Layer
+
+Responsible for:
+
+- selecting template;
+- extracting fields from email;
+- field-level confidence;
+- source excerpts;
+- Laravel validation;
+- user review;
+- final values.
+
+### Supplier Confirmation Layer
+
+Responsible for:
+
+- applying manual / accepted AI / validated form autofill confirmation;
+- matching SKUs;
+- detecting quantity mismatch;
+- detecting date mismatch;
+- updating supplier order items;
+- updating inbound/logistics;
+- audit.
+
+### Transport Layer
+
+Responsible for:
+
+- carrier quote requests;
+- carrier quote entry;
+- quote scoring;
+- comparison;
+- manual carrier selection;
+- logistics update after selection.
+
+### Logistics Layer
+
+Responsible for:
+
+- logistics records;
+- date tracking;
+- carrier tracking;
+- receiving;
+- mismatch detection;
+- delay monitoring;
+- notifications.
 
 ### Audit Layer
 
-Every critical workflow action must produce audit history with actor, event name, affected record, metadata, and timestamp.
+Responsible for:
 
-## Human Review Points
+- who;
+- what;
+- when;
+- old values;
+- new values;
+- metadata.
 
-Human review is required before:
+### Security Layer
 
-- approving order proposals;
-- sending supplier email;
-- applying AI confirmation suggestions;
-- applying AI form autofill suggestions;
-- accepting quantity or date conflicts;
-- choosing carriers;
-- changing integration credentials;
-- performing destructive cleanup or restore operations.
+Responsible for:
 
-## Related Docs
+- roles;
+- permissions;
+- encrypted credentials;
+- local/private mode;
+- backups;
+- health checks.
 
-- [Domain Model](domain-model.md)
-- [Workflow Map](workflow-map.md)
-- [Decision Log](decision-log.md)
-- [Calculation Engine](calculation-engine.md)
-- [Email AI Boundary](email-ai-boundary.md)
-- [Email Form Autofill](email-form-autofill.md)
-- [Import Export Adapters](import-export-adapters.md)
-- [Status Machines](status-machines.md)
-- [Audit And Security](audit-and-security.md)
-- [Backup Plan](backup-plan.md)
-- [Implementation Roadmap](implementation-roadmap.md)
-- [Next Codex Prompts](next-codex-prompts.md)
+## Critical Rule
+
+No autonomous business decision by AI.
