@@ -7,7 +7,6 @@ use App\Enums\OrderProposalStatus;
 use App\Enums\SupplierConfirmationStatus;
 use App\Enums\SupplierOrderStatus;
 use App\Enums\UserRole;
-use App\Exceptions\NotConfiguredYetException;
 use App\Models\AuditLog;
 use App\Models\CalculationRun;
 use App\Models\Carrier;
@@ -260,9 +259,12 @@ it('writes an audit log when logistics status is updated manually', function () 
             ->exists())->toBeTrue();
 });
 
-it('throws a not configured exception for google sheets logistics sync', function () {
-    app(LogisticsGoogleSheetsSyncService::class)->sync();
-})->throws(NotConfiguredYetException::class, 'Google Sheets logistics sync is not configured yet.');
+it('runs google sheets logistics sync as dry run by default', function () {
+    $result = app(LogisticsGoogleSheetsSyncService::class)->sync();
+
+    expect($result['dry_run'])->toBeTrue()
+        ->and($result['provider_result'])->toBeNull();
+});
 
 it('protects logistics pages from guests', function () {
     $fixture = makeLogisticsWorkflowFixture();

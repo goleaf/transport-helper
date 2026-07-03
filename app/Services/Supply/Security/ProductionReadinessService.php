@@ -3,6 +3,7 @@
 namespace App\Services\Supply\Security;
 
 use App\Services\Supply\Backup\BackupVerificationService;
+use App\Services\Supply\Integrations\IntegrationAuditService;
 use App\Services\Supply\Logistics\SupplyHealthCheckService;
 use App\Services\Supply\Logistics\SupplySecurityCheckService;
 use RecursiveDirectoryIterator;
@@ -18,6 +19,7 @@ class ProductionReadinessService
         private readonly AuditCoverageService $auditCoverageService,
         private readonly BackupVerificationService $backupVerificationService,
         private readonly AiBoundaryAuditService $aiBoundaryAuditService,
+        private readonly IntegrationAuditService $integrationAuditService,
     ) {}
 
     /**
@@ -33,6 +35,7 @@ class ProductionReadinessService
             'audit' => $this->auditCoverageService->run(),
             'backup' => $this->backupVerificationService->verify(),
             'ai_boundary' => $this->aiBoundaryAuditService->run(),
+            'integrations' => $this->integrationAuditService->run(),
             'boundaries' => $this->boundarySummary(),
         ];
         $summary = $this->summary($sections);

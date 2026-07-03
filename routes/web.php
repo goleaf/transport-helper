@@ -30,6 +30,9 @@ use App\Http\Controllers\Supply\GoodsReceiptController;
 use App\Http\Controllers\Supply\HealthCheckController;
 use App\Http\Controllers\Supply\ImportController;
 use App\Http\Controllers\Supply\ImportRollbackController;
+use App\Http\Controllers\Supply\IntegrationApprovalController;
+use App\Http\Controllers\Supply\IntegrationConnectionController;
+use App\Http\Controllers\Supply\IntegrationTestController;
 use App\Http\Controllers\Supply\LogisticsController;
 use App\Http\Controllers\Supply\LogisticsExportController;
 use App\Http\Controllers\Supply\LogisticsGoogleSheetsSyncController;
@@ -37,8 +40,13 @@ use App\Http\Controllers\Supply\LogisticsStatusController;
 use App\Http\Controllers\Supply\ManualCarrierQuoteController;
 use App\Http\Controllers\Supply\ManualInboundEmailController;
 use App\Http\Controllers\Supply\ManualSupplierConfirmationController;
+use App\Http\Controllers\Supply\ManufacturerFormExportController;
+use App\Http\Controllers\Supply\ManufacturerFormMappingController;
+use App\Http\Controllers\Supply\ManufacturerFormPreviewController;
+use App\Http\Controllers\Supply\ManufacturerFormTemplateController;
 use App\Http\Controllers\Supply\NotificationCenterController;
 use App\Http\Controllers\Supply\NotificationReadController;
+use App\Http\Controllers\Supply\OnboardingChecklistController;
 use App\Http\Controllers\Supply\OrderProposalApprovalController;
 use App\Http\Controllers\Supply\OrderProposalController;
 use App\Http\Controllers\Supply\OrderProposalItemDecisionController;
@@ -86,7 +94,20 @@ Route::middleware(['web', 'auth'])
         Route::get('exports', [SupplySectionController::class, 'show'])->defaults('section', 'exports')->name('exports.index');
         Route::get('audit-logs', [SupplySectionController::class, 'show'])->defaults('section', 'audit-logs')->name('audit-logs.index');
         Route::get('settings', [SupplySectionController::class, 'show'])->defaults('section', 'settings')->name('settings.index');
-        Route::get('integrations', [SupplySectionController::class, 'show'])->defaults('section', 'integrations')->name('integrations.index');
+        Route::get('integrations', [IntegrationConnectionController::class, 'index'])->name('integrations.index');
+        Route::get('integrations/create', [IntegrationConnectionController::class, 'create'])->name('integrations.create');
+        Route::post('integrations', [IntegrationConnectionController::class, 'store'])->name('integrations.store');
+        Route::get('integrations/{connection}', [IntegrationConnectionController::class, 'show'])->name('integrations.show');
+        Route::get('integrations/{connection}/edit', [IntegrationConnectionController::class, 'edit'])->name('integrations.edit');
+        Route::match(['put', 'patch'], 'integrations/{connection}', [IntegrationConnectionController::class, 'update'])->name('integrations.update');
+        Route::post('integrations/{connection}/submit-approval', [IntegrationApprovalController::class, 'submitApproval'])->name('integrations.submit-approval');
+        Route::post('integrations/{connection}/approve', [IntegrationApprovalController::class, 'approve'])->name('integrations.approve');
+        Route::post('integrations/{connection}/reject', [IntegrationApprovalController::class, 'reject'])->name('integrations.reject');
+        Route::post('integrations/{connection}/revoke', [IntegrationApprovalController::class, 'revoke'])->name('integrations.revoke');
+        Route::post('integrations/{connection}/activate', [IntegrationApprovalController::class, 'activate'])->name('integrations.activate');
+        Route::post('integrations/{connection}/disable', [IntegrationApprovalController::class, 'disable'])->name('integrations.disable');
+        Route::post('integrations/{connection}/test', [IntegrationTestController::class, 'store'])->name('integrations.test');
+        Route::get('onboarding', [OnboardingChecklistController::class, 'index'])->name('onboarding.index');
 
         Route::get('imports', [ImportController::class, 'index'])->name('imports.index');
         Route::get('imports/create', [ImportController::class, 'create'])->name('imports.create');
@@ -111,6 +132,7 @@ Route::middleware(['web', 'auth'])
         Route::post('supplier-orders/{order}/prepare-email', [SupplierOrderEmailDraftController::class, 'store'])->name('supplier-orders.prepare-email');
         Route::post('supplier-orders/{order}/approve-email', [SupplierOrderEmailApprovalController::class, 'store'])->name('supplier-orders.approve-email');
         Route::post('supplier-orders/{order}/send-email', [SupplierOrderSendController::class, 'store'])->name('supplier-orders.send-email');
+        Route::post('supplier-orders/{order}/manufacturer-form-export', [ManufacturerFormExportController::class, 'store'])->name('supplier-orders.manufacturer-form-export');
         Route::get('exports/{exportFile}/download', ExportDownloadController::class)->name('exports.download');
 
         Route::get('emails', [EmailMessageController::class, 'index'])->name('emails.index');
@@ -136,6 +158,9 @@ Route::middleware(['web', 'auth'])
         Route::get('forms/templates/{template}/edit', [FormTemplateController::class, 'edit'])->name('forms.templates.edit');
         Route::match(['put', 'patch'], 'forms/templates/{template}', [FormTemplateController::class, 'update'])->name('forms.templates.update');
         Route::post('forms/templates/{template}/fields', [FormTemplateFieldController::class, 'store'])->name('forms.templates.fields.store');
+        Route::post('forms/templates/{template}/manufacturer-file', [ManufacturerFormTemplateController::class, 'upload'])->name('forms.templates.manufacturer-file.upload');
+        Route::post('forms/templates/{template}/mapping', [ManufacturerFormMappingController::class, 'store'])->name('forms.templates.mapping.store');
+        Route::post('forms/templates/{template}/preview', [ManufacturerFormPreviewController::class, 'store'])->name('forms.templates.preview');
 
         Route::get('form-autofill-runs/{run}', [FormAutofillRunController::class, 'show'])->name('form-autofill-runs.show');
         Route::get('supplier-confirmations/{confirmation}', [SupplierConfirmationController::class, 'show'])->name('supplier-confirmations.show');

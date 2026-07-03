@@ -1,6 +1,5 @@
 <?php
 
-use App\Exceptions\NotConfiguredYetException;
 use App\Services\Supply\Logistics\LogisticsGoogleSheetsSyncService;
 use App\Services\Supply\Logistics\LogisticsReceivingService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -37,9 +36,12 @@ it('source scans logistics services for forbidden integrations', function () {
     }
 });
 
-it('google sheets sync placeholder throws not configured', function () {
-    app(LogisticsGoogleSheetsSyncService::class)->sync([]);
-})->throws(NotConfiguredYetException::class);
+it('google sheets sync defaults to dry run without provider calls', function () {
+    $result = app(LogisticsGoogleSheetsSyncService::class)->sync([]);
+
+    expect($result['dry_run'])->toBeTrue()
+        ->and($result['provider_result'])->toBeNull();
+});
 
 it('receiving does not update confirmed quantity', function () {
     $fixture = LogisticsTestSupport::fixture();

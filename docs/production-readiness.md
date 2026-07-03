@@ -46,3 +46,13 @@ php artisan test
 - Quantity adjustments require reason.
 - Receiving does not update confirmed_quantity.
 - All critical actions are audited.
+
+## Real Integration Readiness
+
+- Real integrations are disabled by default.
+- External integrations require approval before activation.
+- Connection tests are dry-run unless explicitly allowed.
+- Real provider calls are blocked in tests.
+- Credentials are encrypted and masked in UI.
+- External AI requires redaction and owner approval.
+- Real supplier files and real emails must stay out of git.

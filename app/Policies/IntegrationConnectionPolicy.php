@@ -10,12 +10,12 @@ class IntegrationConnectionPolicy
 {
     public function viewAny(User $user): bool
     {
-        return $this->manage($user);
+        return $this->viewIntegrations($user);
     }
 
     public function view(User $user, IntegrationConnection $integrationConnection): bool
     {
-        return $this->manage($user);
+        return $this->viewIntegrations($user);
     }
 
     public function create(User $user): bool
@@ -47,5 +47,47 @@ class IntegrationConnectionPolicy
     public function forceDelete(User $user, IntegrationConnection $integrationConnection): bool
     {
         return $user->hasRole(UserRole::Admin);
+    }
+
+    private function viewIntegrations(User $user): bool
+    {
+        return $this->manage($user)
+            || $user->hasRole(UserRole::SupplyManager)
+            || $user->hasPermissionTo('manage_settings');
+    }
+
+    public function submitApproval(User $user, IntegrationConnection $integrationConnection): bool
+    {
+        return $this->manage($user, $integrationConnection);
+    }
+
+    public function approve(User $user, IntegrationConnection $integrationConnection): bool
+    {
+        return $this->manage($user, $integrationConnection);
+    }
+
+    public function reject(User $user, IntegrationConnection $integrationConnection): bool
+    {
+        return $this->manage($user, $integrationConnection);
+    }
+
+    public function revoke(User $user, IntegrationConnection $integrationConnection): bool
+    {
+        return $this->manage($user, $integrationConnection);
+    }
+
+    public function activate(User $user, IntegrationConnection $integrationConnection): bool
+    {
+        return $this->manage($user, $integrationConnection);
+    }
+
+    public function test(User $user, IntegrationConnection $integrationConnection): bool
+    {
+        return $this->manage($user, $integrationConnection);
+    }
+
+    public function disable(User $user, IntegrationConnection $integrationConnection): bool
+    {
+        return $this->manage($user, $integrationConnection);
     }
 }

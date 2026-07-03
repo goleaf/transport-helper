@@ -6,10 +6,12 @@ use App\Contracts\AI\AiEmailAnalyzerInterface;
 use App\Contracts\AI\AiEmailFormExtractorInterface;
 use App\Contracts\AI\AiEmailReplyDraftGeneratorInterface;
 use App\Contracts\Email\EmailSenderInterface;
+use App\Contracts\Integrations\GoogleSheetsClientInterface;
 use App\Services\AI\Email\RuleBasedAiEmailAnalyzer;
 use App\Services\AI\Forms\RuleBasedAiEmailFormExtractor;
 use App\Services\AI\NullAiEmailReplyDraftGenerator;
 use App\Services\Email\Senders\LogEmailSender;
+use App\Services\Integrations\GoogleSheets\PlaceholderGoogleSheetsClient;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 
@@ -24,6 +26,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(AiEmailReplyDraftGeneratorInterface::class, NullAiEmailReplyDraftGenerator::class);
         $this->app->bind(AiEmailFormExtractorInterface::class, RuleBasedAiEmailFormExtractor::class);
         $this->app->bind(EmailSenderInterface::class, LogEmailSender::class);
+        $this->app->bind(GoogleSheetsClientInterface::class, PlaceholderGoogleSheetsClient::class);
     }
 
     /**

@@ -1,6 +1,5 @@
 <?php
 
-use App\Exceptions\NotConfiguredYetException;
 use App\Models\ExportFile;
 use App\Services\Supply\Logistics\LogisticsExportService;
 use App\Services\Supply\Logistics\LogisticsGoogleSheetsSyncService;
@@ -24,8 +23,12 @@ it('exports logistics records to csv and creates export record', function () {
         ->and(ExportFile::query()->where('export_type', 'logistics_csv')->exists())->toBeTrue();
 });
 
-it('google sheets sync placeholder throws not configured', function () {
+it('google sheets sync defaults to dry run without provider calls', function () {
     $fixture = LogisticsTestSupport::fixture();
 
-    app(LogisticsGoogleSheetsSyncService::class)->sync([], $fixture['user']);
-})->throws(NotConfiguredYetException::class);
+    $result = app(LogisticsGoogleSheetsSyncService::class)->sync([], $fixture['user']);
+
+    expect($result['dry_run'])->toBeTrue()
+        ->and($result['row_count'])->toBeGreaterThanOrEqual(1)
+        ->and($result['provider_result'])->toBeNull();
+});

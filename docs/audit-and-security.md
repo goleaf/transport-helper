@@ -242,3 +242,28 @@ Critical boundaries remain:
 * carrier selection requires a user;
 * receiving updates received quantities only;
 * health/security checks do not expose secret values.
+
+## Integration Governance Audit Events
+
+Task 14 writes audit logs for:
+
+* `integration_config_created`;
+* `integration_config_updated`;
+* `integration_disabled`;
+* `integration_submitted_for_approval`;
+* `integration_approved`;
+* `integration_rejected`;
+* `integration_revoked`;
+* `integration_activated`;
+* `integration_connection_tested`;
+* `manufacturer_form_template_uploaded`;
+* `manufacturer_form_mapping_saved`;
+* `manufacturer_form_preview_generated`;
+* `manufacturer_form_exported`;
+* `google_sheets_logistics_sync_dry_run`;
+* `google_sheets_logistics_synced`;
+* `google_sheets_logistics_sync_failed`;
+* `external_ai_redaction_performed`;
+* `onboarding_checklist_run`.
+
+Secrets are not logged. Integration metadata stores provider, status, approval state, masked config summaries and dry-run results only.

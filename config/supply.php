@@ -51,4 +51,27 @@ return [
     'local_mode' => [
         'enabled' => env('SUPPLY_LOCAL_MODE', true),
     ],
+    'integrations' => [
+        'real_calls_enabled' => env('SUPPLY_REAL_INTEGRATION_CALLS_ENABLED', false),
+        'require_approval_for_external' => true,
+        'allow_auto_approve_local' => env('SUPPLY_ALLOW_AUTO_APPROVE_LOCAL_INTEGRATIONS', true),
+    ],
+    'email_providers' => [
+        'gmail_enabled' => env('SUPPLY_GMAIL_ENABLED', false),
+        'microsoft_graph_enabled' => env('SUPPLY_MICROSOFT_GRAPH_ENABLED', false),
+        'imap_enabled' => env('SUPPLY_IMAP_ENABLED', false),
+        'smtp_enabled' => env('SUPPLY_SMTP_ENABLED', false),
+    ],
+    'manufacturer_forms' => [
+        'excel_enabled' => env('SUPPLY_MANUFACTURER_EXCEL_FORMS_ENABLED', true),
+        'pdf_enabled' => env('SUPPLY_MANUFACTURER_PDF_FORMS_ENABLED', false),
+        'max_upload_size_kb' => env('SUPPLY_MANUFACTURER_FORM_MAX_UPLOAD_SIZE_KB', 10240),
+    ],
+    'google_sheets' => [
+        'enabled' => env('SUPPLY_GOOGLE_SHEETS_ENABLED', false),
+    ],
+    'external_ai' => [
+        'enabled' => env('SUPPLY_EXTERNAL_AI_ENABLED', false),
+        'require_redaction' => true,
+    ],
 ];

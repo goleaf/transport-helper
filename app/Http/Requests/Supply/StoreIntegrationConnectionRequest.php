@@ -1,0 +1,40 @@
+<?php
+
+namespace App\Http\Requests\Supply;
+
+use App\Models\IntegrationConnection;
+use Illuminate\Foundation\Http\FormRequest;
+
+class StoreIntegrationConnectionRequest extends FormRequest
+{
+    public function authorize(): bool
+    {
+        return $this->user()?->can('create', IntegrationConnection::class) === true;
+    }
+
+    protected function prepareForValidation(): void
+    {
+        if ($this->filled('config_json') && ! $this->has('config')) {
+            $decoded = json_decode((string) $this->input('config_json'), true);
+            $this->merge(['config' => is_array($decoded) ? $decoded : []]);
+        }
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function rules(): array
+    {
+        return [
+            'company_id' => ['required', 'integer', 'exists:companies,id'],
+            'type' => ['required', 'string', 'max:100'],
+            'provider' => ['required', 'string', 'max:100'],
+            'name' => ['required', 'string', 'max:255'],
+            'environment' => ['nullable', 'string', 'max:50'],
+            'config' => ['required', 'array'],
+            'is_external' => ['nullable', 'boolean'],
+            'requires_approval' => ['nullable', 'boolean'],
+            'notes' => ['nullable', 'string', 'max:5000'],
+        ];
+    }
+}

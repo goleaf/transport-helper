@@ -19,6 +19,13 @@
 /public/hot
 /public/storage
 /storage/*.key
+/storage/app/backups/
+/storage/app/email-attachments/
+/storage/app/exports/
+/storage/app/form-autofill-outputs/
+/storage/app/imports/
+/storage/app/manufacturer-form-templates/
+/storage/app/pilot/
 /storage/pail
 /vendor
 _ide_helper.php

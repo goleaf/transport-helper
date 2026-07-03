@@ -23,3 +23,9 @@
 - [ ] form autofill test performed
 - [ ] carrier selection test performed
 - [ ] receiving test performed
+- [ ] real integrations reviewed and approved
+- [ ] dry-run integration tests reviewed
+- [ ] real mailbox access tested only with explicit approval
+- [ ] manufacturer forms stored privately
+- [ ] no real supplier files or emails committed
+- [ ] external AI disabled unless approved and redaction reviewed

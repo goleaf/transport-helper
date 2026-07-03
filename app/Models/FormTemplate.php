@@ -78,6 +78,11 @@ class FormTemplate extends Model
         return $this->hasMany(FormAutofillRun::class);
     }
 
+    public function manufacturerFormTemplateFiles(): HasMany
+    {
+        return $this->hasMany(ManufacturerFormTemplateFile::class);
+    }
+
     protected function contextTypeValue(): Attribute
     {
         return Attribute::get(fn (): string => DisplayValue::statusValue($this->context_type));

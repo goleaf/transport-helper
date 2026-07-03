@@ -105,3 +105,11 @@ The source records remain suggestions or reviewed form data; only the supplier c
 Task 11 allows accepted AI extraction to create carrier quote candidates.
 AI transport quote extraction cannot select carriers, update logistics or book transport.
 Carrier selection is a separate Laravel workflow that requires explicit user action.
+
+## External AI Governance
+
+External AI is disabled by default.
+
+When external AI is approved, input must pass through the redaction layer before any provider boundary.
+
+AI remains extraction and suggestion only. It cannot mutate supplier orders, confirmations, carrier selection, logistics or receiving.

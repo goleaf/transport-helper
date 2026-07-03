@@ -266,11 +266,21 @@ Implementation:
 
 ## Step 14. Real Integrations
 
+Status: implemented in Task 14.
+
 Result:
 
 * controlled provider configuration;
 * approval workflow;
 * real data onboarding.
+
+Implementation:
+
+* integration governance added with encrypted config, masked UI and approval workflow;
+* dry-run integration tests added with real-call blocking in tests;
+* Gmail, Microsoft Graph, IMAP, SMTP, Google Sheets and external AI boundaries added disabled-by-default;
+* manufacturer form upload, mapping, preview and placeholder export renderers added;
+* real data onboarding checklist and integration docs added.
 
 ## Step 15. Pilot Supplier
 
