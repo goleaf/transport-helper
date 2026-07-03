@@ -80,8 +80,9 @@ class EmailIngestionService
     {
         $fromEmail = isset($message['from_email']) ? (string) $message['from_email'] : null;
         $subject = isset($message['subject']) ? (string) $message['subject'] : null;
-        $relatedSupplierId = $this->guessSupplierId($account, $fromEmail);
-        $relatedSupplierOrderId = $this->guessSupplierOrderId($account, $subject);
+        $threadContext = $this->threadContext($account, $message['thread_id'] ?? null);
+        $relatedSupplierId = $this->guessSupplierId($account, $fromEmail) ?? $threadContext['related_supplier_id'];
+        $relatedSupplierOrderId = $this->guessSupplierOrderId($account, $subject) ?? $threadContext['related_supplier_order_id'];
 
         $emailMessage = EmailMessage::query()->create([
             'company_id' => $account->company_id,
@@ -123,6 +124,36 @@ class EmailIngestionService
             ->first();
 
         return $contact?->supplier_id;
+    }
+
+    /**
+     * @return array{related_supplier_id:?int,related_supplier_order_id:?int}
+     */
+    private function threadContext(EmailAccount $account, mixed $threadId): array
+    {
+        if (! is_string($threadId) || $threadId === '') {
+            return [
+                'related_supplier_id' => null,
+                'related_supplier_order_id' => null,
+            ];
+        }
+
+        $emailMessage = EmailMessage::query()
+            ->select(['id', 'company_id', 'thread_id', 'related_supplier_id', 'related_supplier_order_id'])
+            ->where('company_id', $account->company_id)
+            ->where('thread_id', $threadId)
+            ->where(function ($query): void {
+                $query
+                    ->whereNotNull('related_supplier_id')
+                    ->orWhereNotNull('related_supplier_order_id');
+            })
+            ->latest('id')
+            ->first();
+
+        return [
+            'related_supplier_id' => $emailMessage?->related_supplier_id,
+            'related_supplier_order_id' => $emailMessage?->related_supplier_order_id,
+        ];
     }
 
     private function guessSupplierOrderId(EmailAccount $account, ?string $subject): ?int
@@ -192,9 +223,5 @@ class EmailIngestionService
             })
             ->values()
             ->all();
-    }
-}
-    {
-        //
     }
 }

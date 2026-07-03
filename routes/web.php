@@ -3,6 +3,13 @@
 use App\Http\Controllers\Supply\ConvertProposalToSupplierOrderController;
 use App\Http\Controllers\Supply\AiEmailExtractionController;
 use App\Http\Controllers\Supply\EmailMessageController;
+use App\Http\Controllers\Supply\EmailFormAutofillController;
+use App\Http\Controllers\Supply\FormAutofillApplyController;
+use App\Http\Controllers\Supply\FormAutofillExportController;
+use App\Http\Controllers\Supply\FormAutofillFieldReviewController;
+use App\Http\Controllers\Supply\FormAutofillRunController;
+use App\Http\Controllers\Supply\FormTemplateController;
+use App\Http\Controllers\Supply\FormTemplateFieldController;
 use App\Http\Controllers\Supply\ImportBatchController;
 use App\Http\Controllers\Supply\OrderProposalController;
 use App\Http\Controllers\Supply\OrderProposalItemDecisionController;
@@ -43,8 +50,24 @@ Route::middleware(['web'])
 
         Route::get('emails', [EmailMessageController::class, 'index'])->name('emails.index');
         Route::get('emails/{email}', [EmailMessageController::class, 'show'])->name('emails.show');
+        Route::get('emails/{email}/autofill', [EmailFormAutofillController::class, 'create'])->name('emails.autofill.create');
+        Route::post('emails/{email}/autofill/preview', [EmailFormAutofillController::class, 'preview'])->name('emails.autofill.preview');
         Route::get('ai-extractions/{extraction}', [AiEmailExtractionController::class, 'show'])->name('ai-extractions.show');
         Route::post('ai-extractions/{extraction}/accept', [AiEmailExtractionController::class, 'accept'])->name('ai-extractions.accept');
         Route::post('ai-extractions/{extraction}/reject', [AiEmailExtractionController::class, 'reject'])->name('ai-extractions.reject');
         Route::post('ai-extractions/{extraction}/request-human-review', [AiEmailExtractionController::class, 'requestHumanReview'])->name('ai-extractions.request-human-review');
+
+        Route::get('forms/templates', [FormTemplateController::class, 'index'])->name('forms.templates.index');
+        Route::get('forms/templates/create', [FormTemplateController::class, 'create'])->name('forms.templates.create');
+        Route::post('forms/templates', [FormTemplateController::class, 'store'])->name('forms.templates.store');
+        Route::get('forms/templates/{template}', [FormTemplateController::class, 'show'])->name('forms.templates.show');
+        Route::post('forms/templates/{template}/fields', [FormTemplateFieldController::class, 'store'])->name('forms.templates.fields.store');
+
+        Route::get('form-autofill-runs/{run}', [FormAutofillRunController::class, 'show'])->name('form-autofill-runs.show');
+        Route::post('form-autofill-runs/{run}/fields/{field}/accept', [FormAutofillFieldReviewController::class, 'accept'])->name('form-autofill-runs.fields.accept');
+        Route::post('form-autofill-runs/{run}/fields/{field}/update', [FormAutofillFieldReviewController::class, 'update'])->name('form-autofill-runs.fields.update');
+        Route::post('form-autofill-runs/{run}/fields/{field}/reject', [FormAutofillFieldReviewController::class, 'reject'])->name('form-autofill-runs.fields.reject');
+        Route::post('form-autofill-runs/{run}/validate', [FormAutofillRunController::class, 'validateRun'])->name('form-autofill-runs.validate');
+        Route::post('form-autofill-runs/{run}/apply', FormAutofillApplyController::class)->name('form-autofill-runs.apply');
+        Route::post('form-autofill-runs/{run}/export', FormAutofillExportController::class)->name('form-autofill-runs.export');
     });

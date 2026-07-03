@@ -52,7 +52,7 @@ class AiEmailExtractionReviewService
                 newValues: [
                     'extraction' => $this->auditValues($extraction),
                     'validation' => $validation,
-                    'applied_model_type' => $applied?::class,
+                    'applied_model_type' => $applied instanceof Model ? $applied::class : null,
                     'applied_model_id' => $applied?->id,
                 ],
             );

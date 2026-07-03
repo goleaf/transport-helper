@@ -24,7 +24,7 @@ class ManualEmailProvider implements EmailProviderInterface, EmailSenderInterfac
         $messageId = $message['message_id'] ?? sprintf(
             'manual-%s-%s',
             $account->id,
-            hash('xxh128', json_encode($message)),
+            hash('sha256', (string) json_encode($message)),
         );
 
         return [
