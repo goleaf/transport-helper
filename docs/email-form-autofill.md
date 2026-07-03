@@ -50,6 +50,9 @@ Email Form Autofill itself does not create supplier confirmations, carrier quote
 Validated form autofill runs can now be applied as supplier confirmations through SupplierConfirmationApplicationService.
 The run status becomes applied only after target application succeeds.
 
+Validated carrier_quote form autofill runs can now create CarrierQuote candidates.
+Form autofill cannot select the carrier or update logistics; user carrier selection remains a separate transport workflow.
+
 ## Exports
 
 Validated run can be exported to JSON or CSV.

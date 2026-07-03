@@ -57,6 +57,7 @@ class FormAutofillRunController extends Controller
             'auditLogs' => $auditLogs,
             'canApply' => false,
             'canApplySupplierConfirmation' => Gate::allows('applyAsSupplierConfirmation', $run),
+            'canApplyCarrierQuote' => Gate::allows('applyAsCarrierQuote', $run),
         ]);
     }
 

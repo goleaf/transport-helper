@@ -2,37 +2,29 @@
 
 ## Task Title
 
-Supplier Confirmation Application
+Transport Module With Carrier Quotes, Scoring And User Selection
 
 ## Task Goal
 
-Create Supplier Confirmation Application workflow for the Laravel Supply / Procurement Agent.
+Create Transport Module for the Laravel Supply / Procurement Agent.
 
-This task implements application of reviewed supplier confirmation data from:
-- manual input;
-- accepted AI extraction;
-- validated form autofill run.
+This task implements:
+- carrier quote request draft;
+- manual carrier quote entry;
+- carrier quote application from accepted AI extraction;
+- carrier quote application from validated form autofill run;
+- quote normalization;
+- quote validation;
+- quote scoring;
+- quote comparison;
+- visible score explanation;
+- user carrier selection;
+- logistics update after selection;
+- audit logs;
+- tests and docs.
 
-The system must:
-- normalize source data;
-- match items to supplier order items;
-- detect unknown SKU;
-- detect ambiguous SKU;
-- detect missing items;
-- detect additional items;
-- detect quantity mismatch;
-- detect date mismatch;
-- create SupplierConfirmation;
-- create SupplierConfirmationItem;
-- update SupplierOrder status;
-- update SupplierOrderItem confirmed_quantity;
-- update or create InboundOrder and InboundOrderItem where safe;
-- update LogisticsRecord dates/status;
-- create risk flag/audit;
-- write audit logs.
-
-AI extraction and form autofill do not apply themselves.
-Business changes happen only through this dedicated application service.
+Carrier must never be selected automatically.
+Lowest price must not automatically win if delivery date is bad.
 
 ## Required Reading
 
@@ -50,9 +42,8 @@ Business changes happen only through this dedicated application service.
 - docs/status-machines.md
 - docs/decision-log.md
 - docs/email-ai-boundary.md
-- docs/inbound-email-ai-workflow.md
 - docs/email-form-autofill.md
-- docs/supplier-order-email-workflow.md
+- docs/supplier-confirmation-workflow.md
 - docs/audit-and-security.md
 
 ## Non-Negotiable Rules
@@ -66,15 +57,16 @@ Business changes happen only through this dedicated application service.
 - Do not call OpenAI.
 - Do not call external APIs.
 - Do not call real email providers.
-- Do not apply unaccepted AI extraction.
-- Do not apply rejected AI extraction.
-- Do not apply unvalidated form autofill run.
-- Do not fuzzy auto-match SKU as confirmed.
-- Do not hide mismatches.
-- Do not update received_quantity.
-- Do not mark supplier order completed.
-- Do not select carrier.
-- Do not send email.
+- Do not call carrier APIs.
+- Do not select carrier automatically.
+- Do not select carrier during scoring.
+- Do not select carrier during comparison.
+- Do not select carrier during quote creation.
+- Do not select carrier from AI extraction automatically.
+- Do not select carrier from form autofill automatically.
+- Do not mark goods in transit.
+- Do not mark goods completed.
+- Do not send booking email automatically.
 - Do not commit secrets.
 - Do not claim success without checks.
 
@@ -82,56 +74,61 @@ Business changes happen only through this dedicated application service.
 
 Create or update:
 
-- app/Services/Supply/Confirmations/SupplierConfirmationSourceNormalizer.php
-- app/Services/Supply/Confirmations/SupplierConfirmationItemMatcher.php
-- app/Services/Supply/Confirmations/SupplierConfirmationDiscrepancyService.php
-- app/Services/Supply/Confirmations/SupplierConfirmationStatusResolver.php
-- app/Services/Supply/Confirmations/SupplierConfirmationApplicationService.php
-- app/Services/Supply/Confirmations/SupplierConfirmationManualDataService.php
-- app/Services/Supply/Confirmations/SupplierConfirmationFromAiExtractionService.php
-- app/Services/Supply/Confirmations/SupplierConfirmationFromFormAutofillService.php
-- app/Services/Supply/Confirmations/SupplierConfirmationInboundUpdater.php
-- app/Services/Supply/Confirmations/SupplierConfirmationLogisticsUpdater.php
-- app/Services/Supply/Confirmations/SupplierConfirmationRiskService.php
-- app/Events/SupplierConfirmationApplied.php optional
-- app/Events/SupplierConfirmationRiskChanged.php optional
-- app/Notifications/SupplierConfirmationNeedsReviewNotification.php optional
-- app/Notifications/SupplierConfirmationDelayNotification.php optional
-- app/Notifications/SupplierConfirmationQuantityMismatchNotification.php optional
-- app/Http/Requests/Supply/StoreManualSupplierConfirmationRequest.php
-- app/Http/Requests/Supply/ApplyAiSupplierConfirmationRequest.php
-- app/Http/Requests/Supply/ApplyFormAutofillSupplierConfirmationRequest.php
-- app/Http/Requests/Supply/ResolveSupplierConfirmationReviewRequest.php optional
-- app/Policies/SupplierConfirmationPolicy.php
+- app/Services/Supply/Transport/CarrierQuoteSourceNormalizer.php
+- app/Services/Supply/Transport/CarrierQuoteValidationService.php
+- app/Services/Supply/Transport/CarrierQuoteApplicationService.php
+- app/Services/Supply/Transport/CarrierQuoteManualService.php
+- app/Services/Supply/Transport/CarrierQuoteFromAiExtractionService.php
+- app/Services/Supply/Transport/CarrierQuoteFromFormAutofillService.php
+- app/Services/Supply/Transport/CarrierQuoteScoringService.php
+- app/Services/Supply/Transport/CarrierQuoteComparisonService.php
+- app/Services/Supply/Transport/CarrierSelectionService.php
+- app/Services/Supply/Transport/CarrierQuoteRequestService.php
+- app/Services/Supply/Transport/TransportLogisticsUpdater.php
+- app/Http/Requests/Supply/StoreManualCarrierQuoteRequest.php
+- app/Http/Requests/Supply/ApplyAiCarrierQuoteRequest.php
+- app/Http/Requests/Supply/ApplyFormAutofillCarrierQuoteRequest.php
+- app/Http/Requests/Supply/ScoreCarrierQuotesRequest.php
+- app/Http/Requests/Supply/SelectCarrierQuoteRequest.php
+- app/Http/Requests/Supply/RejectCarrierQuoteRequest.php
+- app/Http/Requests/Supply/PrepareCarrierQuoteRequestRequest.php
+- app/Policies/CarrierPolicy.php
+- app/Policies/CarrierQuotePolicy.php
 - app/Policies/AiEmailExtractionPolicy.php update
 - app/Policies/FormAutofillRunPolicy.php update
-- app/Http/Controllers/Supply/SupplierConfirmationController.php
-- app/Http/Controllers/Supply/ManualSupplierConfirmationController.php
-- app/Http/Controllers/Supply/ApplyAiSupplierConfirmationController.php
-- app/Http/Controllers/Supply/ApplyFormAutofillSupplierConfirmationController.php
-- app/Http/Controllers/Supply/SupplierConfirmationReviewController.php optional
+- app/Http/Controllers/Supply/CarrierController.php
+- app/Http/Controllers/Supply/CarrierQuoteController.php
+- app/Http/Controllers/Supply/ManualCarrierQuoteController.php
+- app/Http/Controllers/Supply/ApplyAiCarrierQuoteController.php
+- app/Http/Controllers/Supply/ApplyFormAutofillCarrierQuoteController.php
+- app/Http/Controllers/Supply/CarrierQuoteScoringController.php
+- app/Http/Controllers/Supply/CarrierSelectionController.php
+- app/Http/Controllers/Supply/CarrierQuoteRejectionController.php
+- app/Http/Controllers/Supply/CarrierQuoteRequestController.php
 - routes/web.php
-- resources/views/supply/supplier-confirmations/*
+- resources/views/supply/carriers/*
+- resources/views/supply/transport/quotes/*
+- resources/views/supply/transport/quote-requests/*
+- resources/views/supply/transport/partials/*
 - resources/views/supply/supplier-orders/show.blade.php update
 - resources/views/supply/ai-extractions/show.blade.php update
 - resources/views/supply/form-autofill-runs/show.blade.php update
-- tests/Unit/SupplierConfirmationSourceNormalizerTest.php
-- tests/Feature/SupplierConfirmationItemMatcherTest.php
-- tests/Unit/SupplierConfirmationDiscrepancyServiceTest.php
-- tests/Unit/SupplierConfirmationStatusResolverTest.php
-- tests/Feature/SupplierConfirmationApplicationServiceTest.php
-- tests/Feature/SupplierConfirmationFromAiExtractionServiceTest.php
-- tests/Feature/SupplierConfirmationFromFormAutofillServiceTest.php
-- tests/Feature/SupplierConfirmationInboundUpdaterTest.php
-- tests/Feature/SupplierConfirmationLogisticsUpdaterTest.php
-- tests/Feature/SupplierConfirmationControllerTest.php
-- tests/Feature/ManualSupplierConfirmationControllerTest.php
-- tests/Feature/ApplyAiSupplierConfirmationControllerTest.php
-- tests/Feature/ApplyFormAutofillSupplierConfirmationControllerTest.php
-- tests/Unit/SupplierConfirmationBoundaryTest.php
+- tests/Unit/CarrierQuoteSourceNormalizerTest.php
+- tests/Unit/CarrierQuoteValidationServiceTest.php
+- tests/Feature/CarrierQuoteScoringServiceTest.php
+- tests/Feature/CarrierQuoteComparisonServiceTest.php
+- tests/Feature/CarrierQuoteApplicationServiceTest.php
+- tests/Feature/CarrierQuoteFromAiExtractionServiceTest.php
+- tests/Feature/CarrierQuoteFromFormAutofillServiceTest.php
+- tests/Feature/CarrierSelectionServiceTest.php
+- tests/Feature/CarrierQuoteRequestServiceTest.php
+- tests/Feature/TransportControllerTest.php
+- tests/Feature/CarrierQuoteControllerTest.php
+- tests/Feature/CarrierSelectionControllerTest.php
+- tests/Unit/TransportBoundaryTest.php
 - tests/Unit/NoDtoRuleTest.php update
-- docs/supplier-confirmation-workflow.md
-- docs/supplier-confirmation-implementation-notes.md
+- docs/transport-workflow.md
+- docs/transport-module-implementation-notes.md
 - docs/workflow-map.md update
 - docs/status-machines.md update
 - docs/email-ai-boundary.md update
@@ -142,64 +139,63 @@ Create or update:
 ## Out Of Scope
 
 Do not implement:
-- carrier quote scoring;
-- carrier selection;
-- transport quote comparison UI;
-- full logistics dashboard;
+- real carrier API;
+- automatic transport booking;
+- automatic carrier selection;
 - goods receiving workflow;
-- invoice/proforma processing;
-- automatic recalculation of proposals;
+- full logistics dashboard;
+- invoice/proforma workflow;
+- real external email provider;
 - real AI calls;
-- real email calls;
-- external APIs;
-- email reply sending.
+- OpenAI integration;
+- Google Sheets sync.
 
 ## Required Implementation
 
-Implement supplier confirmation application from:
-- manual data;
-- accepted AI extraction;
-- validated form autofill run.
+Implement carrier quote workflow.
 
-The system must:
-- validate source;
-- resolve supplier order;
-- normalize data;
-- match SKU/product;
-- detect discrepancies;
-- create SupplierConfirmation;
-- create SupplierConfirmationItem for matched items;
-- update SupplierOrderItem.confirmed_quantity;
-- update SupplierOrder.status;
-- update InboundOrder/InboundOrderItem where safe;
-- update LogisticsRecord where safe;
-- flag risk for mismatch/delay;
-- write audit logs.
+User must be able to:
+- view carriers;
+- create/edit carrier;
+- view carrier quotes;
+- open carrier quote detail;
+- add manual carrier quote for supplier order;
+- apply accepted AI extraction as carrier quote candidate;
+- apply validated form autofill run as carrier quote candidate;
+- validate quote data;
+- score quote;
+- compare quotes for supplier order;
+- see score explanation;
+- see warning that recommendation is not automatic selection;
+- select carrier manually with confirmation;
+- override needs_review quote only with explicit reason;
+- update logistics after user selection;
+- reject quote;
+- prepare carrier quote request draft without sending automatically.
 
 ## Required Tests
 
 Create or update:
-- SupplierConfirmationSourceNormalizerTest
-- SupplierConfirmationItemMatcherTest
-- SupplierConfirmationDiscrepancyServiceTest
-- SupplierConfirmationStatusResolverTest
-- SupplierConfirmationApplicationServiceTest
-- SupplierConfirmationFromAiExtractionServiceTest
-- SupplierConfirmationFromFormAutofillServiceTest
-- SupplierConfirmationInboundUpdaterTest
-- SupplierConfirmationLogisticsUpdaterTest
-- SupplierConfirmationControllerTest
-- ManualSupplierConfirmationControllerTest
-- ApplyAiSupplierConfirmationControllerTest
-- ApplyFormAutofillSupplierConfirmationControllerTest
-- SupplierConfirmationBoundaryTest
+- CarrierQuoteSourceNormalizerTest
+- CarrierQuoteValidationServiceTest
+- CarrierQuoteScoringServiceTest
+- CarrierQuoteComparisonServiceTest
+- CarrierQuoteApplicationServiceTest
+- CarrierQuoteFromAiExtractionServiceTest
+- CarrierQuoteFromFormAutofillServiceTest
+- CarrierSelectionServiceTest
+- CarrierQuoteRequestServiceTest
+- TransportControllerTest
+- CarrierQuoteControllerTest
+- CarrierSelectionControllerTest
+- TransportBoundaryTest
 - NoDtoRuleTest
 
 ## Required Documentation
 
 Create:
-- docs/supplier-confirmation-workflow.md
-- docs/supplier-confirmation-implementation-notes.md
+- docs/transport-workflow.md
+- docs/transport-module-implementation-notes.md
 
 Update:
 - docs/workflow-map.md
@@ -217,59 +213,47 @@ Update:
 - [ ] docs/current-task-read-confirmation.md created.
 - [ ] docs/current-task-progress.md created.
 - [ ] Optional safe migrations added if missing fields block implementation.
-- [ ] SupplierConfirmationSourceNormalizer created.
-- [ ] SupplierConfirmationItemMatcher created.
-- [ ] SupplierConfirmationDiscrepancyService created.
-- [ ] SupplierConfirmationStatusResolver created.
-- [ ] SupplierConfirmationApplicationService created.
-- [ ] SupplierConfirmationManualDataService created.
-- [ ] SupplierConfirmationFromAiExtractionService created.
-- [ ] SupplierConfirmationFromFormAutofillService created.
-- [ ] SupplierConfirmationInboundUpdater created.
-- [ ] SupplierConfirmationLogisticsUpdater created.
-- [ ] SupplierConfirmationRiskService created.
-- [ ] Manual confirmation source implemented.
-- [ ] Accepted AI extraction source implemented.
-- [ ] Validated form autofill run source implemented.
-- [ ] Unaccepted AI extraction cannot be applied.
-- [ ] Rejected AI extraction cannot be applied.
-- [ ] Unvalidated form autofill run cannot be applied.
-- [ ] SKU matching by product SKU implemented.
-- [ ] SKU matching by manufacturer SKU implemented.
-- [ ] SKU matching by supplier SKU implemented.
-- [ ] Matching by product_id implemented.
-- [ ] Unknown SKU creates discrepancy and needs_review.
-- [ ] Ambiguous SKU creates discrepancy and needs_review.
-- [ ] Missing ordered item creates discrepancy.
-- [ ] Additional supplier item creates discrepancy.
-- [ ] Lower quantity creates quantity mismatch.
-- [ ] Higher quantity creates quantity mismatch / needs_review by default.
-- [ ] Invalid date creates needs_review.
-- [ ] Date delay creates warning/risk flag.
-- [ ] SupplierConfirmation created.
-- [ ] SupplierConfirmationItems created only for matched items.
-- [ ] SupplierOrderItem.confirmed_quantity updated for matched items.
-- [ ] SupplierOrder status updated.
-- [ ] InboundOrder updated/created where safe.
-- [ ] InboundOrderItem updated/created for matched items.
-- [ ] LogisticsRecord updated/created.
-- [ ] Risk event/audit created for quantity mismatch/delay.
-- [ ] Notifications created or skipped with documented reason.
+- [ ] CarrierQuoteSourceNormalizer created.
+- [ ] CarrierQuoteValidationService created.
+- [ ] CarrierQuoteApplicationService created.
+- [ ] CarrierQuoteManualService created.
+- [ ] CarrierQuoteFromAiExtractionService created.
+- [ ] CarrierQuoteFromFormAutofillService created.
+- [ ] CarrierQuoteScoringService created.
+- [ ] CarrierQuoteComparisonService created.
+- [ ] CarrierSelectionService created.
+- [ ] CarrierQuoteRequestService created.
+- [ ] TransportLogisticsUpdater created.
+- [ ] Manual quote entry implemented.
+- [ ] Accepted AI extraction can create quote candidate.
+- [ ] Unaccepted AI extraction cannot create quote.
+- [ ] Validated form autofill run can create quote candidate.
+- [ ] Unvalidated form autofill run cannot create quote.
+- [ ] Quote creation does not select carrier.
+- [ ] Scoring does not select carrier.
+- [ ] Comparison does not select carrier.
+- [ ] Lowest price does not automatically win when date is bad.
+- [ ] Score explanation includes price/date/reliability/penalties.
+- [ ] User carrier selection implemented.
+- [ ] Needs_review quote cannot be selected without override reason.
+- [ ] Existing selected quote replacement requires replace_existing option.
+- [ ] LogisticsRecord updates only after carrier selection.
+- [ ] Quote request draft does not send real email automatically.
 - [ ] FormRequests created.
 - [ ] Policies created/updated.
 - [ ] Controllers created.
 - [ ] Routes created.
 - [ ] Views created/updated.
-- [ ] AI extraction show page has apply supplier confirmation panel only when accepted.
-- [ ] Form autofill run show page has apply supplier confirmation panel only when validated.
-- [ ] Supplier order show page has manual confirmation button/list.
+- [ ] Supplier order show page has transport panel.
+- [ ] AI extraction show page has apply carrier quote panel only when accepted and compatible.
+- [ ] Form autofill run show page has apply carrier quote panel only when validated and compatible.
 - [ ] Audit events written.
 - [ ] Tests created.
-- [ ] Boundary test confirms no AI/email/carrier calls.
-- [ ] Boundary test confirms no received_quantity update.
+- [ ] Boundary test confirms no AI/external/carrier API/email sending.
+- [ ] Boundary test confirms only CarrierSelectionService selects carrier.
 - [ ] No DTO test updated.
-- [ ] docs/supplier-confirmation-workflow.md created.
-- [ ] docs/supplier-confirmation-implementation-notes.md created.
+- [ ] docs/transport-workflow.md created.
+- [ ] docs/transport-module-implementation-notes.md created.
 - [ ] docs/workflow-map.md updated.
 - [ ] docs/status-machines.md updated.
 - [ ] docs/email-ai-boundary.md updated.
@@ -302,4 +286,4 @@ npm run build
 
 ## Commit Message
 
-Add supplier confirmation application workflow
+Add transport quote scoring and carrier selection workflow

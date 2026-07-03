@@ -208,7 +208,7 @@ it('stores a manual carrier quote from the route', function () {
         'conditions' => 'Manual quote entry.',
     ]);
 
-    $response->assertRedirectToRoute('supply.transport.orders.quotes.index', $fixture['supplierOrder']);
+    $response->assertRedirectToRoute('supply.transport.orders.quotes', $fixture['supplierOrder']);
 
     $quote = CarrierQuote::query()->firstOrFail();
 

@@ -195,11 +195,25 @@ Implementation:
 
 ## Step 11. Transport
 
+Status: implemented in Task 11.
+
 Result:
 
 * carrier quotes;
 * scoring;
 * user carrier selection.
+
+Implementation:
+
+* carrier quote request drafts added without automatic sending;
+* manual quote entry added;
+* accepted AI extraction quote candidates added;
+* validated carrier_quote form autofill candidates added;
+* quote validation, scoring and comparison added;
+* lowest price is not automatic winner when delivery date is bad;
+* user-only carrier selection added;
+* logistics updates only after selection;
+* transport audit events and tests added.
 
 ## Step 12. Logistics And Receiving
 

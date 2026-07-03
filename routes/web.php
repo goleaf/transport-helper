@@ -3,10 +3,16 @@
 use App\Http\Controllers\Supply\AiEmailExtractionController;
 use App\Http\Controllers\Supply\AiEmailExtractionReviewController;
 use App\Http\Controllers\Supply\AnalyzeInboundEmailController;
+use App\Http\Controllers\Supply\ApplyAiCarrierQuoteController;
 use App\Http\Controllers\Supply\ApplyAiSupplierConfirmationController;
+use App\Http\Controllers\Supply\ApplyFormAutofillCarrierQuoteController;
 use App\Http\Controllers\Supply\ApplyFormAutofillSupplierConfirmationController;
-use App\Http\Controllers\Supply\CarrierQuoteDecisionController;
+use App\Http\Controllers\Supply\CarrierController;
+use App\Http\Controllers\Supply\CarrierQuoteController;
+use App\Http\Controllers\Supply\CarrierQuoteRejectionController;
 use App\Http\Controllers\Supply\CarrierQuoteRequestController;
+use App\Http\Controllers\Supply\CarrierQuoteScoringController;
+use App\Http\Controllers\Supply\CarrierSelectionController;
 use App\Http\Controllers\Supply\ConvertProposalToSupplierOrderController;
 use App\Http\Controllers\Supply\EmailFormAutofillController;
 use App\Http\Controllers\Supply\EmailMessageController;
@@ -38,7 +44,6 @@ use App\Http\Controllers\Supply\SupplierOrderExportController;
 use App\Http\Controllers\Supply\SupplierOrderSendController;
 use App\Http\Controllers\Supply\SupplyDashboardController;
 use App\Http\Controllers\Supply\SupplySectionController;
-use App\Http\Controllers\Supply\TransportQuoteController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -101,6 +106,7 @@ Route::middleware(['web'])
         Route::get('ai-extractions/{extraction}', [AiEmailExtractionController::class, 'show'])->name('ai-extractions.show');
         Route::post('ai-extractions/{extraction}/review', [AiEmailExtractionReviewController::class, 'store'])->name('ai-extractions.review');
         Route::post('ai-extractions/{extraction}/apply-supplier-confirmation', [ApplyAiSupplierConfirmationController::class, 'store'])->name('ai-extractions.apply-supplier-confirmation');
+        Route::post('ai-extractions/{extraction}/apply-carrier-quote', [ApplyAiCarrierQuoteController::class, 'store'])->name('ai-extractions.apply-carrier-quote');
         Route::post('ai-extractions/{extraction}/accept', [AiEmailExtractionReviewController::class, 'store'])->defaults('decision', 'accept')->name('ai-extractions.accept');
         Route::post('ai-extractions/{extraction}/reject', [AiEmailExtractionReviewController::class, 'store'])->defaults('decision', 'reject')->name('ai-extractions.reject');
         Route::post('ai-extractions/{extraction}/request-human-review', [AiEmailExtractionReviewController::class, 'store'])->defaults('decision', 'needs_review')->name('ai-extractions.request-human-review');
@@ -121,15 +127,29 @@ Route::middleware(['web'])
         Route::post('form-autofill-runs/{run}/validate', [FormAutofillRunValidationController::class, 'store'])->name('form-autofill-runs.validate');
         Route::post('form-autofill-runs/{run}/application-check', FormAutofillApplyGateController::class)->name('form-autofill-runs.application-check');
         Route::post('form-autofill-runs/{run}/apply-supplier-confirmation', [ApplyFormAutofillSupplierConfirmationController::class, 'store'])->name('form-autofill-runs.apply-supplier-confirmation');
+        Route::post('form-autofill-runs/{run}/apply-carrier-quote', [ApplyFormAutofillCarrierQuoteController::class, 'store'])->name('form-autofill-runs.apply-carrier-quote');
         Route::post('form-autofill-runs/{run}/export', FormAutofillExportController::class)->name('form-autofill-runs.export');
         Route::get('form-autofill-outputs/{output}/download', FormAutofillOutputDownloadController::class)->name('form-autofill-outputs.download');
 
-        Route::get('transport/quotes', [TransportQuoteController::class, 'index'])->name('transport.quotes.index');
-        Route::get('transport/orders/{supplierOrder}/quotes', [TransportQuoteController::class, 'orderQuotes'])->name('transport.orders.quotes.index');
-        Route::post('transport/orders/{supplierOrder}/request-quotes', [CarrierQuoteRequestController::class, 'store'])->name('transport.orders.request-quotes');
+        Route::get('carriers', [CarrierController::class, 'index'])->name('carriers.index');
+        Route::get('carriers/create', [CarrierController::class, 'create'])->name('carriers.create');
+        Route::post('carriers', [CarrierController::class, 'store'])->name('carriers.store');
+        Route::get('carriers/{carrier}', [CarrierController::class, 'show'])->name('carriers.show');
+        Route::get('carriers/{carrier}/edit', [CarrierController::class, 'edit'])->name('carriers.edit');
+        Route::match(['put', 'patch'], 'carriers/{carrier}', [CarrierController::class, 'update'])->name('carriers.update');
+
+        Route::get('transport/quotes', [CarrierQuoteController::class, 'index'])->name('transport.quotes.index');
+        Route::get('transport/quotes/{quote}', [CarrierQuoteController::class, 'show'])->name('transport.quotes.show');
+        Route::get('transport/orders/{order}/quotes', [CarrierQuoteController::class, 'forSupplierOrder'])->name('transport.orders.quotes');
+        Route::get('transport/orders/{order}/quotes/create', [ManualCarrierQuoteController::class, 'create'])->name('transport.orders.quotes.create');
+        Route::post('transport/orders/{order}/quotes', [ManualCarrierQuoteController::class, 'store'])->name('transport.orders.quotes.store');
+        Route::post('transport/orders/{order}/quotes/score', [CarrierQuoteScoringController::class, 'store'])->name('transport.orders.quotes.score');
+        Route::get('transport/orders/{order}/quote-requests/create', [CarrierQuoteRequestController::class, 'create'])->name('transport.orders.quote-requests.create');
+        Route::post('transport/orders/{order}/quote-requests', [CarrierQuoteRequestController::class, 'store'])->name('transport.orders.quote-requests.store');
+        Route::post('transport/orders/{order}/request-quotes', [CarrierQuoteRequestController::class, 'store'])->name('transport.orders.request-quotes');
         Route::post('transport/quotes/manual', [ManualCarrierQuoteController::class, 'store'])->name('transport.quotes.manual');
-        Route::post('transport/quotes/{quote}/select', [CarrierQuoteDecisionController::class, 'select'])->name('transport.quotes.select');
-        Route::post('transport/quotes/{quote}/reject', [CarrierQuoteDecisionController::class, 'reject'])->name('transport.quotes.reject');
+        Route::post('transport/quotes/{quote}/select', [CarrierSelectionController::class, 'store'])->name('transport.quotes.select');
+        Route::post('transport/quotes/{quote}/reject', [CarrierQuoteRejectionController::class, 'store'])->name('transport.quotes.reject');
 
         Route::get('logistics', [LogisticsController::class, 'index'])->name('logistics.index');
         Route::get('logistics/{record}', [LogisticsController::class, 'show'])->name('logistics.show');

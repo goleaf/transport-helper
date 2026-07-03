@@ -153,6 +153,14 @@ SupplierOrder after confirmation:
 * selected
 * rejected
 
+Transitions:
+
+* received -> selected after explicit user selection;
+* received -> rejected after user rejection;
+* needs_review -> selected only with override reason;
+* needs_review -> rejected after user rejection;
+* selected -> received or rejected when replaced.
+
 ## LogisticsRecord
 
 * planned

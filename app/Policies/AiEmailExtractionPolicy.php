@@ -54,6 +54,12 @@ class AiEmailExtractionPolicy
             || $user->hasPermissionTo('apply_supplier_confirmations');
     }
 
+    public function applyAsCarrierQuote(User $user, AiEmailExtraction $aiEmailExtraction): bool
+    {
+        return $user->hasAnyRole([UserRole::Admin, UserRole::LogisticsManager])
+            || $user->hasPermissionTo('manage_transport');
+    }
+
     public function delete(User $user, AiEmailExtraction $aiEmailExtraction): bool
     {
         return false;

@@ -65,6 +65,13 @@ class FormAutofillRunPolicy
             || $user->hasPermissionTo('apply_email_form_autofill');
     }
 
+    public function applyAsCarrierQuote(User $user, FormAutofillRun $formAutofillRun): bool
+    {
+        return $user->hasAnyRole([UserRole::Admin, UserRole::LogisticsManager])
+            || $user->hasPermissionTo('manage_transport')
+            || $user->hasPermissionTo('apply_email_form_autofill');
+    }
+
     public function reject(User $user, FormAutofillRun $formAutofillRun): bool
     {
         return $this->review($user, $formAutofillRun);

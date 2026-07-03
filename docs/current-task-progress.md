@@ -9,17 +9,16 @@
 ## Implementation Checklist
 
 - [x] Source normalizer
-- [x] Item matcher
-- [x] Discrepancy service
-- [x] Status resolver
+- [x] Validation service
 - [x] Application service
-- [x] Manual source service
-- [x] AI extraction source service
-- [x] Form autofill source service
-- [x] Inbound updater
+- [x] Manual quote service
+- [x] AI extraction quote service
+- [x] Form autofill quote service
+- [x] Scoring service
+- [x] Comparison service
+- [x] Carrier selection service
+- [x] Quote request service
 - [x] Logistics updater
-- [x] Risk service
-- [x] Events/notifications optional - events created; notifications skipped and documented
 - [x] FormRequests
 - [x] Policies
 - [x] Controllers
@@ -30,23 +29,23 @@
 
 ## Tests And Checks
 
-- [x] ./scripts/check-no-dto.sh - passed
-- [x] ./scripts/check-no-secrets.sh - passed
-- [x] ./scripts/check-project-docs.sh - passed
-- [x] php artisan migrate:fresh --seed - passed with --env=testing
-- [x] php artisan test - passed, 392 tests / 1732 assertions
-- [x] ./vendor/bin/pint, if available - passed, fixed dirty PHP files
-- [x] npm run build, if applicable - passed
+- [x] ./scripts/check-no-dto.sh passed
+- [x] ./scripts/check-no-secrets.sh passed
+- [x] ./scripts/check-project-docs.sh passed
+- [x] php artisan migrate:fresh --seed passed
+- [x] php artisan test passed: 432 tests, 1842 assertions
+- [x] ./vendor/bin/pint --dirty --format agent passed
+- [x] npm run build passed
 
 ## Failures
 
-None.
+Focused Punkt 11 tests initially exposed route-name and selection-form compatibility issues. Fixed.
 
 ## Blockers
 
-None.
+None yet.
 
 ## Commit
 
-- Commit hash: reported in final response after commit hash is immutable
-- Push status: reported in final response after push attempt
+- Commit hash: recorded in final response after commit
+- Push status: recorded in final response after push attempt

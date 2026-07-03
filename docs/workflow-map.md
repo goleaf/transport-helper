@@ -168,10 +168,16 @@ System:
 
 System:
 
-* collects carrier quotes;
-* scores by price/date/reliability;
-* user selects carrier manually;
-* logistics updated.
+* prepares carrier quote request drafts without sending automatically;
+* stores manual carrier quote candidates;
+* creates quote candidates from accepted AI extractions;
+* creates quote candidates from validated carrier_quote form autofill runs;
+* validates carrier, price, currency and dates;
+* scores by price, pickup date, delivery date and reliability;
+* compares quotes and shows a recommendation only;
+* requires user carrier selection;
+* updates logistics only after user selection;
+* audits quote creation, scoring, comparison, rejection and selection.
 
 ## 10. Logistics And Receiving
 

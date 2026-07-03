@@ -170,3 +170,27 @@ Task 10 writes audit logs for:
 
 Audit metadata records supplier confirmation ids, supplier order ids, source type/id, statuses, discrepancy counts, matched item ids and risk reasons.
 Full email bodies, secrets, attachment contents and external provider credentials are not stored in audit metadata.
+
+## Transport Audit Events
+
+Task 11 writes audit logs for:
+
+* `carrier_created`;
+* `carrier_updated`;
+* `carrier_quote_created`;
+* `carrier_quote_needs_review`;
+* `carrier_quote_scored`;
+* `carrier_quotes_compared`;
+* `carrier_quote_selected`;
+* `carrier_selected`;
+* `carrier_quote_rejected`;
+* `carrier_quote_status_changed`;
+* `logistics_record_updated_from_carrier_selection`;
+* `carrier_quote_requests_prepared`;
+* `ai_extraction_applied_to_carrier_quote`;
+* `form_autofill_run_applied_to_carrier_quote`;
+* `form_autofill_run_applied`;
+* `transport_selection_override_used`.
+
+Audit metadata records quote ids, supplier order ids, carrier ids, source type/id, price/date values, calculated score details, warnings, replacement decisions, override reasons and logistics record ids.
+Full email bodies, secrets, carrier credentials and external provider payloads are not stored in audit metadata.

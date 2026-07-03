@@ -99,3 +99,9 @@ Validated autofill runs can be exported or checked by the apply gate, but this s
 
 Task 10 adds supplier confirmation application from accepted AI extraction and validated form autofill run.
 The source records remain suggestions or reviewed form data; only the supplier confirmation application service mutates supplier confirmations, supplier order items, inbound orders and logistics records.
+
+## Transport Quote Boundary
+
+Task 11 allows accepted AI extraction to create carrier quote candidates.
+AI transport quote extraction cannot select carriers, update logistics or book transport.
+Carrier selection is a separate Laravel workflow that requires explicit user action.

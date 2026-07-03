@@ -29,6 +29,21 @@ class CarrierQuotePolicy
         return $this->manage($user);
     }
 
+    public function applyFromAi(User $user, CarrierQuote $carrierQuote): bool
+    {
+        return $this->manage($user);
+    }
+
+    public function applyFromFormAutofill(User $user, CarrierQuote $carrierQuote): bool
+    {
+        return $this->manage($user);
+    }
+
+    public function score(User $user, CarrierQuote $carrierQuote): bool
+    {
+        return $this->manage($user) || $this->select($user, $carrierQuote);
+    }
+
     public function update(User $user, CarrierQuote $carrierQuote): bool
     {
         return $this->manage($user);

@@ -65,7 +65,11 @@ class SupplierOrderController extends Controller
             'orderProposal:id,status',
             'items.product:id,sku,manufacturer_sku,name,unit',
             'confirmations:id,supplier_order_id,supplier_reference,status,confirmation_date,ready_date,expected_arrival_date,discrepancy_summary,applied_at',
-            'logisticsRecords:id,supplier_order_id,status,order_date,ready_date,pickup_date,delivery_date,transport_price,currency',
+            'logisticsRecords:id,supplier_order_id,carrier_id,selected_carrier_quote_id,status,order_date,ready_date,pickup_date,delivery_date,transport_price,currency',
+            'logisticsRecords.carrier:id,name',
+            'logisticsRecords.selectedCarrierQuote:id,carrier_id,price,currency,delivery_date,status',
+            'carrierQuotes:id,supplier_order_id,carrier_id,price,currency,pickup_date,delivery_date,calculated_score,status',
+            'carrierQuotes.carrier:id,name',
             'emailMessages:id,company_id,related_supplier_order_id,direction,to_json,cc_json,subject,body_text,status,message_id,sent_at,created_at',
             'emailMessages.attachments:id,email_message_id,original_filename,stored_path,mime_type,size_bytes',
             'sentBy:id,name',
@@ -102,6 +106,7 @@ class SupplierOrderController extends Controller
             'canApproveEmail' => Gate::allows('approveEmail', $order),
             'canSendEmail' => Gate::allows('sendEmail', $order),
             'canCreateManualConfirmation' => Gate::allows('createManual', SupplierConfirmation::class),
+            'canManageTransport' => request()->user()?->canManageLogisticsWorkflow() ?? false,
         ]);
     }
 

@@ -19,7 +19,7 @@ class CarrierQuoteDecisionController extends Controller
         $selectionService->select($quote, $request->user(), $request->validated());
 
         return redirect()
-            ->route('supply.transport.orders.quotes.index', $quote->supplier_order_id)
+            ->route('supply.transport.orders.quotes', $quote->supplier_order_id)
             ->with('status', 'Carrier selected.');
     }
 
@@ -30,7 +30,7 @@ class CarrierQuoteDecisionController extends Controller
         $selectionService->reject($quote, $request->user());
 
         return redirect()
-            ->route('supply.transport.orders.quotes.index', $quote->supplier_order_id)
+            ->route('supply.transport.orders.quotes', $quote->supplier_order_id)
             ->with('status', 'Carrier quote rejected.');
     }
 }
