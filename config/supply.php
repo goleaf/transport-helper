@@ -32,6 +32,18 @@ return [
         ],
         'block_missing_price_in_enforced_mode' => env('SUPPLY_PROCUREMENT_BLOCK_MISSING_PRICE', true),
     ],
+    'master_data' => [
+        'allow_auto_create_product_from_unknown_sku' => false,
+        'allow_auto_merge' => false,
+        'duplicate_detection' => [
+            'name_similarity_threshold' => env('SUPPLY_MASTER_DATA_NAME_SIMILARITY_THRESHOLD', 0.85),
+        ],
+        'unknown_sku' => [
+            'record_from_imports' => true,
+            'record_from_ai_extractions' => true,
+            'record_from_confirmations' => true,
+        ],
+    ],
     'email_ingestion' => [
         'default_provider' => env('SUPPLY_EMAIL_PROVIDER', 'manual'),
         'default_analyzer' => env('SUPPLY_EMAIL_ANALYZER', 'rule_based'),

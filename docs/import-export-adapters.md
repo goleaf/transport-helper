@@ -129,3 +129,11 @@ Supplier order email drafts can attach:
 * an auto-generated Excel-compatible CSV export when no export exists.
 
 PDF and supplier custom template exports remain explicit placeholders until configured.
+
+## Master Data Governance
+
+Imports may resolve product identity through `ProductIdentityService` by exact product id, SKU, manufacturer SKU, active product alias, supplier SKU rule or active supplier-product identity mapping.
+
+Imports must not create products automatically from unknown SKUs. Unknown product references should be recorded as `UnknownSkuResolution` records so a data steward can map, ignore or request an approved product change.
+
+Supplier names from imports may use `SupplierIdentityService` for exact supplier id, code, contact email, active alias, normalized exact name or unique domain matching. Fuzzy supplier matches are suggestions only.

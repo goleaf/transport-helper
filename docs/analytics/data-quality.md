@@ -21,3 +21,17 @@ Critical issues should be corrected before relying on replenishment analytics.
 
 The report recommends cleanup but does not mutate source records.
 
+## Master Data Quality Metrics
+
+Task 20 adds master data quality checks for:
+
+- products missing manufacturer SKU;
+- products without supplier product rules;
+- supplier product rules missing supplier SKU;
+- unresolved unknown SKUs;
+- pending aliases;
+- pending master data change requests;
+- pending merge proposals;
+- duplicate product and supplier suggestions.
+
+These metrics are advisory reports. They do not merge records, create products or mutate operational workflow records.

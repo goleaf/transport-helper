@@ -27,6 +27,7 @@ class SupplyNavigation
             ],
             ['key' => 'products', 'label' => 'Products', 'route' => 'supply.products.index', 'active' => 'supply.products.*'],
             ['key' => 'suppliers', 'label' => 'Suppliers', 'route' => 'supply.suppliers.index', 'active' => 'supply.suppliers.*'],
+            ['key' => 'master-data', 'label' => 'Master Data', 'route' => 'supply.master-data.dashboard', 'active' => 'supply.master-data.*'],
             ['key' => 'stock', 'label' => 'Stock', 'route' => 'supply.stock.index', 'active' => 'supply.stock.*'],
             ['key' => 'sales-history', 'label' => 'Sales History', 'route' => 'supply.sales-history.index', 'active' => 'supply.sales-history.*'],
             ['key' => 'inbound-orders', 'label' => 'Inbound Orders', 'route' => 'supply.inbound-orders.index', 'active' => 'supply.inbound-orders.*'],

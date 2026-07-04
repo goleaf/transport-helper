@@ -10,19 +10,21 @@
 
 - [x] Migrations/models
 - [x] Enums/constants
-- [x] Supplier product price service
-- [x] Order value estimation
-- [x] Currency service
-- [x] Policy service/resolver
-- [x] Budget service
-- [x] Budget availability service
-- [x] Approval requirement service
-- [x] Approval workflow service
-- [x] Exception service
-- [x] Supplier order rule service
-- [x] Compliance service
-- [x] Gate service
-- [x] Report service
+- [x] Product identity service
+- [x] Supplier identity service
+- [x] Supplier product identity service
+- [x] Unknown SKU resolution service
+- [x] Duplicate detection service
+- [x] Product merge proposal service
+- [x] Supplier merge proposal service
+- [x] Merge execution service
+- [x] Change request service
+- [x] Product lifecycle service
+- [x] Supplier lifecycle service
+- [x] Data steward service
+- [x] Quality report service
+- [x] Import integration helper
+- [x] AI extraction helper
 - [x] FormRequests
 - [x] Policies
 - [x] Controllers/routes/views
@@ -36,15 +38,16 @@
 - [x] ./scripts/check-no-secrets.sh - passed
 - [x] ./scripts/check-project-docs.sh - passed
 - [x] php artisan migrate:fresh --seed - passed
-- [x] php artisan supply:procurement-rules-audit - passed with configuration warnings for missing active procurement seed data
-- [x] php artisan supply:budget-status - passed
-- [x] php artisan test - passed, 849 tests / 3682 assertions
-- [x] ./vendor/bin/pint, if available - passed after formatting procurement tests
+- [x] php artisan supply:master-data-quality-audit - passed with advisory duplicate-suggestion warning from seeded demo data
+- [x] php artisan supply:detect-master-data-duplicates - passed and did not create proposals by default
+- [x] php artisan supply:unknown-sku-report - passed
+- [x] php artisan test - passed, 876 tests / 3784 assertions
+- [x] ./vendor/bin/pint, if available - passed after formatting Task 20 PHP files
 - [x] npm run build, if applicable - passed
 
 ## Failures
 
-- Full test run initially found procurement Blade data-preparation calls and missing navigation registration in the active navigation service. Fixed and reran successfully.
+- Full test run initially found new master-data Blade forms using raw `<button class="btn ...">` instead of the shared DaisyUI supply button component. Fixed and reran successfully.
 
 ## Blockers
 
@@ -52,5 +55,5 @@ None.
 
 ## Commit
 
-- Implementation commit hash: 11cc599
-- Push status: pushed to origin/main
+- Commit hash:
+- Push status:

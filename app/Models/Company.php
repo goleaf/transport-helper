@@ -32,6 +32,41 @@ class Company extends Model
         return $this->hasMany(Product::class);
     }
 
+    public function productAliases(): HasMany
+    {
+        return $this->hasMany(ProductAlias::class);
+    }
+
+    public function supplierAliases(): HasMany
+    {
+        return $this->hasMany(SupplierAlias::class);
+    }
+
+    public function supplierProductIdentities(): HasMany
+    {
+        return $this->hasMany(SupplierProductIdentity::class);
+    }
+
+    public function unknownSkuResolutions(): HasMany
+    {
+        return $this->hasMany(UnknownSkuResolution::class);
+    }
+
+    public function masterDataChangeRequests(): HasMany
+    {
+        return $this->hasMany(MasterDataChangeRequest::class);
+    }
+
+    public function masterDataMergeProposals(): HasMany
+    {
+        return $this->hasMany(MasterDataMergeProposal::class);
+    }
+
+    public function dataStewardAssignments(): HasMany
+    {
+        return $this->hasMany(DataStewardAssignment::class);
+    }
+
     public function stockSnapshots(): HasMany
     {
         return $this->hasMany(StockSnapshot::class);

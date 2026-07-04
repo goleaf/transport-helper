@@ -389,6 +389,30 @@ Implementation:
 * commands added for procurement rules audit, budget status and gate checks;
 * tests added for services, controllers, commands and no-autonomy boundary rules.
 
+## Step 20. Supplier And Product Master Data Governance
+
+Status: implemented in Task 20.
+
+Result:
+
+* product aliases;
+* supplier aliases;
+* supplier-product identity mappings;
+* unknown SKU resolution;
+* duplicate detection suggestions;
+* safe merge proposal workflow;
+* lifecycle statuses;
+* data steward assignments;
+* master data quality reports.
+
+Implementation:
+
+* master data governance tables, models, enums, policies and form requests added;
+* deterministic identity, mapping, unknown SKU, duplicate detection, merge, change request, lifecycle, steward, report and audit services added under `App\Services\Supply\MasterData`;
+* Blade pages added under `/supply/master-data`;
+* commands added for master data quality audit, duplicate detection, unknown SKU report and governance report;
+* boundary tests confirm no auto-merge, no automatic product creation from unknown SKU, no hard delete with history and no AI/external/email/carrier calls.
+
 ## Step 21. Exception And Incident Management
 
 Status: implemented in Task 21.

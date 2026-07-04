@@ -129,3 +129,19 @@ Before using procurement gates for live approvals:
 - run `php artisan supply:procurement-rules-audit`;
 - run `php artisan supply:budget-status`;
 - confirm procurement exports are stored privately and not committed.
+
+## Master Data Readiness
+
+Before relying on imports, AI review, supplier confirmations and calculations:
+
+- review unresolved unknown SKUs;
+- review duplicate product and supplier suggestions;
+- review pending aliases and supplier-product mappings;
+- review pending master data change requests;
+- review pending merge proposals;
+- review product and supplier lifecycle statuses;
+- review data steward assignments;
+- run `php artisan supply:master-data-quality-audit`;
+- run `php artisan supply:detect-master-data-duplicates`;
+- run `php artisan supply:unknown-sku-report`;
+- confirm master data quality exports are stored privately and not committed.

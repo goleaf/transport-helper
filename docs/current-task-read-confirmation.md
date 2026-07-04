@@ -16,58 +16,43 @@
 - docs/workflow-map.md
 - docs/status-machines.md
 - docs/decision-log.md
+- docs/import-export-adapters.md
 - docs/calculation-engine.md
-- docs/order-proposal-workflow.md
-- docs/supplier-order-email-workflow.md
 - docs/supplier-confirmation-workflow.md
-- docs/transport-workflow.md
-- docs/logistics-workflow.md
-- docs/analytics/overview.md
-- docs/forecasting/overview.md
+- docs/analytics/data-quality.md
 - docs/audit-and-security.md
 - docs/production-readiness.md
 
 ## Headings Found In Current Task
 
-- # Current Task
-- ## Task Title
-- ## Task Goal
-- ## Required Reading
-- ## Non-Negotiable Rules
-- ## Scope
-- ## Out Of Scope
-- ## Required Implementation
-- ## Required Tests
-- ## Required Documentation
-- ## Acceptance Criteria
-- ## Required Commands
-- ## Commit Message
+- Current Task
+- Task Title
+- Task Goal
+- Required Reading
+- Non-Negotiable Rules
+- Scope
+- Out Of Scope
+- Required Implementation
+- Required Tests
+- Required Documentation
+- Acceptance Criteria
+- Required Commands
+- Commit Message
 
 ## Understanding
 
-Task Title: Implement Procurement Rules And Budget Controls as the next deterministic supply workflow layer.
-
-Task Goal: Add policies, budgets, supplier prices, approval thresholds, exceptions, gates, reports, UI, commands, tests and docs without replacing replenishment logic.
-
-Required Reading: The work must be grounded in AGENTS.md, current task rules, workflow docs, calculation docs, proposal/order/email boundaries, audit/security and production readiness.
-
-Non-Negotiable Rules: No DTO/app/Data, no AI/external/email/carrier calls, no automatic approval/order/email/carrier action, no hidden budget or approval requirements, and no success claim without checks.
-
-Scope: Create procurement database tables, models, enums, services, requests, policies, controllers, views, routes, commands, tests and documentation.
-
-Out Of Scope: Accounting, payment/invoice posting, live exchange APIs, ERP sync, autonomous approvals/sending/carrier selection, forecasting changes and formula changes are excluded.
-
-Required Implementation: Users must manage policies, budgets, budget lines, prices, approvals, exceptions, gates, reports and exports while seeing audit logs.
-
-Required Tests: Service, controller, command, boundary and no-DTO tests must cover value estimation, currency, budgets, approvals, exceptions, rules, gates and reports.
-
-Required Documentation: New procurement docs must explain budgets, approvals, supplier rules, exceptions, gates and implementation notes, with existing workflow/security/readiness docs updated.
-
-Acceptance Criteria: The checklist requires implementation, safety boundaries, docs, tests, checks, commit and push.
-
-Required Commands: Run no-DTO, no-secrets, project-docs, migrate:fresh --seed, procurement commands and php artisan test, plus optional formatter/build.
-
-Commit Message: Commit with "Add procurement rules and budget controls".
+- Task Title: Implement Supplier And Product Master Data Governance.
+- Task Goal: Add safe product/supplier identity, duplicate detection, unknown SKU resolution, merge proposals, lifecycle and stewardship without unsafe automatic changes.
+- Required Reading: Project rules, task loop, no-DTO/no-secrets/testing rules and domain/workflow docs must guide implementation.
+- Non-Negotiable Rules: No DTO, no AI/external/email/carrier calls, no automatic merge/create, no hard delete with history and no success claim without checks.
+- Scope: Add master data tables, enums, models, services, requests, policies, controllers, views, commands, tests and docs.
+- Out Of Scope: No external enrichment, AI matching, ERP/PIM sync, automatic SKU/product/supplier creation, automatic merge or calculation formula changes.
+- Required Implementation: Users can manage aliases, mappings, unknown SKUs, duplicate/merge proposals, change approvals, lifecycle statuses, stewards and reports.
+- Required Tests: Unit/feature/boundary/controller/command coverage must be added for every master data service and workflow.
+- Required Documentation: Create docs/master-data/* and update core workflow, security, readiness and README docs.
+- Acceptance Criteria: All checklist items must be completed or documented as blockers before final response.
+- Required Commands: Run DTO/secrets/docs checks, migration/seed, master data commands, full tests, formatter and build where available.
+- Commit Message: Use "Add supplier and product master data governance".
 
 ## Acceptance Criteria Copied
 
@@ -76,49 +61,59 @@ Commit Message: Commit with "Add procurement rules and budget controls".
 - [ ] docs/current-task.md read from start to end.
 - [ ] docs/current-task-read-confirmation.md created.
 - [ ] docs/current-task-progress.md created.
-- [ ] Procurement migrations created if missing.
-- [ ] Procurement models created.
-- [ ] Procurement enums/constants created.
-- [ ] SupplierProductPriceService created.
-- [ ] OrderValueEstimationService created.
-- [ ] ProcurementCurrencyService created.
-- [ ] ProcurementPolicyService created.
-- [ ] ProcurementPolicyResolver created.
-- [ ] BudgetService created.
-- [ ] BudgetAvailabilityService created.
-- [ ] ApprovalRequirementService created.
-- [ ] ProcurementApprovalWorkflowService created.
-- [ ] ProcurementExceptionService created.
-- [ ] SupplierOrderRuleService created.
-- [ ] ProcurementComplianceService created.
-- [ ] ProcurementGateService created.
-- [ ] ProcurementReportService created.
-- [ ] Price lookup implemented.
-- [ ] Missing price creates warning/needs_review.
-- [ ] Budget availability check implemented.
-- [ ] Budget overrun detection implemented.
-- [ ] Approval threshold detection implemented.
-- [ ] Supplier minimum rule implemented.
-- [ ] Supplier maximum rule implemented.
-- [ ] Supplier order frequency rule implemented.
-- [ ] Exception workflow implemented.
-- [ ] Manager approval workflow implemented.
-- [ ] Procurement gate advisory/enforced modes implemented.
-- [ ] Gate does not auto-approve anything.
-- [ ] Gate does not create supplier orders automatically.
-- [ ] Gate does not send emails.
-- [ ] Gate does not select carrier.
+- [ ] Master data governance migrations created if missing.
+- [ ] ProductAlias model created.
+- [ ] SupplierAlias model created.
+- [ ] SupplierProductIdentity model created.
+- [ ] MasterDataChangeRequest model created.
+- [ ] MasterDataMergeProposal model created.
+- [ ] UnknownSkuResolution model created.
+- [ ] DataStewardAssignment model created.
+- [ ] Master data enums/constants created.
+- [ ] ProductIdentityService created.
+- [ ] SupplierIdentityService created.
+- [ ] SupplierProductIdentityService created.
+- [ ] UnknownSkuResolutionService created.
+- [ ] MasterDataDuplicateDetectionService created.
+- [ ] ProductMergeProposalService created.
+- [ ] SupplierMergeProposalService created.
+- [ ] MasterDataMergeExecutionService created.
+- [ ] MasterDataChangeRequestService created.
+- [ ] ProductLifecycleService created.
+- [ ] SupplierLifecycleService created.
+- [ ] DataStewardService created.
+- [ ] MasterDataQualityReportService created.
+- [ ] MasterDataGovernanceAuditService created.
+- [ ] MasterDataImportIntegrationService created.
+- [ ] MasterDataAiExtractionHelperService created.
+- [ ] Product alias creation implemented.
+- [ ] Supplier alias creation implemented.
+- [ ] Supplier-product identity mapping implemented.
+- [ ] Unknown SKU resolution implemented.
+- [ ] Unknown SKU cannot create product automatically without approval.
+- [ ] Duplicate product detection implemented.
+- [ ] Duplicate supplier detection implemented.
+- [ ] Merge proposal preview implemented.
+- [ ] Merge proposal approval implemented.
+- [ ] Merge execution requires approval.
+- [ ] Merge execution is safe and audited.
+- [ ] Products/suppliers with history are not hard-deleted.
+- [ ] Lifecycle status update requires reason.
+- [ ] Data steward assignment implemented.
+- [ ] Master data quality report implemented.
+- [ ] Commands created.
 - [ ] UI/routes/controllers created.
 - [ ] Policies/FormRequests created.
-- [ ] Commands created.
-- [ ] Reports/export created.
 - [ ] Audit events written.
 - [ ] Tests created.
 - [ ] Boundary test confirms no AI/external/email/carrier calls.
-- [ ] Boundary test confirms no automatic approvals.
-- [ ] Boundary test confirms no business mutation except procurement records/audit/export.
+- [ ] Boundary test confirms no automatic merge/create.
+- [ ] Boundary test confirms no hard delete with history.
 - [ ] No DTO test updated.
-- [ ] docs/procurement/* created.
+- [ ] docs/master-data/* created.
+- [ ] docs/import-export-adapters.md updated.
+- [ ] docs/email-ai-boundary.md updated.
+- [ ] docs/supplier-confirmation-workflow.md updated.
 - [ ] docs/workflow-map.md updated.
 - [ ] docs/status-machines.md updated.
 - [ ] docs/audit-and-security.md updated.
@@ -126,8 +121,9 @@ Commit Message: Commit with "Add procurement rules and budget controls".
 - [ ] docs/implementation-roadmap.md updated.
 - [ ] README.md updated.
 - [ ] php artisan migrate:fresh --seed passed or blocker documented.
-- [ ] php artisan supply:procurement-rules-audit passed or blocker documented.
-- [ ] php artisan supply:budget-status passed or blocker documented.
+- [ ] php artisan supply:master-data-quality-audit passed or blocker documented.
+- [ ] php artisan supply:detect-master-data-duplicates passed or blocker documented.
+- [ ] php artisan supply:unknown-sku-report passed or blocker documented.
 - [ ] ./scripts/check-no-dto.sh passed.
 - [ ] ./scripts/check-no-secrets.sh passed.
 - [ ] ./scripts/check-project-docs.sh passed.

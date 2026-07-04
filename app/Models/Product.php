@@ -26,6 +26,10 @@ class Product extends Model
         'brand',
         'unit',
         'is_active',
+        'lifecycle_status',
+        'lifecycle_reason',
+        'replaced_by_product_id',
+        'merged_into_product_id',
     ];
 
     protected function casts(): array
@@ -43,6 +47,31 @@ class Product extends Model
     public function supplierProductRules(): HasMany
     {
         return $this->hasMany(SupplierProductRule::class);
+    }
+
+    public function aliases(): HasMany
+    {
+        return $this->hasMany(ProductAlias::class);
+    }
+
+    public function supplierProductIdentities(): HasMany
+    {
+        return $this->hasMany(SupplierProductIdentity::class);
+    }
+
+    public function dataStewardAssignments(): HasMany
+    {
+        return $this->hasMany(DataStewardAssignment::class);
+    }
+
+    public function replacedByProduct(): BelongsTo
+    {
+        return $this->belongsTo(Product::class, 'replaced_by_product_id');
+    }
+
+    public function mergedIntoProduct(): BelongsTo
+    {
+        return $this->belongsTo(Product::class, 'merged_into_product_id');
     }
 
     public function stockSnapshots(): HasMany

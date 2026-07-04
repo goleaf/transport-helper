@@ -113,3 +113,11 @@ External AI is disabled by default.
 When external AI is approved, input must pass through the redaction layer before any provider boundary.
 
 AI remains extraction and suggestion only. It cannot mutate supplier orders, confirmations, carrier selection, logistics or receiving.
+
+## Master Data Boundary
+
+AI extracted supplier names and SKUs may be passed to master data helper services for validation and unresolved tracking.
+
+AI extraction can create an unresolved unknown SKU record for review, but it cannot approve an alias, approve a supplier-product mapping, create a product or merge records.
+
+All accepted master data changes still require Laravel services, reason fields, permissions and audit logs.

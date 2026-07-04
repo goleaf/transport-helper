@@ -70,3 +70,13 @@ Carrier and transport price are not selected in this workflow.
 ## Audit
 
 Every application and mismatch is audited.
+
+## Master Data Matching
+
+Supplier confirmation item matching may use the master data identity services where available:
+
+- `ProductIdentityService` for exact SKU, manufacturer SKU, approved alias and supplier SKU mapping;
+- `SupplierProductIdentityService` for approved supplier-specific SKU identity;
+- `UnknownSkuResolutionService` for confirmation items that cannot be matched safely.
+
+Unknown SKUs from confirmations require human review. The confirmation workflow must not create products, approve aliases or update supplier-product mappings automatically.

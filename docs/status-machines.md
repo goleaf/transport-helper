@@ -294,3 +294,78 @@ Transitions:
 * active -> closed after period completion;
 * draft, active or closed -> archived when superseded;
 * closed and archived budgets are not active for new availability checks.
+
+## ProductLifecycle
+
+* draft
+* active
+* blocked
+* discontinued
+* replaced
+* merged
+* archived
+
+Transitions:
+
+* draft -> active after product master review;
+* active -> blocked, discontinued or replaced with reason;
+* any non-archived status -> merged only through approved merge execution;
+* any inactive terminal status -> archived after review.
+
+## SupplierLifecycle
+
+* draft
+* active
+* blocked
+* inactive
+* merged
+* archived
+
+Transitions:
+
+* draft -> active after supplier master review;
+* active -> blocked or inactive with reason;
+* any non-archived status -> merged only through approved merge execution;
+* inactive or merged -> archived after review.
+
+## MasterDataAlias
+
+* pending
+* active
+* inactive
+* rejected
+* archived
+
+Pending aliases are not final identity matches. Active aliases can resolve identity. Rejected and archived aliases are terminal for matching.
+
+## MasterDataChangeRequest
+
+* draft
+* pending_approval
+* approved
+* rejected
+* applied
+* cancelled
+
+Only approved requests can be applied. Rejected, applied and cancelled requests are terminal.
+
+## MasterDataMergeProposal
+
+* draft
+* pending_approval
+* approved
+* rejected
+* executed
+* cancelled
+
+Execution requires approved status. Executed proposals are terminal and must preserve source history.
+
+## UnknownSkuResolution
+
+* unresolved
+* mapped
+* change_requested
+* ignored
+* rejected
+
+Unresolved SKUs require review. Mapped, change requested, ignored and rejected statuses must include reason/audit context.

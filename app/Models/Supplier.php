@@ -27,6 +27,9 @@ class Supplier extends Model
         'default_currency',
         'default_lead_time_days',
         'is_active',
+        'lifecycle_status',
+        'lifecycle_reason',
+        'merged_into_supplier_id',
         'notes',
     ];
 
@@ -52,6 +55,26 @@ class Supplier extends Model
     public function productRules(): HasMany
     {
         return $this->hasMany(SupplierProductRule::class);
+    }
+
+    public function aliases(): HasMany
+    {
+        return $this->hasMany(SupplierAlias::class);
+    }
+
+    public function supplierProductIdentities(): HasMany
+    {
+        return $this->hasMany(SupplierProductIdentity::class);
+    }
+
+    public function dataStewardAssignments(): HasMany
+    {
+        return $this->hasMany(DataStewardAssignment::class);
+    }
+
+    public function mergedIntoSupplier(): BelongsTo
+    {
+        return $this->belongsTo(Supplier::class, 'merged_into_supplier_id');
     }
 
     public function inboundOrders(): HasMany

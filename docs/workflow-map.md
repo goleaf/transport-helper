@@ -287,3 +287,17 @@ System:
 * runs procurement gates before proposal approval, supplier-order conversion and supplier email actions;
 * exports procurement reports to private files;
 * does not approve proposals, create supplier orders, approve/send email, select carriers, mutate logistics, call AI or call external APIs automatically.
+
+## 20. Supplier And Product Master Data Governance
+
+System:
+
+* resolves product identity by exact product id, SKU, manufacturer SKU, active alias, supplier SKU rule or active supplier-product mapping;
+* resolves supplier identity by exact supplier id, code, contact email, active alias, normalized name or unique contact domain;
+* records unknown SKUs from imports, AI extraction, form autofill and supplier confirmations for human review;
+* detects duplicate products, duplicate suppliers and supplier SKU conflicts as suggestions only;
+* creates merge proposals with impact preview and approval;
+* executes approved merges safely by updating supported references, creating aliases and marking source records merged or inactive;
+* manages lifecycle statuses, change requests and data steward assignments;
+* exports master data quality reports privately;
+* does not auto-merge, auto-create products from unknown SKUs, hard-delete records with history, call AI, send email or call external APIs.

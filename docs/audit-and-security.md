@@ -339,3 +339,34 @@ Task 19 writes audit logs for:
 * `procurement_rules_audit_run`.
 
 Procurement metadata stores model ids, amounts, currencies, warning codes and decision reasons. It must not store secrets, credentials, full email bodies or external provider payloads.
+
+## Master Data Audit Events
+
+Task 20 writes audit logs for:
+
+* `product_alias_created`;
+* `product_alias_approved`;
+* `product_alias_rejected`;
+* `supplier_alias_created`;
+* `supplier_alias_approved`;
+* `supplier_alias_rejected`;
+* `supplier_product_identity_created`;
+* `supplier_product_identity_approved`;
+* `unknown_sku_recorded`;
+* `unknown_sku_resolved`;
+* `unknown_sku_ignored`;
+* `master_data_change_request_created`;
+* `master_data_change_request_approved`;
+* `master_data_change_request_rejected`;
+* `master_data_change_request_applied`;
+* `master_data_merge_proposal_created`;
+* `master_data_merge_proposal_approved`;
+* `master_data_merge_proposal_rejected`;
+* `master_data_merge_executed`;
+* `product_lifecycle_changed`;
+* `supplier_lifecycle_changed`;
+* `data_steward_assigned`;
+* `master_data_quality_report_exported`;
+* `master_data_quality_audit_run`.
+
+Master data audit metadata stores model ids, statuses, reasons, warning counts and export metadata. It must not store secrets, credentials, full email bodies or external provider payloads.

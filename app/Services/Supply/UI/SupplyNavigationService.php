@@ -67,6 +67,7 @@ class SupplyNavigationService
                 'items' => [
                     ['label' => 'Products', 'route' => 'supply.products.index', 'active' => 'supply.products.*', 'description' => 'Product master data.'],
                     ['label' => 'Suppliers', 'route' => 'supply.suppliers.index', 'active' => 'supply.suppliers.*', 'description' => 'Supplier records and order contacts.'],
+                    ['label' => 'Master Data', 'route' => 'supply.master-data.dashboard', 'active' => 'supply.master-data.*', 'description' => 'Aliases, SKU mapping, duplicates and data stewardship.'],
                     ['label' => 'Stock', 'route' => 'supply.stock.index', 'active' => 'supply.stock.*', 'description' => 'Stock snapshots.'],
                     ['label' => 'Sales History', 'route' => 'supply.sales-history.index', 'active' => 'supply.sales-history.*', 'description' => 'Sales history inputs.'],
                     ['label' => 'Inbound Orders', 'route' => 'supply.inbound-orders.index', 'active' => 'supply.inbound-orders.*', 'description' => 'Inbound supply.'],
